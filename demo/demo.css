@@ -1,0 +1,62 @@
+/* Styles communs des pages de démo. Aucune image de fond ici : le bookmarklet
+   RGAA 1 détecte les images CSS, seuls les cas de test doivent en avoir. */
+:root {
+  --text: #1a1a1a;
+  --muted: #555;
+  --border: #c8c8c8;
+  --bg: #fff;
+  --card: #f7f7f7;
+  --link: #005a9c;
+  --ok: #1b6e35;
+  --ko: #b00020;
+  --check: #8a4b00;
+  --na: #555;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; font: 16px/1.5 system-ui, sans-serif; color: var(--text); background: var(--bg); }
+.page { max-width: 60rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+a { color: var(--link); }
+h1 { margin: 0 0 .5rem; font-size: 1.8rem; }
+h2 { margin: 2.5rem 0 .25rem; font-size: 1.35rem; border-bottom: 2px solid var(--link); padding-bottom: .25rem; }
+h2 + p { margin-top: .25rem; color: var(--muted); }
+code { font-size: .9em; background: #eee; padding: 0 .2em; border-radius: 3px; }
+.intro { background: #eef5fb; border: 1px solid #b7d3ea; border-radius: 6px; padding: .75rem 1rem; }
+.intro p { margin: .4rem 0; }
+.launch { display: inline-block; padding: .4rem .9rem; border: 2px solid var(--link); border-radius: 4px; font-weight: 700; text-decoration: none; }
+.launch:hover, .launch:focus { background: var(--link); color: #fff; }
+.nav { margin: 0 0 1rem; font-size: .95rem; }
+.nav a { margin-right: .75rem; }
+
+/* Une carte par cas de test. */
+.cases { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1rem; margin-top: 1rem; }
+.case { border: 1px solid var(--border); border-radius: 6px; background: var(--card); padding: .75rem; display: flex; flex-direction: column; gap: .5rem; }
+.case h3 { margin: 0; font-size: 1rem; }
+.case .demo { background: var(--bg); border: 1px dashed var(--border); border-radius: 4px; padding: .75rem; min-height: 3rem; }
+.case .attendu { margin: 0; font-size: .875rem; color: var(--muted); }
+.case .attendu strong { color: var(--text); }
+.case.wide { grid-column: 1 / -1; }
+
+/* Badge du résultat attendu (texte + couleur, jamais la couleur seule). */
+.badge { display: inline-block; font-size: .75rem; font-weight: 700; padding: .05rem .45rem; border-radius: 3px; color: #fff; margin-right: .35rem; vertical-align: .1em; }
+.badge--ok { background: var(--ok); }
+.badge--ko { background: var(--ko); }
+.badge--check { background: var(--check); }
+.badge--na { background: var(--na); }
+
+/* Formulaires */
+.demo label { display: block; font-weight: 600; margin-bottom: .2rem; }
+.demo label.inline { display: inline; font-weight: normal; margin: 0 .75rem 0 .2rem; }
+.demo input:not([type="radio"]):not([type="checkbox"]):not([type="image"]), .demo select, .demo textarea { font: inherit; padding: .3rem .4rem; width: 100%; max-width: 16rem; border: 1px solid #767676; border-radius: 3px; }
+.demo button { font: inherit; padding: .3rem .8rem; }
+.demo fieldset { border: 1px solid var(--border); margin: 0; }
+.editable { border: 1px solid #767676; border-radius: 3px; padding: .3rem .4rem; min-height: 2rem; background: #fff; }
+.aria-check { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; }
+.aria-check::before { content: ""; width: 1rem; height: 1rem; border: 2px solid #333; border-radius: 2px; }
+.aria-check[aria-checked="true"]::before { background: #333; }
+.req { color: var(--ko); }
+.error-msg { color: var(--ko); font-size: .875rem; margin: .2rem 0 0; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Cadres */
+.demo iframe { width: 100%; height: 90px; border: 1px solid #999; background: #fff; }

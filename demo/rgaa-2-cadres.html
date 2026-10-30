@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 2 – Cadres</title>
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 2 – Cadres</h1>
+<div class="intro">
+  <p>Cette page rassemble des cadres (<code>iframe</code>) conformes et non conformes à la
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#2">thématique 2 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 2 – Cadres</a>
+  (ou utilisez votre favori). Le panneau liste tous les cadres ; cliquez sur une ligne pour atteindre le cadre.
+  <kbd>Échap</kbd> ferme le panneau.</p>
+</div>
+
+<h2>2.1 Chaque cadre a-t-il un titre ?</h2>
+<p>Seul l’attribut <code>title</code> est pris en compte par le RGAA pour titrer un cadre.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>iframe avec title</h3>
+    <div class="demo"><iframe title="Horaires d’ouverture de la médiathèque" srcdoc="<p style='font:14px system-ui;margin:6px'>Du mardi au samedi, de 10 h à 18 h.</p>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Horaires d’ouverture de la médiathèque » (title), contenu srcdoc.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>iframe sans title</h3>
+    <div class="demo"><iframe srcdoc="<p style='font:14px system-ui;margin:6px'>Météo : 18 °C, ensoleillé.</p>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans titre », compté dans « sans titre (2.1) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-label sans title</h3>
+    <div class="demo"><iframe aria-label="Plan d’accès" srcdoc="<p style='font:14px system-ui;margin:6px'>Plan d’accès (contenu fictif).</p>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans titre », avec la mention « aria-label « Plan d’accès » (non pris en compte par le RGAA) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Cadre d’un autre domaine</h3>
+    <div class="demo"><iframe title="Page d’exemple de l’IANA" src="https://example.com/"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ titre présent, domaine « example.com ». Le contenu d’un autre domaine n’est pas inspecté.</p>
+  </div>
+</div>
+
+<h2>2.2 Le titre de chaque cadre est-il pertinent ?</h2>
+<p>Le bookmarklet signale les titres génériques et les titres identiques ; la pertinence reste à juger.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Titre générique</h3>
+    <div class="demo"><iframe title="iframe" srcdoc="<p style='font:14px system-ui;margin:6px'>Formulaire de don.</p>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> ! « titre générique (2.2) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Deux cadres au même titre (1/2)</h3>
+    <div class="demo"><iframe title="Vidéo" srcdoc="<p style='font:14px system-ui;margin:6px'>Vidéo : présentation du projet.</p>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> ! « titre identique à un autre cadre (2.2) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Deux cadres au même titre (2/2)</h3>
+    <div class="demo"><iframe title="Vidéo" srcdoc="<p style='font:14px system-ui;margin:6px'>Vidéo : témoignages des bénévoles.</p>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> ! « titre identique à un autre cadre (2.2) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Titre sans rapport avec le contenu</h3>
+    <div class="demo"><iframe title="Carte interactive" srcdoc="<p style='font:14px system-ui;margin:6px'>Inscription à la lettre d’information.</p>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ titre présent : le bookmarklet ne peut pas juger le sens, comparez le titre au contenu.</p>
+  </div>
+</div>
+
+<h2>Cadres non restitués (non concernés)</h2>
+<p>Un cadre masqué ou en <code>aria-hidden="true"</code> n’est pas concerné par le critère 2.1.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>iframe en display:none</h3>
+    <div class="demo"><iframe style="display:none" srcdoc="<p>Suivi statistique</p>"></iframe><span class="attendu">(cadre invisible ici)</span></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ « Sans titre (non concerné) · masqué (display:none) ». Un clic sur la ligne l’affiche 3 secondes.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>iframe en aria-hidden="true"</h3>
+    <div class="demo"><iframe aria-hidden="true" tabindex="-1" srcdoc="<p style='font:14px system-ui;margin:6px'>Bandeau décoratif animé.</p>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ « masqué (aria-hidden) ».</p>
+  </div>
+</div>
+
+<h2>Cas particuliers : cadres imbriqués et Shadow DOM</h2>
+<div class="cases">
+  <div class="case wide">
+    <h3><span class="badge badge--check">Mixte</span>Cadre contenant deux cadres</h3>
+    <div class="demo"><iframe title="Tableau de bord" style="height:170px" srcdoc="<p style='font:14px system-ui;margin:6px'>Tableau de bord</p><iframe title='Graphique des dons' style='height:40px' srcdoc='<p>Graphique</p>'></iframe> <iframe style='height:40px' srcdoc='<p>Compteur</p>'></iframe>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Tableau de bord », puis, décalés « imbriqué niveau 1 » :
+    ✓ « Graphique des dons » et × un cadre sans titre.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>iframe dans un Shadow DOM</h3>
+    <div class="demo"><div id="hote-shadow"></div></div>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans titre » (cadre créé dans un composant).</p>
+  </div>
+</div>
+</div>
+<script>
+  document.getElementById('hote-shadow').attachShadow({ mode: 'open' }).innerHTML =
+    '<iframe style="width:100%;height:60px;border:1px solid #999" srcdoc="<p style=\'font:14px system-ui;margin:6px\'>Widget de chat</p>"></iframe>';
+</script>
+</body>
+</html>

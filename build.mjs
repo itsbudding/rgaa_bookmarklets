@@ -1,8 +1,10 @@
 // Construit chaque bookmarklet de src/bookmarklets/ en un fichier autonome
 // dist/<nom>.js (URL javascript: prête à coller dans un favori) et une page
 // dist/index.html où l'on peut glisser les liens dans la barre de favoris.
+// Copie aussi les pages de démo (demo/ → dist/demo/), où {{BOOKMARKLET}} est
+// remplacé par l'URL du bookmarklet de même nom.
 import { build } from 'esbuild';
-import { readdirSync, mkdirSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, mkdirSync, writeFileSync, cpSync } from 'node:fs';
 
 const SRC = 'src/bookmarklets';
 const OUT = 'dist';
@@ -41,7 +43,7 @@ writeFileSync(
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bookmarklets RGAA</title>
 <style>body{font:16px/1.5 system-ui,sans-serif;max-width:40rem;margin:2rem auto;padding:0 1rem;color:#1a1a1a}
-a{display:inline-block;padding:.4rem .8rem;margin:.25rem 0;border:2px solid #005a9c;border-radius:4px;color:#005a9c;font-weight:700;text-decoration:none}</style>
+ul:not(.demos) a{display:inline-block;padding:.4rem .8rem;margin:.25rem 0;border:2px solid #005a9c;border-radius:4px;color:#005a9c;font-weight:700;text-decoration:none}</style>
 </head>
 <body>
 <h1>Bookmarklets RGAA</h1>
@@ -49,7 +51,22 @@ a{display:inline-block;padding:.4rem .8rem;margin:.25rem 0;border:2px solid #005
 <ul>
 ${links.map((l) => `<li><a href="${esc(l.url)}">${esc(label(l.name))}</a></li>`).join('\n')}
 </ul>
+<h2>Pages de démo</h2>
+<p>Pour essayer chaque bookmarklet sur des cas conformes et non conformes :</p>
+<ul class="demos">
+${links.map((l) => `<li><a href="demo/${l.name}.html">Démo ${esc(label(l.name))}</a></li>`).join('\n')}
+</ul>
 </body>
 </html>
 `,
 );
+
+// Pages de démo.
+const DEMO = 'demo';
+cpSync(DEMO, `${OUT}/demo`, { recursive: true, filter: (f) => !f.endsWith('.html') });
+for (const file of readdirSync(DEMO).filter((f) => f.endsWith('.html'))) {
+  const link = links.find((l) => `${l.name}.html` === file);
+  const html = readFileSync(`${DEMO}/${file}`, 'utf8').replaceAll('{{BOOKMARKLET}}', () => (link ? esc(link.url) : '#'));
+  writeFileSync(`${OUT}/demo/${file}`, html);
+}
+console.log(`demo: ${readdirSync(DEMO).filter((f) => f.endsWith('.html')).length} pages`);
