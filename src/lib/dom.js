@@ -45,3 +45,16 @@ export const value = (r) => {
   const body = items.length > 1 ? list(items.map(one)) : one(items[0]);
   return `${body}${r.s ? ' ' + src(r.s) : ''}`;
 };
+
+/**
+ * Constat court avec icône de statut, en couleur : « ⚠ Placeholder seul ».
+ * @param {'error'|'warning'|'ok'|'hidden'} type
+ */
+export const flag = (type, text) =>
+  `<span class="flag flag--${type}">${icon(type)}<span>${esc(text)}</span></span>`;
+
+/** Liste de constats [type, texte] sous les lignes du panneau (rien si vide). */
+export const checks = (items) => {
+  const list = items.filter(Boolean);
+  return list.length ? `<ul class="checks">${list.map(([t, txt]) => `<li>${flag(t, txt)}</li>`).join('')}</ul>` : '';
+};

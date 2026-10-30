@@ -1,13 +1,27 @@
 <!doctype html><html lang="fr"><head><meta charset="utf-8"><title>Test</title>
-<style>body *{font-size:30px!important;color:red!important} .bg{width:50px;height:50px;background-image:url(data:image/gif;base64,R0lGODlhAQABAAAAACw=)}</style></head>
+<style>body *{font-size:30px!important;color:red!important} .bg{width:50px;height:50px;background-image:url(data:image/gif;base64,R0lGODlhAQABAAAAACw=)} .grad{width:50px;height:50px;background:linear-gradient(red,blue)}</style></head>
 <body>
 <img id="i1" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" width="80" height="80" alt="<b>xss</b> chat">
-<img id="i2" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" width="80" height="80" alt="">
+<img id="i2" src="/img/x.png" width="80" height="80" alt="">
+<img id="i3" src="/img/photo-equipe.jpg" width="80" height="80" alt="photo-equipe.jpg">
+<img id="i4" src="/img/deco.png" width="80" height="80" alt="" title="Déco">
+<img id="i5" src="/img/none.png" width="80" height="80">
 <a href="#" id="l1"><svg id="s1" width="40" height="40"><title>Logo</title><rect width="40" height="40"/></svg> Accueil</a>
-<div class="bg" id="bg1"></div>
-<form><label for="f1">Nom</label><input id="f1" autocomplete="name" style="outline:1px solid green">
-<span id="h1">Aide</span><input id="f2" aria-describedby="h1">
-<fieldset id="fs"><legend>Genre</legend><input type="radio" id="r1"></fieldset>
-<button id="b1">Envoyer</button></form>
-<iframe title="Vidéo" src="about:blank"></iframe><iframe src="about:blank" style="display:none"></iframe>
+<svg id="s2" role="img" aria-label="Graphique" width="40" height="40"><rect width="40" height="40"/></svg>
+<canvas id="c1" width="40" height="40">Courbe des ventes</canvas>
+<figure id="fig"><img id="i6" src="/img/a.png" width="40" height="40" alt="Carte"><figcaption>Carte de France</figcaption></figure>
+<div class="bg" id="bg1"></div><div class="grad" id="g1"></div>
+<form>
+<label for="f1">Nom</label><input id="f1" autocomplete="name">
+<span id="h1">Aide</span><input id="f2" aria-describedby="h1" placeholder="Votre e-mail">
+<fieldset id="fs"><legend>Genre</legend><input type="radio" id="r1" name="g"><input type="radio" name="g"></fieldset>
+<input type="checkbox" id="cb1" name="opt"><input type="checkbox" name="opt">
+<label for="f3">Code postal</label><input id="f3" autocomplete="code-postal" aria-label="CP" required>
+<select id="sel"><optgroup label="Europe"><option>FR</option></optgroup><optgroup><option>US</option></optgroup></select>
+<div role="checkbox" id="ac1" tabindex="0" aria-checked="false">Accepter</div>
+<button id="b1" aria-label="Valider le formulaire">Envoyer</button></form>
+<iframe id="if1" title="Vidéo" src="about:blank"></iframe><iframe src="about:blank" style="display:none"></iframe>
+<iframe id="if3" title="Vidéo" srcdoc="<p>x</p><iframe src='about:blank'></iframe>"></iframe>
+<div id="host"></div>
+<script>document.getElementById('host').attachShadow({mode:'open'}).innerHTML='<img id="sh" src="/s.png" width="40" height="40">';</script>
 </body></html>

@@ -73,6 +73,13 @@ export const BASE_CSS = `
 .icon--warning{background:var(--rgaa-warning)}
 .icon--ok{background:var(--rgaa-ok)}
 .icon--hidden{background:var(--rgaa-muted);border-radius:2px}
+.flag{display:inline-flex;align-items:baseline;gap:5px}
+.flag .icon{align-self:center}
+.flag--error{color:var(--rgaa-error)}
+.flag--warning{color:var(--rgaa-warning)}
+.flag--ok{color:var(--rgaa-ok)}
+.checks{list-style:none;margin:8px 0 0;padding:6px 0 0;border-top:1px solid var(--rgaa-sep)}
+.checks li{margin:0 0 3px}
 .legend{display:flex;flex-wrap:wrap;gap:12px;margin:0;padding:0;list-style:none}
 .legend li{display:inline-flex;align-items:center;gap:4px}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}

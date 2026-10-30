@@ -3,11 +3,15 @@
 Collection de bookmarklets pour aider à vérifier les critères du
 [RGAA](https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/) sur une page web.
 
-| Bookmarklet | Thématique | Type de panneau |
-| --- | --- | --- |
-| `rgaa-1-images` | 1. Images | flottant (survol / focus) |
-| `rgaa-2-cadres` | 2. Cadres | fixe (liste) |
-| `rgaa-11-formulaires` | 11. Formulaires | flottant (survol / focus) |
+| Bookmarklet | Thématique | Type de panneau | Ce qu'il vérifie |
+| --- | --- | --- | --- |
+| `rgaa-1-images` | 1. Images | flottant (survol / focus) | nom accessible, images décoratives (1.2), `role="img"` des SVG, contenu de repli d'`object`/`canvas`, alternative suspecte (1.3), description (1.6), légende `figure` (1.9), images CSS, nom du lien. Maj+I estompe les images pour repérer les images texte (1.8). |
+| `rgaa-2-cadres` | 2. Cadres | fixe (liste) | `iframe` et `frame`, titre (2.1), titre générique ou en double (2.2), domaine, cadres masqués non concernés, cadres imbriqués. |
+| `rgaa-11-formulaires` | 11. Formulaires | flottant (survol / focus) | champs natifs, ARIA et `contenteditable`, nom accessible, placeholder seul, intitulé visible contenu dans le nom (11.2.5, 11.9.2), regroupement (11.5), `optgroup` (11.8), obligatoire et invalide (11.10), validité d'`autocomplete` (11.13). |
+
+Les bookmarklets à panneau flottant affichent en tête un compteur pour toute
+la page. Tous parcourent aussi les Shadow DOM ouverts et les iframes de même
+origine.
 
 ## Installation
 
@@ -22,8 +26,10 @@ Un second clic sur le bookmarklet (ou la touche Échap) le désactive.
 src/
   lib/                  base commune
     theme.js            tokens (police, tailles, couleurs) + CSS de base
-    dom.js              rendu : esc(), icon(), row(), value(), list(), src()
-    a11y.js             helpers : idrefs(), textOf(), isHidden()
+    dom.js              rendu : esc(), icon(), row(), value(), list(), src(),
+                        flag(), checks()
+    a11y.js             helpers : idrefs(), textOf(), norm(), isNotExposed(),
+                        deepAll() (Shadow DOM + iframes), allDocuments()
     panel.js            hôte Shadow DOM + activation/désactivation
     highlight.js        contours sur la page, styles d'origine restaurés
     floating-panel.js   TEMPLATE panneau flottant  → inspector()

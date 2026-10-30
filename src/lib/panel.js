@@ -42,6 +42,3 @@ export const mount = (id, css = '') => {
   (document.body || document.documentElement).appendChild(host);
   return { host, root, panel: root.querySelector('.panel') };
 };
-
-/** Vrai si l'élément appartient à l'un de nos panneaux. */
-export const isOwn = (el) => !!el?.closest?.('[data-rgaa-bookmarklet]');
