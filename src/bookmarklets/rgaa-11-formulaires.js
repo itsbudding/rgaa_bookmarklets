@@ -6,6 +6,7 @@
 import { inspector } from '../lib/floating-panel.js';
 import { row, value, icon, esc, src } from '../lib/dom.js';
 import { idrefs, textOf } from '../lib/a11y.js';
+import { isOwn } from '../lib/panel.js';
 
 const FIELD = 'input,select,textarea,button,fieldset,[role="group"],[role="radiogroup"]';
 
@@ -44,8 +45,24 @@ const resolveField = (target) => {
   return t.matches(FIELD) ? { field: t, linked: null } : null;
 };
 
+/** Compteur de page : champs de saisie et champs sans nom accessible. */
+const summary = () => {
+  const fields = [...document.querySelectorAll('input:not([type="hidden"]),select,textarea')].filter(
+    (e) => !isOwn(e) && !['submit', 'button', 'reset', 'image'].includes(e.type),
+  );
+  const noName = fields.filter((e) => {
+    const n = accName(e);
+    return !n.v || !String(Array.isArray(n.v) ? n.v.join('') : n.v).trim();
+  }).length;
+  return (
+    `<strong>Page :</strong> ${fields.length} champ${fields.length > 1 ? 's' : ''} · ` +
+    `${noName ? icon('error') + ' ' : ''}${noName} sans étiquette`
+  );
+};
+
 inspector({
   id: 'rgaa-11-formulaires',
+  summary,
   inspect(target) {
     const r = resolveField(target);
     if (!r) return null;

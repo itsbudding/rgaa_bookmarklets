@@ -75,6 +75,7 @@ import { row, value } from '../lib/dom.js';
 
 inspector({
   id: 'rgaa-x-exemple',
+  summary: () => '<strong>Page :</strong> 12 liens', // compteur optionnel, en tête
   inspect(target) {                 // élément survolé ou focalisé
     const el = target.closest('a');
     if (!el) return null;           // null : panneau masqué
@@ -86,7 +87,8 @@ inspector({
 });
 ```
 
-Le template gère : suivi de la souris, inspection au focus clavier (le panneau
+`summary()` (optionnel) affiche un compteur de page en tête du panneau,
+recalculé au plus une fois par seconde. Le template gère aussi : suivi de la souris, inspection au focus clavier (le panneau
 se place sous l'élément), repositionnement dans la fenêtre, masquage au
 défilement, contours sur la page, arrêt par Échap ou second clic.
 

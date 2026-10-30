@@ -4,7 +4,8 @@
  * un lien, le nom accessible du lien.
  */
 import { inspector } from '../lib/floating-panel.js';
-import { row, value, src } from '../lib/dom.js';
+import { row, value, src, icon } from '../lib/dom.js';
+import { isOwn } from '../lib/panel.js';
 import { idrefs, textOf } from '../lib/a11y.js';
 
 const IMG = 'img,area,input[type="image"],svg,object[type^="image/"],embed[type^="image/"],canvas,[role="img"]';
@@ -77,8 +78,20 @@ const linkName = (l) => {
   return null;
 };
 
+/** Compteur de page : images balisées, sans alternative, à alt vide. */
+const summary = () => {
+  const imgs = [...document.querySelectorAll(IMG)].filter((e) => !isOwn(e));
+  const missing = imgs.filter((e) => !imgName(e, false) && e.getAttribute('alt') !== '').length;
+  const empty = imgs.filter((e) => e.getAttribute('alt') === '').length;
+  return (
+    `<strong>Page :</strong> ${imgs.length} image${imgs.length > 1 ? 's' : ''} · ` +
+    `${missing ? icon('error') + ' ' : ''}${missing} sans alternative · ${empty} à alt vide`
+  );
+};
+
 inspector({
   id: 'rgaa-1-images',
+  summary,
   inspect(target) {
     let t = target.closest(IMG);
     let css = null;

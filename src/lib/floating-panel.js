@@ -13,6 +13,9 @@
  *   inspector({
  *     id: 'rgaa-1-images',
  *     css: '',                       // CSS spécifique (optionnel)
+ *     summary() {                    // compteur de page (optionnel), affiché
+ *       return '3 images, 1 sans alternative'; // en tête du panneau
+ *     },
  *     inspect(target) {              // élément sous la souris / focus
  *       return null;                 // null : rien à afficher
  *       return { html, highlight: [[el, 'primary'], [lbl, 'secondary']] };
@@ -24,12 +27,13 @@ import { createHighlighter } from './highlight.js';
 
 const GAP = 15;
 
-export const inspector = ({ id, css = '', inspect, minWidth = 320, maxWidth = 520 }) => {
+export const inspector = ({ id, css = '', inspect, summary, minWidth = 320, maxWidth = 520 }) => {
   if (toggleOff(id)) return;
 
   const { host, panel } = mount(
     id,
-    `.panel{pointer-events:none;min-width:${minWidth}px;max-width:min(${maxWidth}px,calc(100vw - 10px))}${css}`,
+    `.panel{pointer-events:none;min-width:${minWidth}px;max-width:min(${maxWidth}px,calc(100vw - 10px))}` +
+      `.summary{margin:-4px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--rgaa-sep);color:var(--rgaa-muted)}${css}`,
   );
   // Le panneau suit la souris : il n'est pas annoncé à chaque mouvement,
   // mais les lecteurs d'écran peuvent lire son contenu au focus clavier.
@@ -38,6 +42,23 @@ export const inspector = ({ id, css = '', inspect, minWidth = 320, maxWidth = 52
 
   const hl = createHighlighter();
   let last = null;
+
+  // Compteur de page : recalculé au plus une fois par seconde.
+  let sum = '';
+  let sumAt = 0;
+  const header = () => {
+    if (!summary) return '';
+    if (Date.now() - sumAt > 1000) {
+      try {
+        sum = summary();
+      } catch (err) {
+        console.error(`[${id}]`, err);
+        sum = '';
+      }
+      sumAt = Date.now();
+    }
+    return sum ? `<div class="summary small">${sum}</div>` : '';
+  };
 
   const hide = () => {
     panel.hidden = true;
@@ -75,7 +96,7 @@ export const inspector = ({ id, css = '', inspect, minWidth = 320, maxWidth = 52
         console.error(`[${id}]`, err);
       }
       if (!res) return hide();
-      panel.innerHTML = res.html;
+      panel.innerHTML = header() + res.html;
       hl.set(res.highlight);
       panel.hidden = false;
     }
