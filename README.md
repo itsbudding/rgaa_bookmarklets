@@ -17,7 +17,7 @@ intitulé reste à juger par l'auditeur.
 | **RGAA 3 – Couleurs** | 3. Couleurs | Contrastes des textes, composants et icônes + détail au survol (ou au focus) |
 | **RGAA 4 – Multimédia** | 4. Multimédia | Inventaire des médias, une pastille par critère + détail au survol ou épinglé |
 | **RGAA 5 – Tableaux** | 5. Tableaux | Liste des tableaux, type choisi par l'auditeur, une pastille par critère + en-têtes de chaque cellule au survol |
-| **RGAA 6 – Liens** | 6. Liens | Liste des liens et de leur intitulé, intitulés vagues jugés par l'auditeur avec leur contexte, une pastille par critère |
+| **RGAA 6 – Liens** | 6. Liens | Liste des liens et de leur intitulé, intitulés vagues à juger avec leur contexte, une pastille par critère |
 | **RGAA 11 – Formulaires** | 11. Formulaires | Liste des champs et boutons + détail au survol (ou au focus) |
 
 ## Installation
@@ -365,15 +365,12 @@ Ce qui est vérifié :
   `aria-labelledby` ou `title` remplace le contenu, le nom accessible doit
   contenir le texte visible du lien. Un écart est une erreur.
 
-**Contexte et choix de l'auditeur.** Le détail donne le contexte du lien au
+**Contexte.** Le détail donne le contexte du lien au
 sens du RGAA : la phrase et le paragraphe, l'item de liste (et l'item parent
 d'une liste imbriquée), la cellule de tableau et ses en-têtes, sinon le texte
 de l'élément parent, et le titre qui précède. Ces éléments sont entourés en
-orange. Un clic sur une ligne de la liste épingle le détail, avec le choix
-**Explicite seul / En contexte / Non conforme** : il remplace la supposition
-pour le 6.1 (le test 6.1.5 reste vérifié). Le compteur « à juger en
-contexte » baisse à chaque choix. Les choix sont gardés tant que le
-bookmarklet tourne (« Actualiser » compris) et perdus à l'arrêt.
+orange. Un clic sur une ligne de la liste épingle le détail à côté du lien.
+C'est à l'auditeur de juger si l'intitulé est explicite dans ce contexte.
 
 **Doublons.** Le détail liste les autres destinations d'un même intitulé, et
 les autres intitulés d'une même destination (filtre « Doublons »).
