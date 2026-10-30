@@ -1,0 +1,14 @@
+{
+  "name": "rgaa-bookmarklets",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bookmarklets d'aide à la vérification des critères RGAA",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node test/smoke.cjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}
