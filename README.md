@@ -1,6 +1,6 @@
 # Bookmarklets RGAA
 
-Six bookmarklets pour aider à auditer une page web selon le
+Sept bookmarklets pour aider à auditer une page web selon le
 [RGAA 4.1](https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/).
 Ils s'installent comme des favoris et fonctionnent sur n'importe quelle page,
 sans extension ni compte.
@@ -17,17 +17,19 @@ intitulé reste à juger par l'auditeur.
 | **RGAA 3 – Couleurs** | 3. Couleurs | Contrastes des textes, composants et icônes + détail au survol (ou au focus) |
 | **RGAA 4 – Multimédia** | 4. Multimédia | Inventaire des médias, une pastille par critère + détail au survol ou épinglé |
 | **RGAA 5 – Tableaux** | 5. Tableaux | Liste des tableaux, type choisi par l'auditeur, une pastille par critère + en-têtes de chaque cellule au survol |
+| **RGAA 6 – Liens** | 6. Liens | Liste des liens et de leur intitulé, intitulés vagues jugés par l'auditeur avec leur contexte, une pastille par critère |
 | **RGAA 11 – Formulaires** | 11. Formulaires | Liste des champs et boutons + détail au survol (ou au focus) |
 
 ## Installation
 
 1. Téléchargez le dépôt (bouton **Code › Download ZIP** sur GitHub) et décompressez-le.
 2. Ouvrez `dist/index.html` dans votre navigateur.
-3. Glissez chacun des six liens dans votre barre de favoris.
+3. Glissez chacun des sept liens dans votre barre de favoris.
 
 Autre méthode : créez un favori et collez comme adresse le contenu d'un des
 fichiers `dist/rgaa-1-images.js`, `dist/rgaa-2-cadres.js`, `dist/rgaa-3-couleurs.js`,
-`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js` ou `dist/rgaa-11-formulaires.js`.
+`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js`, `dist/rgaa-6-liens.js` ou
+`dist/rgaa-11-formulaires.js`.
 
 ### Pages de démo
 
@@ -42,7 +44,7 @@ bookmarklet sans l'installer.
 
 - **Lancer** : ouvrez la page à auditer, puis cliquez sur le favori.
 - **Arrêter** : cliquez une seconde fois sur le favori, ou appuyez sur **Échap**.
-- Les six bookmarklets sont indépendants et peuvent tourner en même temps.
+- Les sept bookmarklets sont indépendants et peuvent tourner en même temps.
 - Ils inspectent aussi le contenu des Shadow DOM ouverts et des iframes de
   même origine. Une iframe chargée après le lancement n'est prise en compte
   qu'en relançant le bookmarklet.
@@ -67,7 +69,7 @@ pointillé**.
 
 ### Deux panneaux : l'aperçu et le détail
 
-Les bookmarklets 1, 3, 4, 5 et 11 ouvrent deux panneaux :
+Les bookmarklets 1, 3, 4, 5, 6 et 11 ouvrent deux panneaux :
 
 - **le panneau liste**, en haut à droite : le compteur de la page et la liste
   des éléments concernés, avec un statut et un libellé court. Un clic sur une
@@ -332,6 +334,69 @@ Limites :
 - le type n'est qu'une supposition tant qu'il n'est pas confirmé ;
 - en-têtes probables en `td` et titre visible proche : simples indices ;
 - tableau trié, paginé ou modifié après le lancement : « Actualiser ».
+
+### RGAA 6 – Liens
+
+La liste donne chaque `a[href]`, `area[href]` et élément `role="link"`, avec
+son **intitulé** (nom accessible) tel qu'une aide technique le restitue hors
+contexte, sa **nature** (texte, image, composite, SVG, icône masquée…), la
+source de l'intitulé et une pastille par critère (`6.1 !`, `6.2 ×`), les
+erreurs en premier. Les liens masqués sont marqués non concernés, sauf un lien
+masqué par `aria-hidden` mais visible et focalisable, signalé « à vérifier ».
+
+L'intitulé est calculé comme le nom accessible : `aria-labelledby`, puis
+`aria-label`, puis le contenu (textes, `alt` des images, `title` ou
+`aria-label` des SVG, contenu CSS `::before` / `::after`, sans ce qui est
+masqué par `aria-hidden`), et enfin `title`. Pour un lien composite, le
+détail montre chaque morceau et sa source.
+
+Ce qui est vérifié :
+
+- **6.2** : lien sans intitulé, avec la cause probable (image sans `alt`,
+  image seule avec `alt=""`, SVG sans `title` ni `aria-label`, icône masquée
+  par `aria-hidden` sans autre texte, `aria-labelledby` vers un id
+  introuvable). Un intitulé donné par le seul `title` est signalé « à vérifier » ;
+- **6.1, intitulé explicite** : un intitulé générique (« lire la suite »,
+  « cliquez ici », « en savoir plus », « voir »…), très court, sans lettre ni
+  chiffre ou qui est une adresse web est **à juger en contexte**, de même
+  qu'un intitulé partagé par des liens vers des destinations différentes. Les
+  autres intitulés sont supposés explicites (✓, pertinence à juger) ;
+- **6.1, intitulé visible** (test 6.1.5) : quand `aria-label`,
+  `aria-labelledby` ou `title` remplace le contenu, le nom accessible doit
+  contenir le texte visible du lien. Un écart est une erreur.
+
+**Contexte et choix de l'auditeur.** Le détail donne le contexte du lien au
+sens du RGAA : la phrase et le paragraphe, l'item de liste (et l'item parent
+d'une liste imbriquée), la cellule de tableau et ses en-têtes, sinon le texte
+de l'élément parent, et le titre qui précède. Ces éléments sont entourés en
+orange. Un clic sur une ligne de la liste épingle le détail, avec le choix
+**Explicite seul / En contexte / Non conforme** : il remplace la supposition
+pour le 6.1 (le test 6.1.5 reste vérifié). Le compteur « à juger en
+contexte » baisse à chaque choix. Les choix sont gardés tant que le
+bookmarklet tourne (« Actualiser » compris) et perdus à l'arrêt.
+
+**Doublons.** Le détail liste les autres destinations d'un même intitulé, et
+les autres intitulés d'une même destination (filtre « Doublons »).
+
+**Autres constats**, signalés « à vérifier » sans verdict sur la
+thématique 6 : `title` qui ne reprend pas l'intitulé, lien qui ouvre une
+nouvelle fenêtre (`target`) sans le dire dans l'intitulé ou le `title`,
+`href="#"` ou `javascript:` (bouton déguisé probable, 7.1), ancre
+introuvable, lien vers un fichier (PDF, DOC…) sans format ni poids,
+`role="link"` sans `tabindex` (erreur, 7.3).
+
+**Outil** : **Intitulés** (Maj+N) affiche l'intitulé de chaque lien au-dessus
+de lui sur la page, en rouge s'il manque ou est en erreur, en brun s'il est à
+juger.
+
+Limites :
+
+- le calcul du nom accessible suit les cas courants, sans garantir le rendu
+  exact de chaque lecteur d'écran ;
+- le texte visible exclut le texte masqué visuellement (classe `sr-only`,
+  `clip`) ; une image texte n'est pas lue ;
+- un `div` ou un `span` cliquable sans rôle n'est pas détecté ;
+- les liens ajoutés après le lancement : « Actualiser ».
 
 ### RGAA 11 – Formulaires
 
