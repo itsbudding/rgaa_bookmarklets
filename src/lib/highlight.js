@@ -70,3 +70,22 @@ export const createHighlighter = () => {
 
   return { set, clear };
 };
+
+/**
+ * Exécute fn() pendant que le contour posé par les surligneurs sur el est
+ * retiré, pour lire le vrai contour de l'élément (indicateur de focus).
+ */
+export const withoutHighlight = (el, fn) => {
+  const s = STATE.get(el);
+  if (!s) return fn();
+  const st = el.style;
+  const cur = [st.getPropertyValue('outline'), st.getPropertyPriority('outline'), st.getPropertyValue('outline-offset'), st.getPropertyPriority('outline-offset')];
+  st.setProperty('outline', s.orig.o, s.orig.op);
+  st.setProperty('outline-offset', s.orig.f, s.orig.fp);
+  try {
+    return fn();
+  } finally {
+    st.setProperty('outline', cur[0], cur[1]);
+    st.setProperty('outline-offset', cur[2], cur[3]);
+  }
+};

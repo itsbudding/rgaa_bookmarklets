@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 3 – Couleurs</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<style>
+  .carte-transparente { opacity: .45; }
+  .bandeau { position: relative; padding: .75rem; }
+  .bandeau-fond { position: absolute; inset: 0; background: #1a3d6e; border-radius: 4px; }
+  .bandeau-texte { position: relative; margin: 0; color: #fff; font-weight: 600; }
+  .degrade { margin: 0; padding: .75rem; color: #fff; font-weight: 600; background: linear-gradient(90deg, #005a9c, #8cc2ee); border-radius: 4px; }
+  .sur-image { margin: 0; padding: 1.5rem .75rem; color: #fff; font-weight: 600; background: #333 url(img/photo-equipe.svg) center / cover; border-radius: 4px; }
+  .placeholder-pale::placeholder { color: #bbb; opacity: 1; }
+  .logo-site { font: 700 1.1rem Georgia, serif; color: #b8b8b8; letter-spacing: .05em; }
+  .case-perso { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; }
+  .case-perso::before { content: ""; width: 1rem; height: 1rem; border: 2px solid #333; border-radius: 2px; }
+  .case-perso[aria-checked="true"]::before { background: #333; }
+  .case-pale::before { border-color: #c8c8c8; }
+  .case-pale[aria-checked="true"]::before { background: #c8c8c8; }
+  .bouton-plat { border: 0; background: none; color: #005a9c; font-weight: 600; text-decoration: underline; cursor: pointer; }
+  .bouton-icone { border: 0; background: none; padding: .25rem; cursor: pointer; }
+  .focus-pale:focus { outline: 2px solid #e0e0e0; outline-offset: 2px; }
+  .focus-net:focus { outline: 3px solid #005a9c; outline-offset: 2px; }
+  .menu { display: flex; gap: 1rem; list-style: none; margin: 0; padding: 0; }
+  .menu a { color: #1a1a1a; text-decoration: none; }
+  .menu-couleur a[aria-current] { color: #c40000; }
+  .menu-souligne a[aria-current] { color: #c40000; text-decoration: underline; text-decoration-thickness: 3px; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 3 – Couleurs</h1>
+<div class="intro">
+  <p>Cette page rassemble des cas conformes et non conformes à la
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#3">thématique 3 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 3 – Couleurs</a>
+  (ou utilisez votre favori). Survolez les textes et les composants, ou parcourez la liste en haut à droite.
+  Le bouton « Niveaux de gris » (<kbd>Maj+G</kbd>) passe la page en gris, le bouton « Pipette » (<kbd>Maj+C</kbd>)
+  calcule le ratio de deux couleurs choisies à la main. <kbd>Échap</kbd> arrête le bookmarklet.</p>
+</div>
+
+<h2>3.2 Contraste du texte</h2>
+<p>Seuil de 4,5:1, ou de 3:1 pour le grand texte (24px, ou 18,5px en gras).</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Texte foncé sur blanc</h3>
+    <div class="demo"><p style="margin:0;color:#1a1a1a">Texte courant très lisible.</p></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ #1a1a1a sur #ffffff, 17,40:1 (seuil 4,5).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Gris clair sur blanc</h3>
+    <div class="demo"><p style="margin:0;color:#999">Mentions en gris clair.</p></div>
+    <p class="attendu"><strong>Attendu :</strong> × #999999 sur #ffffff, 2,84:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Juste au-dessus du seuil</h3>
+    <div class="demo"><p style="margin:0;color:#767676">Gris #767676.</p></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ 4,54:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Juste en dessous du seuil</h3>
+    <div class="demo"><p style="margin:0;color:#777">Gris #777777.</p></div>
+    <p class="attendu"><strong>Attendu :</strong> × 4,47:1 : le ratio est tronqué, il n’est jamais arrondi à 4,5.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Grand texte à 3:1</h3>
+    <div class="demo"><p style="margin:0;color:#949494;font-size:24px">Titre de 24px</p></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ 3,03:1, seuil 3 (grand texte).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Gras trop petit pour le seuil de 3:1</h3>
+    <div class="demo"><p style="margin:0;color:#949494;font-size:18px;font-weight:700">Gras de 18px</p></div>
+    <p class="attendu"><strong>Attendu :</strong> × 3,03:1, mais seuil 4,5 : en gras, le grand texte commence à 18,5px.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Couleur semi-transparente</h3>
+    <div class="demo"><p style="margin:0;color:rgba(0,0,0,.4)">Noir à 40 %.</p></div>
+    <p class="attendu"><strong>Attendu :</strong> × texte « #000000 à 40 % », couleur finale #999999, 2,84:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Bloc avec opacity</h3>
+    <div class="demo"><div class="carte-transparente"><p style="margin:0;color:#1a1a1a">Carte estompée.</p></div></div>
+    <p class="attendu"><strong>Attendu :</strong> × l’opacité de 0,45 du parent éclaircit le texte : 2,88:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Fond posé par un calque positionné</h3>
+    <div class="demo"><div class="bandeau"><span class="bandeau-fond"></span><p class="bandeau-texte">Texte blanc sur un calque bleu</p></div></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ blanc sur #1a3d6e (fond donné par &lt;span.bandeau-fond&gt;, entouré en orange), 10,84:1. Un calcul par les seuls parents trouverait « blanc sur blanc ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Fond en dégradé</h3>
+    <div class="demo"><p class="degrade">Texte sur un dégradé</p></div>
+    <p class="attendu"><strong>Attendu :</strong> ! fourchette de 1,89:1 à 7,13:1 : conforme d’un côté seulement.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Texte sur une image de fond</h3>
+    <div class="demo"><p class="sur-image">Texte sur une photo</p></div>
+    <p class="attendu"><strong>Attendu :</strong> ! « image de fond » : ratio indicatif calculé sur la couleur de secours #333333. Vérifier à la pipette.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Placeholder pâle</h3>
+    <form class="demo" onsubmit="return false"><label for="d-recherche">Rechercher</label><input id="d-recherche" class="placeholder-pale" placeholder="Mot-clé"></form>
+    <p class="attendu"><strong>Attendu :</strong> × « Texte (3.2) : placeholder », #bbbbbb (::placeholder), 1,91:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Bouton désactivé</h3>
+    <form class="demo" onsubmit="return false"><button type="button" disabled>Valider</button></form>
+    <p class="attendu"><strong>Attendu :</strong> ∅ non concerné : les composants désactivés sont dispensés.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Logo en texte</h3>
+    <div class="demo"><a href="#" class="logo-site">MonSite</a></div>
+    <p class="attendu"><strong>Attendu :</strong> ! 1,98:1, avec « Logo probable : les logos sont dispensés ».</p>
+  </div>
+</div>
+
+<h2>3.3 Composants d’interface et éléments graphiques</h2>
+<p>Seuil de 3:1 entre la limite du composant (bordure ou fond) ou l’élément graphique et le fond qui l’entoure.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Champ avec bordure foncée</h3>
+    <form class="demo" onsubmit="return false"><label for="d-nom">Nom</label><input id="d-nom" style="border:1px solid #767676"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ limite : bordure #767676, 4,54:1 (seuil 3).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Champ avec bordure pâle</h3>
+    <form class="demo" onsubmit="return false"><label for="d-mail">E-mail</label><input id="d-mail" type="email" style="border:1px solid #ccc"></form>
+    <p class="attendu"><strong>Attendu :</strong> × bordure #cccccc, 1,6:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Champ sans bordure, fond gris clair</h3>
+    <form class="demo" onsubmit="return false"><label for="d-ville">Ville</label><input id="d-ville" style="border:0;background:#f0f0f0"></form>
+    <p class="attendu"><strong>Attendu :</strong> × limite : fond #f0f0f0, 1,13:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Champ souligné</h3>
+    <form class="demo" onsubmit="return false"><label for="d-cp">Code postal</label><input id="d-cp" style="border:0;border-bottom:2px solid #555"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ bordure #555555, 7,4:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Case à cocher personnalisée</h3>
+    <div class="demo"><span class="case-perso" role="checkbox" aria-checked="false" tabindex="0">Recevoir la lettre</span></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ limite : « bordure ::before » #333333, 12,6:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Case à cocher personnalisée pâle</h3>
+    <div class="demo"><span class="case-perso case-pale" role="checkbox" aria-checked="false" tabindex="0">Accepter les conditions</span></div>
+    <p class="attendu"><strong>Attendu :</strong> × bordure ::before #c8c8c8, 1,7:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Case à cocher native</h3>
+    <form class="demo" onsubmit="return false"><input type="checkbox" id="d-native"> <label class="inline" for="d-native">Se souvenir de moi</label></form>
+    <p class="attendu"><strong>Attendu :</strong> ∅ apparence native du navigateur : non concernée.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Bouton sans bordure</h3>
+    <form class="demo" onsubmit="return false"><button type="button" class="bouton-plat">Voir plus</button></form>
+    <p class="attendu"><strong>Attendu :</strong> ∅ bouton identifié par son texte : c’est le contraste du texte (3.2) qui compte.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Bouton icône contrasté</h3>
+    <form class="demo" onsubmit="return false"><button type="button" class="bouton-icone" aria-label="Fermer"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5 19 19M19 5 5 19" stroke="#005a9c" stroke-width="3"/></svg></button></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ élément graphique SVG, #005a9c, 7,13:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Bouton icône pâle</h3>
+    <form class="demo" onsubmit="return false"><button type="button" class="bouton-icone" aria-label="Rechercher"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6" fill="none" stroke="#aaa" stroke-width="2.5"/><path d="M15 15 21 21" stroke="#aaa" stroke-width="2.5"/></svg></button></form>
+    <p class="attendu"><strong>Attendu :</strong> × élément graphique SVG, #aaaaaa, 2,32:1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Contour de focus pâle</h3>
+    <form class="demo" onsubmit="return false"><button type="button" class="focus-pale" style="border:2px solid #333;background:#fff">Envoyer</button></form>
+    <p class="attendu"><strong>Attendu :</strong> donner le focus au bouton avec <kbd>Tab</kbd> : ligne « Focus » × #e0e0e0 (outline), 1,3:1 environ.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Contour de focus net</h3>
+    <form class="demo" onsubmit="return false"><button type="button" class="focus-net" style="border:2px solid #333;background:#fff">Enregistrer</button></form>
+    <p class="attendu"><strong>Attendu :</strong> au focus, ligne « Focus » ✓ #005a9c (outline), 7,13:1.</p>
+  </div>
+</div>
+
+<h2>3.1 Information donnée par la couleur</h2>
+<p>Le bookmarklet ne rend pas de verdict pour le 3.1 : il faut comprendre le sens de la page. Le bouton « Niveaux de gris » (<kbd>Maj+G</kbd>) aide à repérer une information qui disparaît sans la couleur.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Page active indiquée par la couleur seule</h3>
+    <nav class="demo" aria-label="Exemple 1"><ul class="menu menu-couleur"><li><a href="#">Accueil</a></li><li><a href="#" aria-current="page">Produits</a></li><li><a href="#">Contact</a></li></ul></nav>
+    <p class="attendu"><strong>Attendu :</strong> en niveaux de gris, on ne voit plus quel lien est la page active.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Page active soulignée</h3>
+    <nav class="demo" aria-label="Exemple 2"><ul class="menu menu-souligne"><li><a href="#">Accueil</a></li><li><a href="#" aria-current="page">Produits</a></li><li><a href="#">Contact</a></li></ul></nav>
+    <p class="attendu"><strong>Attendu :</strong> en niveaux de gris, le soulignement indique toujours la page active.</p>
+  </div>
+</div>
+</div>
+</body>
+</html>

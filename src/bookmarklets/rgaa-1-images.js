@@ -6,7 +6,8 @@
  *  - l'éventuelle image CSS et, dans un lien, le nom accessible du lien ;
  *  - les constats : SVG sans role="img", alt suspect, longdesc obsolète...
  * En tête : le compteur des images de la page.
- * Maj+I : estompe toutes les images pour repérer les images texte (1.8).
+ * Bouton « Estomper les images » ou Maj+I : estompe toutes les images pour
+ * repérer les images texte (1.8).
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, value, src, esc, flag, checks, icon, roleValue } from '../lib/dom.js';
@@ -157,7 +158,7 @@ const caption = (t) => {
   return { r: { v: [text], s: 'figcaption' }, warns };
 };
 
-/* ---- Maj+I : estomper les images (1.8 images texte) ---- */
+/* ---- Bouton ou Maj+I : estomper les images (1.8 images texte) ---- */
 const DIM_ID = 'rgaa-1-images-dim';
 const DIM_CSS = `img,svg,canvas,object,embed,input[type="image"],[role="img"]{opacity:.12!important}
 *{background-image:none!important}`;
@@ -207,7 +208,8 @@ inspector({
   list: {
     title: 'Images',
     collect,
-    footer: 'Maj+I : estomper / rétablir les images (1.8). Les images CSS ne sont pas listées.',
+    footer: 'Bouton « Estomper les images » ou Maj+I : estomper / rétablir les images (1.8). Les images CSS ne sont pas listées.',
+    tools: [{ label: 'Estomper les images', pressed: () => dimmed, toggle: () => setDim(!dimmed) }],
   },
   onKey(e) {
     const tag = e.target && e.target.tagName;
