@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 5 – Tableaux</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<style>
+  .demo table { border-collapse: collapse; font-size: .9rem; }
+  .demo table:not([role="presentation"]):not(.mef) td, .demo table:not([role="presentation"]):not(.mef) th { border: 1px solid #999; padding: .2rem .4rem; text-align: left; }
+  .demo caption { text-align: left; font-weight: 700; margin-bottom: .2rem; }
+  .demo .mef td { padding: .2rem .4rem; vertical-align: top; }
+  .demo h3, .demo h4 { font-size: .95rem; margin: 0 0 .3rem; }
+  .grille { display: grid; grid-template-columns: repeat(3, auto); gap: 1px; background: #999; font-size: .9rem; max-width: 16rem; }
+  .grille > * { background: #fff; padding: .2rem .4rem; }
+  .grille .e { font-weight: 700; }
+  .aria-table { display: table; font-size: .9rem; border-collapse: collapse; }
+  .aria-table > [role="row"], .aria-table > [role="rowgroup"] > [role="row"] { display: table-row; }
+  .aria-table [role="cell"], .aria-table [role="columnheader"], .aria-table [role="gridcell"] { display: table-cell; border: 1px solid #999; padding: .2rem .4rem; }
+  .aria-table [role="columnheader"] { font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-3-couleurs.html">Couleurs</a> <a href="rgaa-4-multimedia.html">Multimédia</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 5 – Tableaux</h1>
+<div class="intro">
+  <p>Cette page rassemble des tableaux conformes et non conformes à la
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#5">thématique 5 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 5 – Tableaux</a>
+  (ou utilisez votre favori). Cliquez sur une ligne de la liste pour épingler le détail du tableau et choisir
+  son type (Données ou Présentation). Survolez une cellule d’un tableau de données pour voir ses en-têtes.
+  <kbd>Échap</kbd> libère le détail, puis ferme les panneaux.</p>
+  <p>Les verdicts « attendus » supposent le type pré-rempli par le bookmarklet. Changez le type d’un tableau
+  pour voir les critères appliqués changer.</p>
+</div>
+
+<h2>Inventaire et supposition du type</h2>
+<p>Le bookmarklet liste chaque <code>table</code> et chaque élément <code>role="table"</code>, <code>grid</code> ou <code>treegrid</code>.
+Le type est supposé (« Données ? ») jusqu’à ce que l’auditeur le confirme.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Tableau de données simple</h3>
+    <div class="demo">
+      <table>
+        <caption>Horaires de la médiathèque</caption>
+        <tr><th scope="col">Jour</th><th scope="col">Ouverture</th></tr>
+        <tr><td>Mardi</td><td>10 h – 18 h</td></tr>
+        <tr><td>Samedi</td><td>10 h – 17 h</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « Données ? », supposition « contient 1 caption, 2 th, 2 scope ».
+    5.4 ✓ (caption), 5.5 !, 5.6 ✓, 5.7 ✓ (scope). Statut ! (pertinence du titre à juger).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Tableau masqué</h3>
+    <div class="demo">
+      <p>(Le tableau ci-dessous est en <code>display:none</code>.)</p>
+      <table style="display:none"><tr><th>Masqué</th></tr><tr><td>1</td></tr></table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste, « masqué : display:none ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Aucun indice</h3>
+    <div class="demo">
+      <p>Population des villes, en millions d’habitants :</p>
+      <table>
+        <tr><td>Paris</td><td>2,1 M</td></tr>
+        <tr><td>Lyon</td><td>0,5 M</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « Données ? », supposition « aucun indice, supposition prudente ».
+    5.4 ! aucun titre (le paragraphe qui précède n’est pas associé),
+    5.6 × aucun en-tête, 5.7 ×. Si l’auditeur choisit Présentation : 5.3 × (role="presentation" absent).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Une seule ligne, sans rôle</h3>
+    <div class="demo">
+      <table class="mef"><tr><td><img src="img/logo-rgaa.svg" alt="" width="40" height="40"></td><td>Bienvenue sur le site de la médiathèque.</td></tr></table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « Présentation ? », supposition « une seule ligne ».
+    5.3 × role="presentation" absent, 5.8 ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Tableau ARIA (role="table")</h3>
+    <div class="demo">
+      <div role="table" aria-label="Tarifs" class="aria-table">
+        <div role="row"><span role="columnheader">Formule</span><span role="columnheader">Prix</span></div>
+        <div role="row"><span role="cell">Adulte</span><span role="cell">15 €</span></div>
+        <div role="row"><span role="cell">Enfant</span><span role="cell">Gratuit</span></div>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « Données ? » (role="table"), 5.4 ✓ (aria-label), 5.6 ✓, 5.7 ✓ (rôles ARIA).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Grille ARIA à la structure cassée</h3>
+    <div class="demo">
+      <div role="grid" aria-label="Planning" class="aria-table">
+        <div role="row"><span role="columnheader">Lundi</span><span role="columnheader">Mardi</span></div>
+        <span role="gridcell">Yoga</span><span role="gridcell">Danse</span>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.6 × « 2 cellules hors d’un role="row" ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Tableau en div sans rôle</h3>
+    <div class="demo">
+      <div class="grille">
+        <span class="e">Ville</span><span class="e">Habitants</span><span class="e">Région</span>
+        <span>Lille</span><span>236 000</span><span>Hauts-de-France</span>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> absent de la liste. C’est à l’auditeur de constater qu’un
+    tableau visible n’est pas listé (5.6, 5.7).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Mise en forme sans rôle, avec titres et formulaire</h3>
+    <div class="demo">
+      <table class="mef">
+        <tr><td><h4>Lettre d’information</h4><label for="nl">E-mail</label> <input id="nl" type="email"></td>
+            <td><h4>Nous suivre</h4><a href="#">Réseaux sociaux</a></td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « Présentation ? », supposition « contient h4, input ». 5.3 ×, 5.8 ✓.</p>
+  </div>
+</div>
+
+<h2>5.1 et 5.2 Résumé des tableaux complexes</h2>
+<p>Un tableau est complexe quand ses en-têtes ne sont pas tous sur la première ligne ou la première colonne,
+ou quand un en-tête est fusionné. La case « Complexe » est alors pré-cochée.</p>
+<div class="cases">
+  <div class="case wide">
+    <h3><span class="badge badge--check">À vérifier</span>Complexe, résumé dans aria-describedby</h3>
+    <div class="demo">
+      <p id="resume-ventes">Ventes par trimestre et par magasin : chaque magasin a deux colonnes, unités et chiffre d’affaires.</p>
+      <table aria-describedby="resume-ventes">
+        <caption>Ventes 2025</caption>
+        <tr><td></td><th id="v-paris" colspan="2" scope="colgroup">Paris</th><th id="v-lyon" colspan="2" scope="colgroup">Lyon</th></tr>
+        <tr><td></td><th id="v-pu" scope="col">Unités</th><th id="v-pca" scope="col">CA</th><th id="v-lu" scope="col">Unités</th><th id="v-lca" scope="col">CA</th></tr>
+        <tr><th id="v-t1" scope="row">T1</th><td headers="v-paris v-pu v-t1">120</td><td headers="v-paris v-pca v-t1">3 600 €</td><td headers="v-lyon v-lu v-t1">80</td><td headers="v-lyon v-lca v-t1">2 400 €</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « Données complexe ? », 5.1 ✓ (aria-describedby), 5.2 ! texte du résumé,
+    5.7 ✓ (headers / id). Au survol de « 3 600 € » : en-têtes Paris, CA, T1.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Complexe, résumé dans le caption</h3>
+    <div class="demo">
+      <table>
+        <caption>Effectifs par site. <span>Les sites sont en ligne, les années en colonne, regroupées par période.</span></caption>
+        <tr><td></td><th colspan="2" scope="colgroup">Avant 2020</th></tr>
+        <tr><td></td><th scope="col">2018</th><th scope="col">2019</th></tr>
+        <tr><th scope="row">Nantes</th><td>40</td><td>42</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.1 ✓ (caption détaillé), 5.2 !, 5.7 ! « tableau complexe sans attribut headers ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Complexe sans résumé</h3>
+    <div class="demo">
+      <table>
+        <caption>Notes du trimestre</caption>
+        <tr><td></td><th colspan="2" scope="colgroup">Sciences</th></tr>
+        <tr><td></td><th scope="col">Maths</th><th scope="col">Physique</th></tr>
+        <tr><th scope="row">Léa</th><td>15</td><td>13</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.1 × « Tableau complexe sans résumé ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Ancien attribut summary</h3>
+    <div class="demo">
+      <table summary="Prix des abonnements selon la durée et le public">
+        <caption>Abonnements</caption>
+        <tr><td></td><th colspan="2" scope="colgroup">Durée</th></tr>
+        <tr><td></td><th scope="col">1 mois</th><th scope="col">1 an</th></tr>
+        <tr><th scope="row">Adulte</th><td>10 €</td><td>90 €</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.1 ! « Résumé dans l’attribut summary (obsolète en HTML5) ».</p>
+  </div>
+</div>
+
+<h2>5.3 et 5.8 Tableaux de mise en forme</h2>
+<p>Utilisez le bouton « Linéariser » (<kbd>Maj</kbd>+<kbd>L</kbd>) pour lire ces tableaux dans l’ordre de lecture.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>role="presentation", ordre correct</h3>
+    <div class="demo">
+      <table role="presentation" class="mef">
+        <tr><td><strong>1. Inscrivez-vous</strong> en ligne.</td><td><strong>2. Venez</strong> retirer votre carte.</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « Présentation ? » (role="presentation"), 5.3 ! linéarisation à vérifier
+    (role="presentation" présent), 5.8 ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Linéarisation qui casse le sens</h3>
+    <div class="demo">
+      <table role="presentation" class="mef">
+        <tr><td>Question 1</td><td>Question 2</td></tr>
+        <tr><td>Réponse à la question 1</td><td>Réponse à la question 2</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.3 !. Linéarisé, on lit « Question 1, Question 2 » avant les réponses :
+    c’est à l’auditeur de juger le contenu non compréhensible.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Mise en forme avec th et caption</h3>
+    <div class="demo">
+      <table role="presentation" class="mef">
+        <caption>Bloc d’accueil</caption>
+        <tr><th>Actualités</th><th>Agenda</th></tr>
+        <tr><td>Nouveau site en ligne</td><td>Atelier le 12 mai</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « Présentation ? » (le rôle l’emporte), 5.8 × « 1 caption, 2 th ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Mise en forme avec scope sur un td</h3>
+    <div class="demo">
+      <table role="presentation" class="mef">
+        <tr><td scope="row">Menu</td><td>Contenu principal</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.8 × « 1 scope ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>role="presentation" annulé par aria-label</h3>
+    <div class="demo">
+      <table role="presentation" aria-label="Mise en page" class="mef">
+        <tr><td>Colonne gauche</td><td>Colonne droite</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.3 × « role="presentation" annulé par aria-label ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Tableau imbriqué</h3>
+    <div class="demo">
+      <table role="presentation" class="mef">
+        <tr><td>Programme :</td>
+          <td>
+            <table>
+              <caption>Ateliers</caption>
+              <tr><th scope="col">Heure</th><th scope="col">Atelier</th></tr>
+              <tr><td>10 h</td><td>Conte</td></tr>
+            </table>
+          </td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> deux lignes : la mise en forme (5.3 !, 5.8 ✓ : les th du tableau
+    imbriqué ne comptent pas) et « ↳ Ateliers » en données.</p>
+  </div>
+</div>
+
+<h2>5.4 et 5.5 Titre des tableaux de données</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titre par aria-labelledby</h3>
+    <div class="demo">
+      <h4 id="titre-prets">Prêts du mois</h4>
+      <table aria-labelledby="titre-prets">
+        <tr><th scope="col">Type</th><th scope="col">Nombre</th></tr>
+        <tr><td>Livres</td><td>1 240</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.4 ✓ (aria-labelledby), le titre est entouré en orange ; 5.5 ! « Prêts du mois ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titre par l’attribut title</h3>
+    <div class="demo">
+      <table title="Températures de la semaine">
+        <tr><th scope="col">Lundi</th><th scope="col">Mardi</th></tr>
+        <tr><td>18 °C</td><td>21 °C</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.4 ✓ (title), 5.5 !.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Titre visible non associé</h3>
+    <div class="demo">
+      <h4>Résultats du tournoi</h4>
+      <table>
+        <tr><th scope="col">Équipe</th><th scope="col">Points</th></tr>
+        <tr><td>Les Aigles</td><td>12</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.4 ! « Titre visible probable non associé : « Résultats du tournoi » (h4 qui précède) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Titre générique</h3>
+    <div class="demo">
+      <table>
+        <caption>Tableau</caption>
+        <tr><th scope="col">Article</th><th scope="col">Stock</th></tr>
+        <tr><td>Stylo</td><td>300</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.4 ✓, 5.5 ! « Titre générique « Tableau » ».</p>
+  </div>
+</div>
+
+<h2>5.6 En-têtes déclarés</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>En-têtes en td et en gras</h3>
+    <div class="demo">
+      <table>
+        <caption>Contacts</caption>
+        <tr><td><strong>Service</strong></td><td><strong>Téléphone</strong></td></tr>
+        <tr><td>Accueil</td><td>01 23 45 67 89</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.6 × aucun en-tête, ! « Première ligne en td et en gras : en-têtes probables ».
+    Le bouton « Structure » montre des td partout.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>En-têtes de ligne et de colonne</h3>
+    <div class="demo">
+      <table>
+        <caption>Tarifs piscine</caption>
+        <tr><td></td><th scope="col">Semaine</th><th scope="col">Week-end</th></tr>
+        <tr><th scope="row">Adulte</th><td>4 €</td><td>5 €</td></tr>
+        <tr><th scope="row">Enfant</th><td>2 €</td><td>3 €</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.6 ✓ « 2 en-têtes de colonne, 2 en-têtes de ligne », 5.7 ✓ (scope).
+    Au survol de « 3 € » : Week-end, Enfant.</p>
+  </div>
+</div>
+
+<h2>5.7 Association des cellules et des en-têtes</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>th sans scope en première ligne</h3>
+    <div class="demo">
+      <table>
+        <caption>Bibliothèques</caption>
+        <tr><th>Nom</th><th>Quartier</th></tr>
+        <tr><td>Jean-Macé</td><td>Centre</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.7 ✓ « Association par position des th (portée déduite) ».
+    Au survol de « Centre » : Quartier (implicite, colonne).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>scope invalide</h3>
+    <div class="demo">
+      <table>
+        <caption>Distances</caption>
+        <tr><th scope="column">Ville</th><th scope="column">Km</th></tr>
+        <tr><td>Rennes</td><td>350</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.7 × « scope invalide : "column" ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>headers vers un id inexistant</h3>
+    <div class="demo">
+      <table>
+        <caption>Stock</caption>
+        <tr><th id="s-art">Article</th><th id="s-qte">Quantité</th></tr>
+        <tr><td headers="s-art">Cahier</td><td headers="s-quantite">50</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.7 × « headers : id introuvable (s-quantite) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>headers vers un td</h3>
+    <div class="demo">
+      <table>
+        <caption>Commandes</caption>
+        <tr><td id="c-num">Numéro</td><th id="c-date">Date</th></tr>
+        <tr><td headers="c-num">A-12</td><td headers="c-date">3 mai</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.7 × « headers : 1 référence vers une cellule qui n’est pas un en-tête ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>id en double</h3>
+    <div class="demo">
+      <table>
+        <caption>Salles</caption>
+        <tr><th id="salle">Salle</th><th id="salle">Places</th></tr>
+        <tr><td headers="salle">A</td><td headers="salle">30</td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 5.7 × « id en double : salle ».</p>
+  </div>
+</div>
+</div>
+</body>
+</html>

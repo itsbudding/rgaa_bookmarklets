@@ -8,6 +8,7 @@ const PAGES = [
   ['rgaa-1-images', 'svg, img, canvas, input[type=image], [role=img], object, embed, .css-motif, .css-icone, #hote-shadow'],
   ['rgaa-3-couleurs', 'p, a, input, button, [role=checkbox], svg'],
   ['rgaa-4-multimedia', 'video, audio, iframe, lite-youtube, a'],
+  ['rgaa-5-tableaux', 'caption, th, td, [role=cell], [role=gridcell], [role=columnheader]'],
   ['rgaa-11-formulaires', 'input, select, textarea, button, [contenteditable], [role=checkbox], legend'],
 ];
 (async () => {

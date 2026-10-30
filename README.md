@@ -1,6 +1,6 @@
 # Bookmarklets RGAA
 
-Cinq bookmarklets pour aider à auditer une page web selon le
+Six bookmarklets pour aider à auditer une page web selon le
 [RGAA 4.1](https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/).
 Ils s'installent comme des favoris et fonctionnent sur n'importe quelle page,
 sans extension ni compte.
@@ -16,17 +16,18 @@ intitulé reste à juger par l'auditeur.
 | **RGAA 2 – Cadres** | 2. Cadres | Liste de tous les cadres de la page |
 | **RGAA 3 – Couleurs** | 3. Couleurs | Contrastes des textes, composants et icônes + détail au survol (ou au focus) |
 | **RGAA 4 – Multimédia** | 4. Multimédia | Inventaire des médias, une pastille par critère + détail au survol ou épinglé |
+| **RGAA 5 – Tableaux** | 5. Tableaux | Liste des tableaux, type choisi par l'auditeur, une pastille par critère + en-têtes de chaque cellule au survol |
 | **RGAA 11 – Formulaires** | 11. Formulaires | Liste des champs et boutons + détail au survol (ou au focus) |
 
 ## Installation
 
 1. Téléchargez le dépôt (bouton **Code › Download ZIP** sur GitHub) et décompressez-le.
 2. Ouvrez `dist/index.html` dans votre navigateur.
-3. Glissez chacun des cinq liens dans votre barre de favoris.
+3. Glissez chacun des six liens dans votre barre de favoris.
 
 Autre méthode : créez un favori et collez comme adresse le contenu d'un des
 fichiers `dist/rgaa-1-images.js`, `dist/rgaa-2-cadres.js`, `dist/rgaa-3-couleurs.js`,
-`dist/rgaa-4-multimedia.js` ou `dist/rgaa-11-formulaires.js`.
+`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js` ou `dist/rgaa-11-formulaires.js`.
 
 ### Pages de démo
 
@@ -41,7 +42,7 @@ bookmarklet sans l'installer.
 
 - **Lancer** : ouvrez la page à auditer, puis cliquez sur le favori.
 - **Arrêter** : cliquez une seconde fois sur le favori, ou appuyez sur **Échap**.
-- Les cinq bookmarklets sont indépendants et peuvent tourner en même temps.
+- Les six bookmarklets sont indépendants et peuvent tourner en même temps.
 - Ils inspectent aussi le contenu des Shadow DOM ouverts et des iframes de
   même origine. Une iframe chargée après le lancement n'est prise en compte
   qu'en relançant le bookmarklet.
@@ -66,7 +67,7 @@ pointillé**.
 
 ### Deux panneaux : l'aperçu et le détail
 
-Les bookmarklets 1, 3, 4 et 11 ouvrent deux panneaux :
+Les bookmarklets 1, 3, 4, 5 et 11 ouvrent deux panneaux :
 
 - **le panneau liste**, en haut à droite : le compteur de la page et la liste
   des éléments concernés, avec un statut et un libellé court. Un clic sur une
@@ -255,6 +256,82 @@ Limites :
 - clavier : le bookmarklet vérifie que les contrôles sont focalisables et
   nommés, pas qu'ils fonctionnent ;
 - média chargé après le lancement (façade cliquée, onglet) : « Actualiser ».
+
+### RGAA 5 – Tableaux
+
+La liste donne chaque `table` et chaque élément `role="table"`, `grid` ou
+`treegrid`, avec son type, sa taille et une pastille par critère
+(`5.4 ✓`, `5.6 ×`…), les erreurs en premier. Les tableaux faits de `div`
+sans rôle ne sont pas détectés : **un tableau visible absent de la liste**
+n'est pas restitué comme un tableau (5.6, 5.7), c'est à l'auditeur de le
+constater. Les tableaux masqués sont marqués non concernés.
+
+**Type de tableau : c'est l'auditeur qui décide.** Un clic sur une ligne
+épingle le détail du tableau, avec le choix **Données / Présentation** et la
+case **Tableau complexe**. Ils sont pré-remplis par une supposition, dont la
+raison est affichée (« contient 2 th, 1 caption », « role="presentation" »,
+« une seule ligne »…). Tant que l'auditeur n'a pas confirmé, la liste affiche
+« Données ? » et le compteur « types à confirmer ». Le choix met les verdicts
+à jour aussitôt ; il est gardé tant que le bookmarklet tourne (« Actualiser »
+compris) et perdu à l'arrêt.
+
+Un tableau est supposé complexe quand des en-têtes ne sont pas sur la première
+ligne ou la première colonne, ou quand un en-tête est fusionné (`colspan`,
+`rowspan`).
+
+Ce qui est vérifié pour un **tableau de données** :
+
+- **5.1** (tableau complexe) : résumé dans `aria-describedby` ou dans un
+  `caption` détaillé ; l'attribut `summary`, obsolète, est signalé ;
+- **5.2 et 5.5** : le résumé et le titre sont affichés, leur pertinence est à
+  juger (un titre générique comme « Tableau » est signalé) ;
+- **5.4** : titre par `caption`, `aria-labelledby`, `aria-label` ou `title`.
+  Sans titre, un titre visible probable juste avant le tableau (`h1`–`h6`,
+  texte court en gras, `figcaption`) est signalé « non associé » ;
+- **5.6** : en-têtes `th`, `columnheader`, `rowheader` ; tableau sans
+  en-tête, en-tête vide, `td` en gras sur la première ligne ou colonne
+  (en-têtes probables), structure ARIA cassée (cellule hors d'un
+  `role="row"`) ;
+- **5.7** : `scope` invalide, `headers` vers un id inexistant ou vers un `td`,
+  id en double, cellules sans en-tête, tableau complexe sans `headers`. Un
+  tableau simple dont les `th` sont sur la première ligne ou colonne n'a pas
+  besoin de `scope` (portée déduite).
+
+Pour un **tableau de mise en forme** :
+
+- **5.3** : `role="presentation"` présent (exigé par le test 5.3.1), et pas
+  annulé par un attribut ARIA global (`aria-label`…) ou un `tabindex` ; le
+  contenu linéarisé reste à lire (bouton « Linéariser ») ;
+- **5.8** : aucun `caption`, `th`, `thead`, `tfoot`, `colgroup`, rôle
+  d'en-tête, ni attribut `scope`, `headers`, `axis` ou `summary`.
+
+Comme la pertinence (5.2, 5.3, 5.5) reste à juger, un tableau sans erreur
+dans le code garde le statut « à vérifier ».
+
+**Au survol d'une cellule** d'un tableau de données, le détail donne sa
+nature (en-tête de colonne, de ligne, cellule), sa position, et les
+**en-têtes qui lui sont associés** avec leur source (`headers`, `scope`,
+position), entourés en orange sur la page. Le calcul suit la logique des
+lecteurs d'écran (`headers` d'abord, puis `scope`, puis la position), sans
+garantir le rendu exact de chacun.
+
+**Outils** (boutons du panneau liste, ou raccourcis) :
+
+- **Structure** (Maj+S) : encadre les cellules de tous les tableaux, les
+  en-têtes en bleu, et affiche une étiquette dans chaque cellule
+  (`th col`, `td #id → h1 h2`). Une étiquette rouge signale une erreur
+  (`scope` invalide, `headers` cassé) ;
+- **Linéariser** (Maj+L) : affiche les tableaux de mise en forme (ou le
+  seul tableau épinglé) dans l'ordre de lecture, en passant le tableau, ses
+  lignes et ses cellules en `display:block`. La page est rétablie au second
+  appui ou à l'arrêt.
+
+Limites :
+
+- tableaux en `div` sans rôle : non détectés ;
+- le type n'est qu'une supposition tant qu'il n'est pas confirmé ;
+- en-têtes probables en `td` et titre visible proche : simples indices ;
+- tableau trié, paginé ou modifié après le lancement : « Actualiser ».
 
 ### RGAA 11 – Formulaires
 
