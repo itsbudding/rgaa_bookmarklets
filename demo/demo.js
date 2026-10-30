@@ -1,13 +1,11 @@
 /**
  * Pages de démo : affiche sous chaque exemple (.case .demo) son code HTML,
  * pour comprendre le résultat du bookmarklet sans ouvrir l'inspecteur.
- *  - les attributs qui comptent pour les vérifications RGAA sont surlignés ;
  *  - le contenu d'un Shadow DOM ouvert est montré dans un <template shadowrootmode> ;
  *  - les règles CSS de la page qui visent une classe de l'exemple sont reprises.
  * Chargé avec defer : il s'exécute après les scripts de la page (Shadow DOM créé).
  */
 (() => {
-  const KEY = /^(alt|title|role|aria-.+|for|id|name|type|autocomplete|required|placeholder|longdesc|hidden|contenteditable|usemap|label|srcdoc|src|data|href|value|tabindex)$/;
   const VOID = new Set(['area', 'br', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'source', 'wbr']);
   const INDENT = '  ';
   const MAX = 90;
@@ -21,7 +19,7 @@
     [...el.attributes]
       .map((a) => {
         const html = `<span class="tok-attr">${esc(a.name)}</span>` + (a.value === '' && a.name !== 'alt' ? '' : `=<span class="tok-val">"${escAttr(a.value)}"</span>`);
-        return ' ' + (KEY.test(a.name) ? `<mark>${html}</mark>` : html);
+        return ' ' + html;
       })
       .join('');
 
@@ -58,7 +56,7 @@
         .filter((c) => c.nodeType === 1 || (c.nodeType === 3 && c.textContent.trim()))
         .map((c) => block(c, depth + 1));
       return [
-        `${pad}<span class="tok-tag">&lt;template</span> <mark><span class="tok-attr">shadowrootmode</span>=<span class="tok-val">"open"</span></mark><span class="tok-tag">&gt;</span>`,
+        `${pad}<span class="tok-tag">&lt;template</span> <span class="tok-attr">shadowrootmode</span>=<span class="tok-val">"open"</span><span class="tok-tag">&gt;</span>`,
         ...inner,
         `${pad}<span class="tok-tag">&lt;/template&gt;</span>`,
       ].join('\n');

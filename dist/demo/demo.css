@@ -66,7 +66,6 @@ code { font-size: .9em; background: #eee; padding: 0 .2em; border-radius: 3px; }
 .code summary { cursor: pointer; font-weight: 600; color: var(--muted); }
 .code pre { margin: .3rem 0 0; padding: .5rem .6rem; background: #fff; border: 1px solid var(--border); border-radius: 4px; white-space: pre-wrap; overflow-wrap: break-word; max-height: 18rem; overflow: auto; }
 .code code { background: none; padding: 0; font-size: inherit; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-.code mark { background: #fff1a8; color: inherit; border-radius: 2px; }
 .tok-tag { color: #6a1b9a; }
 .tok-attr { color: #8a4b00; }
 .tok-val { color: #1b6e35; }
