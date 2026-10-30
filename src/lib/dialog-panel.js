@@ -9,6 +9,9 @@
  * Usage :
  *   const dlg = dialog({ id: 'rgaa-2-cadres', title: 'Iframes trouvées : 3' });
  *   dlg.body.innerHTML = '...';
+ *
+ * managed: true : le panneau dépend d'un autre bookmarklet (ex. la liste d'un
+ * panneau flottant) ; il ne s'enregistre pas et onClose est appelé à la fermeture.
  */
 import { mount, register, toggleOff } from './panel.js';
 import { esc } from './dom.js';
@@ -27,8 +30,8 @@ const CSS = `
 .footer{margin-top:10px;padding-top:8px;border-top:1px solid var(--rgaa-sep)}
 `;
 
-export const dialog = ({ id, title, css = '' }) => {
-  if (toggleOff(id)) return null;
+export const dialog = ({ id, title, css = '', managed = false, focus = true, onClose }) => {
+  if (!managed && toggleOff(id)) return null;
 
   const { host, panel } = mount(id, CSS + css);
   const titleId = `${id}-title`;
@@ -67,17 +70,29 @@ export const dialog = ({ id, title, css = '' }) => {
   });
 
   const onKey = (e) => {
-    if (e.key === 'Escape') stop();
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      stop();
+    }
   };
   panel.addEventListener('keydown', onKey);
   panel.querySelector('.close').addEventListener('click', () => stop());
 
-  const stop = register(id, () => {
+  const destroy = () => {
     host.remove();
-    if (returnFocus && returnFocus.focus && document.contains(returnFocus)) returnFocus.focus();
-  });
+    if (focus && returnFocus && returnFocus.focus && document.contains(returnFocus)) returnFocus.focus();
+    if (onClose) onClose();
+  };
+  let closed = false;
+  const stop = managed
+    ? () => {
+        if (closed) return;
+        closed = true;
+        destroy();
+      }
+    : register(id, destroy);
 
-  panel.querySelector('.close').focus();
+  if (focus) panel.querySelector('.close').focus();
 
   return {
     body,

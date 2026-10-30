@@ -9,8 +9,8 @@
  * Maj+I : estompe toutes les images pour repérer les images texte (1.8).
  */
 import { inspector } from '../lib/floating-panel.js';
-import { row, value, src, esc, flag, checks, icon } from '../lib/dom.js';
-import { idrefs, textOf, norm, deepAll, isOwn, ariaHiddenAncestor, presentational, allDocuments } from '../lib/a11y.js';
+import { row, value, src, esc, flag, checks, icon, roleValue } from '../lib/dom.js';
+import { idrefs, textOf, norm, deepAll, isOwn, ariaHiddenAncestor, presentational, allDocuments, roleInfo } from '../lib/a11y.js';
 
 const IMG = 'img,area,input[type="image"],svg,object[type^="image/"],embed[type^="image/"],canvas,[role="img"]';
 const GENERIC = ['image', 'img', 'photo', 'picture', 'icone', 'icon', 'logo', 'visuel', 'illustration', 'graphique', 'spacer', 'blank'];
@@ -175,29 +175,40 @@ const setDim = (on) => {
   });
 };
 
-/** Compteur de page. */
-const summary = () => {
+/** Statut d'une image pour la liste et le compteur. */
+const status = (e) => {
+  if (decorative(e)) return { status: 'hidden', label: 'Décorative' };
+  const n = imgName(e, false);
+  if (!n) return { status: 'error', label: 'Sans alternative' };
+  const label = n.v.map((x) => (typeof x === 'object' ? x.t : x)).join(' ');
+  if ((tagOf(e) === 'svg' && e.getAttribute('role') !== 'img') || (n.s === 'alt' && suspiciousAlt(n.v[0], fileOf(e))))
+    return { status: 'warning', label };
+  return { status: 'ok', label };
+};
+
+/** Panneau liste : compteur de page et images balisées. */
+const collect = () => {
   const imgs = deepAll(IMG).filter((e) => !isOwn(e) && !(tagOf(e) !== 'svg' && e.closest('svg')));
-  let deco = 0;
-  let missing = 0;
-  let toCheck = 0;
-  imgs.forEach((e) => {
-    if (decorative(e)) return deco++;
-    const n = imgName(e, false);
-    if (!n) return missing++;
-    if ((tagOf(e) === 'svg' && e.getAttribute('role') !== 'img') || (n.s === 'alt' && suspiciousAlt(n.v[0], fileOf(e)))) toCheck++;
-  });
-  return (
-    `<strong>Page :</strong> ${imgs.length} image${imgs.length > 1 ? 's' : ''} · ` +
-    `${missing ? icon('error') + ' ' : ''}${missing} sans alternative · ` +
-    `${toCheck ? icon('warning') + ' ' : ''}${toCheck} à vérifier · ${deco} décorative${deco > 1 ? 's' : ''}` +
-    `<br>Maj+I : ${dimmed ? 'rétablir' : 'estomper'} les images (1.8)`
-  );
+  const items = imgs.map((el) => ({ el, meta: tagOf(el), ...status(el) }));
+  const n = (st) => items.filter((i) => i.status === st).length;
+  const missing = n('error');
+  const toCheck = n('warning');
+  const deco = n('hidden');
+  return {
+    items,
+    summary:
+      `${missing ? icon('error') + ' ' : ''}${missing} sans alternative · ` +
+      `${toCheck ? icon('warning') + ' ' : ''}${toCheck} à vérifier · ${deco} décorative${deco > 1 ? 's' : ''}`,
+  };
 };
 
 inspector({
   id: 'rgaa-1-images',
-  summary,
+  list: {
+    title: 'Images',
+    collect,
+    footer: 'Maj+I : estomper / rétablir les images (1.8). Les images CSS ne sont pas listées.',
+  },
   onKey(e) {
     const tag = e.target && e.target.tagName;
     if (!(e.shiftKey && e.key.toLowerCase() === 'i') || ['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) || e.target.isContentEditable) return false;
@@ -235,6 +246,7 @@ inspector({
     } else {
       html += row('Nom accessible', css && !name ? flag('warning', 'Aucun : vérifier que l’image CSS est décorative') : value(name));
     }
+    if (!css || t.matches(IMG)) html += row('Rôle', roleValue(roleInfo(t)));
     if (file) html += row('Fichier', `<span class="muted">${esc(file)}</span>`);
     if (!deco) {
       html += row('Description', desc.r ? value(desc.r) : '<span class="muted">aucune</span>');

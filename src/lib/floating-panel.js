@@ -14,9 +14,9 @@
  *   inspector({
  *     id: 'rgaa-1-images',
  *     css: '',                       // CSS spécifique (optionnel)
- *     summary() {                    // compteur de page (optionnel), affiché
- *       return '3 images, 1 sans alternative'; // en tête du panneau
- *     },
+ *     list: {                        // panneau liste (optionnel), voir
+ *       title, collect, footer,      // list-panel.js : compteur de page et
+ *     },                             // accès rapide aux éléments
  *     onKey(e) {                     // raccourci clavier (optionnel) :
  *       return false;                // true si la touche est traitée
  *     },
@@ -29,40 +29,23 @@
  */
 import { mount, register, toggleOff } from './panel.js';
 import { createHighlighter } from './highlight.js';
+import { createListPanel } from './list-panel.js';
 import { isOwn, allDocuments, toTopCoords } from './a11y.js';
 
 const GAP = 15;
 
-export const inspector = ({ id, css = '', inspect, summary, onKey, onStop, minWidth = 320, maxWidth = 520 }) => {
+export const inspector = ({ id, css = '', inspect, list, onKey, onStop, minWidth = 320, maxWidth = 520 }) => {
   if (toggleOff(id)) return;
 
   const { host, panel } = mount(
     id,
-    `.panel{pointer-events:none;min-width:${minWidth}px;max-width:min(${maxWidth}px,calc(100vw - 10px))}` +
-      `.summary{margin:-4px 0 8px;padding-bottom:6px;border-bottom:1px solid var(--rgaa-sep);color:var(--rgaa-muted)}${css}`,
+    `.panel{pointer-events:none;min-width:${minWidth}px;max-width:min(${maxWidth}px,calc(100vw - 10px))}${css}`,
   );
   panel.setAttribute('role', 'status');
   panel.hidden = true;
 
   const hl = createHighlighter();
   let last = null;
-
-  // Compteur de page : recalculé au plus une fois par seconde.
-  let sum = '';
-  let sumAt = 0;
-  const header = () => {
-    if (!summary) return '';
-    if (Date.now() - sumAt > 1000) {
-      try {
-        sum = summary();
-      } catch (err) {
-        console.error(`[${id}]`, err);
-        sum = '';
-      }
-      sumAt = Date.now();
-    }
-    return sum ? `<div class="summary small">${sum}</div>` : '';
-  };
 
   const hide = () => {
     panel.hidden = true;
@@ -97,7 +80,7 @@ export const inspector = ({ id, css = '', inspect, summary, onKey, onStop, minWi
       console.error(`[${id}]`, err);
     }
     if (!res) return hide();
-    panel.innerHTML = header() + res.html;
+    panel.innerHTML = res.html;
     hl.set(res.highlight);
     panel.hidden = false;
   };
@@ -131,9 +114,19 @@ export const inspector = ({ id, css = '', inspect, summary, onKey, onStop, minWi
       e.preventDefault();
       // Réaffiche l'élément courant avec le nouvel état.
       if (last && !panel.hidden) render(last);
+      if (listPanel) listPanel.refresh();
     }
   };
   const onScroll = () => hide();
+
+  let listPanel = null;
+  if (list) {
+    try {
+      listPanel = createListPanel({ id, ...list, onClose: () => (listPanel = null) });
+    } catch (err) {
+      console.error(`[${id}]`, err);
+    }
+  }
 
   const docs = allDocuments();
   docs.forEach((d) => {
@@ -152,6 +145,7 @@ export const inspector = ({ id, css = '', inspect, summary, onKey, onStop, minWi
     });
     hl.clear();
     host.remove();
+    if (listPanel) listPanel.close();
     if (onStop) onStop();
   });
 };
