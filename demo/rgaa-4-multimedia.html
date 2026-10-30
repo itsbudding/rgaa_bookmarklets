@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 4 – Multimédia</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<style>
+  .demo video, .demo iframe { display: block; width: 100%; max-width: 320px; aspect-ratio: 16 / 9; height: auto; background: #000; border: 0; }
+  .demo audio { width: 100%; max-width: 320px; }
+  .demo figure { margin: 0; }
+  .demo figcaption { font-size: .9rem; margin-top: .3rem; }
+  .lecteur { max-width: 320px; }
+  .lecteur video { max-width: none; }
+  .barre { display: flex; align-items: center; gap: .5rem; padding: .3rem; background: #222; color: #fff; }
+  .barre button { font: inherit; background: #fff; color: #1a1a1a; border: 0; border-radius: 3px; padding: .15rem .5rem; cursor: pointer; }
+  .barre .play-icone { width: 1.8rem; height: 1.6rem; padding: 0; display: grid; place-items: center; }
+  .barre .volume-jauge { width: 5rem; height: .5rem; background: #888; border-radius: 3px; cursor: pointer; }
+  .barre input[type="range"] { width: 5rem; }
+  lite-youtube { display: grid; place-items: center; max-width: 320px; aspect-ratio: 16 / 9; background: #333 url(img/photo-equipe.svg) center / cover; }
+  lite-youtube .lty-playbtn { font: 700 1rem system-ui; padding: .5rem 1rem; border: 0; border-radius: 6px; background: #c40000; color: #fff; cursor: pointer; }
+  .alt-carte { font-size: .9rem; margin: .4rem 0 0; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-3-couleurs.html">Couleurs</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 4 – Multimédia</h1>
+<div class="intro">
+  <p>Cette page rassemble des médias conformes et non conformes à la
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#4">thématique 4 du RGAA</a>.
+  Chaque carte indique ce que doit afficher le bookmarklet : une pastille par critère dans la liste, et le détail au survol.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 4 – Multimédia</a>
+  (ou utilisez votre favori). Cliquez une ligne de la liste pour épingler le détail du média ; un clic ailleurs ou
+  <kbd>Échap</kbd> le libère, un second <kbd>Échap</kbd> arrête le bookmarklet. « Couper tous les médias » (<kbd>Maj+M</kbd>)
+  met tout en pause, « Ordre de tabulation » (<kbd>Maj+T</kbd>) numérote les contrôles du média épinglé.</p>
+  <p>Les lecteurs YouTube et la carte sont simulés : leur iframe a une vraie adresse (<code>src</code>), seule analysée par
+  le bookmarklet, mais affiche un contenu local (<code>srcdoc</code>) pour ne charger aucun service tiers. Les médias
+  durent 4 secondes, avec un son faible.</p>
+</div>
+
+<h2>4.1 et 4.2 Transcription</h2>
+<p>Le bookmarklet cherche un lien ou un bouton « transcription » près du média ; la pertinence reste à juger.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> Vidéo complète</h3>
+    <div class="demo">
+      <figure>
+        <video controls preload="metadata" src="media/presentation.webm">
+          <track kind="captions" srclang="fr" label="Français" src="media/captions-fr.vtt">
+        </video>
+        <figcaption>Présentation du bookmarklet RGAA 4 (4 s)</figcaption>
+      </figure>
+      <p style="margin:.4rem 0 0"><a href="#transcription-presentation">Lire la transcription de la vidéo</a></p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 4.1 ! transcription repérée (entourée en orange), 4.3 ✓ piste captions,
+    4.5 !, 4.7 ! légende trouvée, 4.10 ✓, 4.11 ✓ et 4.13 ✓ contrôles natifs. « Charger les sous-titres » affiche 2 lignes.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> Podcast sans transcription</h3>
+    <div class="demo">
+      <p style="margin:0 0 .3rem">Épisode 12 : l’audit en pratique</p>
+      <audio controls preload="metadata" src="media/podcast.mp3"></audio>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 4.1 ! aucune transcription repérée, 4.3 et 4.5 ∅ (audio seul),
+    4.7 ! texte adjacent « Épisode 12… », 4.11 ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span> Lien vers un fichier audio</h3>
+    <div class="demo"><a href="media/podcast.mp3">Télécharger l’épisode 12 (MP3, 16 Ko)</a></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ dans le filtre « Liens », pour information.</p>
+  </div>
+</div>
+
+<h2>4.3 et 4.4 Sous-titres synchronisés</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span> Piste kind="subtitles"</h3>
+    <div class="demo">
+      <figure>
+        <video controls preload="metadata" src="media/presentation.webm">
+          <track kind="subtitles" srclang="fr" label="Français" src="media/subtitles-fr.vtt">
+        </video>
+        <figcaption>Présentation, sous-titres mal typés</figcaption>
+      </figure>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 4.3 × kind="captions" attendu (4.3.2).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> Aucune piste, piste de description</h3>
+    <div class="demo">
+      <figure>
+        <video controls preload="metadata" src="media/presentation.webm">
+          <track kind="descriptions" srclang="fr" label="Description" src="media/descriptions-fr.vtt">
+        </video>
+        <figcaption>Présentation, sans sous-titres</figcaption>
+      </figure>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 4.3 ! aucune piste de sous-titres (incrustés ?),
+    4.5 ! piste kind="descriptions" non lue par les navigateurs.</p>
+  </div>
+</div>
+
+<h2>4.7 Identification du média</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> Titre générique</h3>
+    <div class="demo">
+      <iframe title="YouTube video player" src="https://www.youtube-nocookie.com/embed/abc123" srcdoc="<body style='margin:0;height:100vh;display:grid;place-items:center;background:#111;color:#fff;font:14px system-ui'>Lecteur YouTube simulé</body>"></iframe>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> type YouTube, 4.7 ! nom générique « YouTube video player » (title),
+    4.3, 4.11 et 4.13 ! à vérifier dans le lecteur.</p>
+  </div>
+</div>
+
+<h2>4.8 Médias non temporels</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> Carte avec son équivalent texte</h3>
+    <div class="demo">
+      <iframe title="Carte : accès aux locaux" src="https://www.openstreetmap.org/export/embed.html?bbox=2.33,48.85,2.36,48.87" srcdoc="<body style='margin:0;height:100vh;display:grid;place-items:center;background:#e8f0e0;font:14px system-ui'>Carte simulée</body>"></iframe>
+      <p class="alt-carte">Adresse : 20 avenue de Ségur, 75007 Paris. Métro École Militaire.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 4.8 ! le paragraphe sous la carte est proposé (à juger en 4.9), 4.12 ! à tester au clavier.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> Carte seule</h3>
+    <div class="demo">
+      <iframe title="Carte des agences" src="https://www.openstreetmap.org/export/embed.html?bbox=4.8,45.7,4.9,45.8" srcdoc="<body style='margin:0;height:100vh;display:grid;place-items:center;background:#e8f0e0;font:14px system-ui'>Carte simulée</body>"></iframe>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 4.8 ! rien repéré à proximité.</p>
+  </div>
+</div>
+
+<h2>4.10 Son déclenché automatiquement</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span> Lecture automatique avec le son, sans contrôles</h3>
+    <div class="demo">
+      <p style="margin:0 0 .3rem">Bande-annonce</p>
+      <video autoplay preload="auto" src="media/presentation.webm"></video>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> en tête de liste : 4.10 × son sans contrôle pour l’arrêter, 4.11 × et 4.13 × aucun contrôle.
+    Le navigateur bloque souvent ce son tant qu’on n’a pas cliqué dans la page : l’erreur est signalée quand même.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> Vidéo d’arrière-plan</h3>
+    <div class="demo">
+      <video autoplay muted loop playsinline preload="auto" src="media/presentation.webm"></video>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 4.10 ✓ sans le son, 4.11 ! « Vidéo d’arrière-plan probable », rappel du critère 13.8.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> YouTube en lecture automatique</h3>
+    <div class="demo">
+      <iframe title="Interview de l’équipe accessibilité" src="https://www.youtube.com/embed/def456?autoplay=1" srcdoc="<body style='margin:0;height:100vh;display:grid;place-items:center;background:#111;color:#fff;font:14px system-ui'>Lecteur YouTube simulé</body>"></iframe>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> paramètres « autoplay=1 », 4.10 ! lecture automatique avec le son.</p>
+  </div>
+</div>
+
+<h2>4.11 et 4.13 Contrôles et compatibilité</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span> Lecteur personnalisé inaccessible</h3>
+    <div class="demo">
+      <p style="margin:0 0 .3rem">Tutoriel : installer un bookmarklet</p>
+      <div class="lecteur">
+        <video preload="metadata" src="media/presentation.webm"></video>
+        <div class="barre">
+          <button type="button" class="play-icone"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z" fill="currentColor"/></svg></button>
+          <div class="volume-jauge" onclick="void 0"></div>
+        </div>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 4.11 × 1 contrôle non atteignable au clavier, 4.13 × 2 contrôles sans nom accessible, 1 sans rôle.
+    Le tableau des contrôles détaille chaque bouton. <kbd>Maj+T</kbd> : « 1 » sur le bouton, « × hors clavier » sur la jauge.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> Lecteur personnalisé correct</h3>
+    <div class="demo">
+      <p style="margin:0 0 .3rem">Tutoriel : lancer un audit</p>
+      <div class="lecteur" id="lecteur-ok">
+        <video preload="metadata" src="media/presentation.webm"></video>
+        <div class="barre">
+          <button type="button" class="btn-lecture" aria-pressed="false">Lecture</button>
+          <button type="button" class="btn-son" aria-pressed="false">Couper le son</button>
+          <input type="range" min="0" max="100" value="80" aria-label="Volume">
+        </div>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 4.11 ! à tester au clavier, 4.13 ! à tester au lecteur d’écran ; tableau : 3 contrôles nommés et focalisables.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span> YouTube sans contrôles</h3>
+    <div class="demo">
+      <iframe title="Webinaire RGAA, partie 1" src="https://www.youtube.com/embed/ghi789?controls=0&amp;disablekb=1" srcdoc="<body style='margin:0;height:100vh;display:grid;place-items:center;background:#111;color:#fff;font:14px system-ui'>Lecteur YouTube simulé</body>"></iframe>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> paramètres « controls=0 · disablekb=1 », 4.11 × lecteur sans contrôles.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span> Façade de lecteur</h3>
+    <div class="demo">
+      <lite-youtube videoid="jkl012" playlabel="Lire : le RGAA en 5 minutes"><button type="button" class="lty-playbtn">Lire : le RGAA en 5 minutes</button></lite-youtube>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> type « Façade YouTube », 4.11 ! activable au clavier : charger le lecteur puis Actualiser.</p>
+  </div>
+</div>
+
+<h2>Média masqué</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span> Vidéo masquée</h3>
+    <div class="demo"><p style="margin:0">Une vidéo <code>hidden</code> est présente ici.</p><video hidden src="media/presentation.webm"></video></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ « masqué : display:none » en fin de liste.</p>
+  </div>
+</div>
+
+<h2 id="transcription-presentation">Transcription : présentation du bookmarklet RGAA 4</h2>
+<p>[Musique douce] Bienvenue dans la démo du bookmarklet RGAA 4. À l’écran, un fond bleu foncé affiche le titre « Démo RGAA 4 ».</p>
+</div>
+<script>
+  // Lecteur personnalisé correct : boutons qui pilotent la vidéo.
+  const lecteur = document.getElementById('lecteur-ok');
+  const v = lecteur.querySelector('video');
+  const lecture = lecteur.querySelector('.btn-lecture');
+  const son = lecteur.querySelector('.btn-son');
+  lecture.addEventListener('click', () => (v.paused ? v.play() : v.pause()));
+  v.addEventListener('play', () => { lecture.textContent = 'Pause'; lecture.setAttribute('aria-pressed', 'true'); });
+  v.addEventListener('pause', () => { lecture.textContent = 'Lecture'; lecture.setAttribute('aria-pressed', 'false'); });
+  son.addEventListener('click', () => { v.muted = !v.muted; son.setAttribute('aria-pressed', String(v.muted)); });
+  lecteur.querySelector('input').addEventListener('input', (e) => (v.volume = e.target.value / 100));
+</script>
+</body>
+</html>
