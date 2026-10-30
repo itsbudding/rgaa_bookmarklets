@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node test/smoke.cjs"
+    "test": "node test/smoke.cjs && node test/demo.cjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2"

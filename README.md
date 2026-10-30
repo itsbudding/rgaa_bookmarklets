@@ -26,6 +26,15 @@ Autre méthode : créez un favori et collez comme adresse le contenu d'un des
 fichiers `dist/rgaa-1-images.js`, `dist/rgaa-2-cadres.js` ou
 `dist/rgaa-11-formulaires.js`.
 
+### Pages de démo
+
+Pour essayer les bookmarklets sans chercher une page à auditer, ouvrez
+`dist/demo/index.html` (lien aussi depuis `dist/index.html`). Il y a une page
+par bookmarklet, avec des cas conformes et non conformes regroupés par
+critère RGAA. Chaque cas indique le verdict attendu (badge) et ce que doit
+afficher le panneau. Un bouton « Lancer » en haut de chaque page exécute le
+bookmarklet sans l'installer.
+
 ## Utilisation
 
 - **Lancer** : ouvrez la page à auditer, puis cliquez sur le favori.
@@ -143,13 +152,14 @@ src/
     dialog-panel.js     TEMPLATE panneau fixe      → dialog()
     list-panel.js       TEMPLATE panneau liste (aperçu des panneaux flottants)
   bookmarklets/         un fichier par bookmarklet
+demo/                   sources des pages de démo ({{BOOKMARKLET}} remplacé au build)
 dist/                   versions installables générées (ne pas modifier à la main)
 ```
 
 ```sh
 npm install
 npm run build   # génère dist/
-npm test        # test de fumée (nécessite Playwright)
+npm test        # test de fumée + pages de démo (nécessite Playwright)
 ```
 
 ### Base commune

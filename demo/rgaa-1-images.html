@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 1 – Images</title>
+<link rel="stylesheet" href="demo.css">
+<style>
+  .css-motif { width: 100%; height: 40px; background-image: url(img/motif.svg); }
+  .css-icone::before { content: url(img/logo-rgaa.svg); display: inline-block; transform: scale(.4); transform-origin: left top; width: 48px; height: 32px; }
+  .promo-texte { display: inline-block; background: #7a1fa2; color: #fff; font: bold 26px Arial, sans-serif; padding: 14px 28px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 1 – Images</h1>
+<div class="intro">
+  <p>Cette page rassemble des images conformes et non conformes à la
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#1">thématique 1 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 1 – Images</a>
+  (ou utilisez votre favori). Survolez ensuite les images, ou parcourez la liste en haut à droite.
+  <kbd>Maj+I</kbd> estompe les images, <kbd>Échap</kbd> arrête le bookmarklet.</p>
+</div>
+
+<h2>1.1 Images porteuses d’information : présence d’une alternative</h2>
+<p>Une image qui transmet une information doit avoir un nom accessible.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>img avec alt</h3>
+    <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80" alt="L’équipe projet réunie : trois personnes"></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom accessible « L’équipe projet… » (alt).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>img sans attribut alt</h3>
+    <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80"></div>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans alternative » dans la liste, nom accessible absent.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>svg avec role="img" et aria-label</h3>
+    <div class="demo"><svg role="img" aria-label="Graphique : ventes en hausse" width="120" height="60" viewBox="0 0 120 60"><rect x="10" y="35" width="20" height="20" fill="#1b7f3b"/><rect x="45" y="20" width="20" height="35" fill="#1b7f3b"/><rect x="80" y="5" width="20" height="50" fill="#1b7f3b"/></svg></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Graphique : ventes en hausse » (aria-label), rôle img (attribut role).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>svg avec &lt;title&gt; mais sans role="img"</h3>
+    <div class="demo"><svg width="120" height="60" viewBox="0 0 120 60"><title>Logo de l’association</title><circle cx="30" cy="30" r="22" fill="#005a9c"/><rect x="60" y="20" width="50" height="20" fill="#005a9c"/></svg></div>
+    <p class="attendu"><strong>Attendu :</strong> ! nom « Logo de l’association » (&lt;title&gt;) et constat « svg porteur d’information sans role="img" (1.1.5) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>svg sans aucune alternative</h3>
+    <div class="demo"><svg width="120" height="60" viewBox="0 0 120 60"><polygon points="10,55 60,5 110,55" fill="#b36b00"/></svg></div>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans alternative », plus le constat ! sur le role="img" manquant (1.1.5).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Élément avec role="img"</h3>
+    <div class="demo"><span role="img" aria-label="Note : 4 étoiles sur 5" style="font-size:1.5rem">★★★★☆</span></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Note : 4 étoiles sur 5 » (aria-label).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>canvas avec contenu alternatif</h3>
+    <div class="demo"><canvas id="canvas-courbe" width="160" height="60">Courbe des températures : de 12 °C à 21 °C sur la semaine</canvas></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Courbe des températures… » (contenu alternatif).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>input type="image" avec alt</h3>
+    <div class="demo"><input type="image" src="img/logo-rgaa.svg" width="60" height="40" alt="Rechercher"></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Rechercher » (alt).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>object avec contenu alternatif</h3>
+    <div class="demo"><object type="image/svg+xml" data="img/graphique-ventes.svg" width="160" height="100">Ventes trimestrielles : 30, 45, 60 et 75 unités</object></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ dans la liste, nom « Ventes trimestrielles… » (contenu alternatif). Le survol d’un object peut ne pas réagir : utilisez la liste.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>embed sans alternative</h3>
+    <div class="demo"><embed type="image/svg+xml" src="img/graphique-ventes.svg" width="160" height="100"></div>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans alternative » dans la liste. Comme pour object, le survol peut ne pas réagir.</p>
+  </div>
+  <div class="case wide">
+    <h3>Zones cliquables (area)</h3>
+    <div class="demo">
+      <img src="img/france.svg" width="120" height="120" alt="Carte des agences" usemap="#carte-agences">
+      <map name="carte-agences">
+        <area shape="circle" coords="60,45,12" href="#paris" alt="Agence de Paris">
+        <area shape="rect" coords="20,70,100,110" href="#sud">
+      </map>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> image ✓ « Carte des agences » ; zone autour du point rouge
+    <span class="badge badge--ok">Conforme</span>✓ « Agence de Paris » ; zone du bas
+    <span class="badge badge--ko">Non conforme</span>× sans alternative.</p>
+  </div>
+</div>
+
+<h2>1.2 Images de décoration : correctement ignorées</h2>
+<p>Une image décorative doit être ignorée par les lecteurs d’écran, sans alternative ni title.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>img avec alt=""</h3>
+    <div class="demo"><img src="img/separateur.svg" width="200" height="12" alt=""></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ « Décorative » (alt="").</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>svg avec aria-hidden="true"</h3>
+    <div class="demo"><svg aria-hidden="true" width="200" height="12" viewBox="0 0 200 12"><path d="M0 6 H200" stroke="#b36b00" stroke-width="3" stroke-dasharray="6 4"/></svg></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ « Décorative » (aria-hidden="true").</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>img avec role="presentation"</h3>
+    <div class="demo"><img src="img/separateur.svg" width="200" height="12" role="presentation" alt=""></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ « Décorative » (role="presentation").</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>alt="" mais avec un title</h3>
+    <div class="demo"><img src="img/separateur.svg" width="200" height="12" alt="" title="Séparateur"></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ décorative, avec le constat × « Image décorative avec title : à retirer (1.2) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-hidden mais avec un aria-label</h3>
+    <div class="demo"><svg aria-hidden="true" aria-label="Vague" width="200" height="12" viewBox="0 0 200 12"><path d="M0 6 Q50 0 100 6 T200 6" fill="none" stroke="#b36b00" stroke-width="2"/></svg></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ décorative, avec le constat × « Image décorative avec aria-label ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Image de fond CSS</h3>
+    <div class="demo"><div class="css-motif"></div></div>
+    <p class="attendu"><strong>Attendu (survol uniquement) :</strong> « Image CSS : Oui (background-image) », nom ! « Aucun : vérifier que l’image CSS est décorative ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Icône insérée par ::before</h3>
+    <div class="demo"><span class="css-icone"></span> Accès adhérents</div>
+    <p class="attendu"><strong>Attendu (survol de l’icône) :</strong> « Image CSS : Oui (::before content (CSS)) ».</p>
+  </div>
+</div>
+
+<h2>1.3 Pertinence de l’alternative</h2>
+<p>Le bookmarklet signale les alternatives suspectes ; la pertinence reste à juger par l’auditeur.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Alternative = nom du fichier</h3>
+    <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80" alt="photo-equipe.svg"></div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Alternative = nom de fichier (1.3) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Alternative générique</h3>
+    <div class="demo"><img src="img/logo-rgaa.svg" width="120" height="80" alt="Logo"></div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Alternative générique (« Logo ») (1.3) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Alternative très longue</h3>
+    <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Graphique en barres montrant les ventes trimestrielles de l’année : 30 unités au premier trimestre, 45 au deuxième, 60 au troisième et 75 au quatrième"></div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Alternative longue (… caractères) : une description détaillée serait-elle plus adaptée ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Alternative non pertinente</h3>
+    <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Cliquez ici"></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ dans le panneau : le bookmarklet ne peut pas juger le sens, comparez l’alternative au fichier « graphique-ventes.svg ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Image dans un lien</h3>
+    <div class="demo"><a href="#accueil"><img src="img/logo-rgaa.svg" width="60" height="40" alt="Accueil"></a></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Accueil » (alt), « Image dans un lien : Oui », nom du lien « Accueil ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Lien image sans alternative</h3>
+    <div class="demo"><a href="#contact"><img src="img/logo-rgaa.svg" width="60" height="40"></a></div>
+    <p class="attendu"><strong>Attendu :</strong> × sans alternative, et nom du lien absent.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Lien icône + texte, icône décorative</h3>
+    <div class="demo"><a href="#aide"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#005a9c"/></svg> Aide en ligne</a></div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ décorative, nom du lien « Aide en ligne » (texte du lien).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-labelledby vers un id absent</h3>
+    <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80" aria-labelledby="legende-inexistante"></div>
+    <p class="attendu"><strong>Attendu :</strong> × sans alternative, constat « aria-labelledby : id introuvable ».</p>
+  </div>
+</div>
+
+<h2>1.6 Description détaillée</h2>
+<p>Une image complexe (graphique, schéma) doit avoir une description détaillée.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>aria-describedby</h3>
+    <div class="demo">
+      <img src="img/graphique-ventes.svg" width="160" height="100" alt="Ventes 2025" aria-describedby="desc-ventes">
+      <p id="desc-ventes">Les ventes progressent chaque trimestre : 30, 45, 60 puis 75 unités.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> description « Les ventes progressent… » (aria-describedby), paragraphe entouré en orange.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Lien adjacent</h3>
+    <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Ventes 2025"><a href="#desc-ventes">Description détaillée du graphique</a></div>
+    <p class="attendu"><strong>Attendu :</strong> description « Description détaillée du graphique » (lien adjacent).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>longdesc (obsolète)</h3>
+    <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Ventes 2025" longdesc="ventes-2025.html"></div>
+    <p class="attendu"><strong>Attendu :</strong> description « ventes-2025.html » (longdesc) et ! « longdesc est obsolète ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Graphique sans description</h3>
+    <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Ventes 2025"></div>
+    <p class="attendu"><strong>Attendu :</strong> « Description : aucune ». À l’auditeur de juger si l’image en nécessite une.</p>
+  </div>
+</div>
+
+<h2>1.8 Images texte</h2>
+<p>Un texte affiché sous forme d’image doit, si possible, être remplacé par du texte mis en forme.
+Appuyez sur <kbd>Maj+I</kbd> : ce qui disparaît est une image.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Texte en image</h3>
+    <div class="demo"><img src="img/bandeau-promo.svg" width="300" height="70" alt="-20 % ce week-end"></div>
+    <p class="attendu"><strong>Attendu :</strong> avec Maj+I, le bandeau s’estompe : c’est une image texte.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Texte mis en forme en CSS</h3>
+    <div class="demo"><span class="promo-texte">-20 % ce week-end</span></div>
+    <p class="attendu"><strong>Attendu :</strong> avec Maj+I, le texte reste visible.</p>
+  </div>
+</div>
+
+<h2>1.9 Légendes d’images</h2>
+<p>Une image légendée doit être dans une <code>figure</code> avec <code>role="figure"</code> (ou <code>group</code>) et un <code>aria-label</code> reprenant la légende.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>figure complète</h3>
+    <div class="demo">
+      <figure role="figure" aria-label="Le siège de l’association, à Lyon" style="margin:0">
+        <img src="img/france.svg" width="100" height="100" alt="Carte de France, point sur Lyon">
+        <figcaption>Le siège de l’association, à Lyon</figcaption>
+      </figure>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> légende « Le siège… » (figcaption), aucun constat.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>figure sans role ni aria-label</h3>
+    <div class="demo">
+      <figure style="margin:0">
+        <img src="img/france.svg" width="100" height="100" alt="Carte de France, point sur Lyon">
+        <figcaption>Le siège de l’association, à Lyon</figcaption>
+      </figure>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « figure sans role="figure"… » et ! « figure sans aria-label… (1.9.1) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-label différent de la légende</h3>
+    <div class="demo">
+      <figure role="figure" aria-label="Carte" style="margin:0">
+        <img src="img/france.svg" width="100" height="100" alt="Carte de France, point sur Lyon">
+        <figcaption>Le siège de l’association, à Lyon</figcaption>
+      </figure>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « aria-label de figure différent de la légende (1.9.1) ».</p>
+  </div>
+</div>
+
+<h2>Cas particuliers : Shadow DOM et iframe</h2>
+<p>Le bookmarklet inspecte aussi le contenu des Shadow DOM ouverts et des iframes de même origine.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Image dans un Shadow DOM</h3>
+    <div class="demo"><div id="hote-shadow"></div></div>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans alternative » (img sans alt dans le composant).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Image dans une iframe</h3>
+    <div class="demo"><iframe title="Encart partenaire" style="width:100%;height:110px;border:1px solid #999" srcdoc="<p style='margin:4px;font:14px system-ui'>Partenaire :</p><svg role='img' aria-label='Logo du partenaire' width='120' height='50'><rect width='120' height='50' rx='6' fill='#1b7f3b'/></svg>"></iframe></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Logo du partenaire » dans la liste et au survol.</p>
+  </div>
+</div>
+</div>
+<script>
+  // Composant avec Shadow DOM ouvert contenant une image sans alt.
+  document.getElementById('hote-shadow').attachShadow({ mode: 'open' }).innerHTML =
+    '<img src="img/photo-equipe.svg" width="120" height="80">';
+  // Dessin du canvas.
+  const ctx = document.getElementById('canvas-courbe').getContext('2d');
+  ctx.strokeStyle = '#c40000'; ctx.lineWidth = 3; ctx.beginPath();
+  [[5, 50], [40, 42], [75, 35], [110, 20], [155, 10]].forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+  ctx.stroke();
+</script>
+</body>
+</html>

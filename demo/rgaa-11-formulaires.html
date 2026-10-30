@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 11 – Formulaires</title>
+<link rel="stylesheet" href="demo.css">
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a></p>
+<h1>Démo RGAA 11 – Formulaires</h1>
+<div class="intro">
+  <p>Cette page rassemble des champs et boutons conformes et non conformes à la
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#11">thématique 11 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 11 – Formulaires</a>
+  (ou utilisez votre favori). Survolez les champs, ou parcourez-les au clavier avec <kbd>Tab</kbd> :
+  le détail suit le focus. <kbd>Échap</kbd> arrête le bookmarklet.</p>
+</div>
+
+<h2>11.1 Chaque champ a-t-il une étiquette ?</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>label for</h3>
+    <form class="demo" onsubmit="return false"><label for="c-prenom">Prénom</label><input id="c-prenom" autocomplete="given-name"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Prénom » (label), label entouré en orange.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>label englobant</h3>
+    <form class="demo" onsubmit="return false"><label>Ville <input autocomplete="address-level2"></label></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Ville » (label).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>aria-labelledby</h3>
+    <form class="demo" onsubmit="return false"><p id="c-tel-intitule" style="margin:0 0 .2rem;font-weight:600">Téléphone</p><input type="tel" aria-labelledby="c-tel-intitule" autocomplete="tel"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Téléphone » (aria-labelledby).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>aria-label + bouton adjacent</h3>
+    <form class="demo" role="search" onsubmit="return false"><input type="search" aria-label="Rechercher sur le site" autocomplete="off"> <button>Rechercher</button></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Rechercher sur le site » (aria-label).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>title</h3>
+    <form class="demo" onsubmit="return false">Quantité : <input type="number" title="Quantité" value="1" min="1" style="max-width:5rem" autocomplete="off"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Quantité » (title).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>placeholder seul</h3>
+    <form class="demo" onsubmit="return false"><input type="email" placeholder="Votre e-mail" autocomplete="email"></form>
+    <p class="attendu"><strong>Attendu :</strong> ! « Placeholder seul » dans la liste, × « Placeholder seul : ce n’est pas une étiquette (11.1) » au survol.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Aucune étiquette</h3>
+    <form class="demo" onsubmit="return false">Commentaire :<br><textarea rows="2" autocomplete="off"></textarea></form>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans étiquette » (le texte voisin n’est pas relié au champ).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>label for vers le mauvais id</h3>
+    <form class="demo" onsubmit="return false"><label for="c-societe">Société</label><input id="c-entreprise" autocomplete="organization"></form>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans étiquette » : le label ne cible pas ce champ.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Label masqué</h3>
+    <form class="demo" onsubmit="return false"><label for="c-code" hidden>Code promo</label><input id="c-code" autocomplete="off"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Code promo » (label) et ! « Label masqué : vérifier qu’une étiquette visible existe (11.1) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-labelledby vers un id absent</h3>
+    <form class="demo" onsubmit="return false"><span>Pays</span><input aria-labelledby="c-pays-intitule" autocomplete="country-name"></form>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans étiquette » et × « aria-labelledby : id introuvable (c-pays-intitule) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Champ ARIA role="textbox"</h3>
+    <form class="demo" onsubmit="return false"><p id="c-bio-intitule" style="margin:0 0 .2rem;font-weight:600">Présentation</p><div class="editable" role="textbox" aria-multiline="true" contenteditable="true" aria-labelledby="c-bio-intitule"></div></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Présentation » (aria-labelledby), rôle textbox (attribut role).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>contenteditable sans role</h3>
+    <form class="demo" onsubmit="return false"><div class="editable" contenteditable="true"></div></form>
+    <p class="attendu"><strong>Attendu :</strong> × sans étiquette et × « Zone contenteditable sans role… (11.1) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Case à cocher ARIA</h3>
+    <form class="demo" onsubmit="return false"><span class="aria-check" role="checkbox" aria-checked="false" tabindex="0">J’accepte les conditions</span></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « J’accepte les conditions » (contenu), rôle checkbox.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Case ARIA sans intitulé</h3>
+    <form class="demo" onsubmit="return false"><span class="aria-check" role="checkbox" aria-checked="false" tabindex="0"></span> Recevoir la lettre</form>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans étiquette » : le texte est hors de la case.</p>
+  </div>
+</div>
+
+<h2>11.2 et 11.9 L’intitulé visible est-il dans le nom accessible ?</h2>
+<p>Quand le nom vient de <code>aria-label</code> ou <code>aria-labelledby</code>, il doit contenir l’intitulé visible.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>aria-label qui reprend le label</h3>
+    <form class="demo" onsubmit="return false"><label for="c-nom">Nom</label><input id="c-nom" aria-label="Nom de famille" autocomplete="family-name"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Nom de famille » (aria-label), aucun constat.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-label sans le label</h3>
+    <form class="demo" onsubmit="return false"><label for="c-cp">Code postal</label><input id="c-cp" aria-label="CP" autocomplete="postal-code"></form>
+    <p class="attendu"><strong>Attendu :</strong> × « Le nom ne contient pas l’intitulé visible « Code postal » (11.2.5) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Boutons avec intitulé</h3>
+    <form class="demo" onsubmit="return false">
+      <button type="submit">Envoyer</button>
+      <input type="submit" value="Valider">
+      <button type="button" aria-label="Fermer"><span aria-hidden="true">✕</span></button>
+    </form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Envoyer » (contenu), « Valider » (value), « Fermer » (aria-label).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-label différent du texte</h3>
+    <form class="demo" onsubmit="return false"><button type="submit" aria-label="Valider le formulaire">Envoyer</button></form>
+    <p class="attendu"><strong>Attendu :</strong> × « Le nom ne contient pas l’intitulé visible « Envoyer » (11.9.2) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Bouton icône sans intitulé</h3>
+    <form class="demo" onsubmit="return false"><button type="button"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><path d="M2 2 L14 14 M14 2 L2 14" stroke="#333" stroke-width="2"/></svg></button></form>
+    <p class="attendu"><strong>Attendu :</strong> × « Bouton sans intitulé » dans la liste et le compteur.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Bouton image</h3>
+    <form class="demo" onsubmit="return false"><input type="image" src="img/logo-rgaa.svg" width="60" height="40" alt="Lancer la recherche"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ intitulé « Lancer la recherche » (alt).</p>
+  </div>
+</div>
+
+<h2>11.5 Les champs de même nature sont-ils regroupés ?</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>fieldset et legend</h3>
+    <form class="demo" onsubmit="return false"><fieldset><legend>Mode de livraison</legend>
+      <input type="radio" id="c-liv-1" name="livraison"><label class="inline" for="c-liv-1">Domicile</label>
+      <input type="radio" id="c-liv-2" name="livraison"><label class="inline" for="c-liv-2">Point relais</label>
+    </fieldset></form>
+    <p class="attendu"><strong>Attendu :</strong> sur un bouton radio, « Groupe : Mode de livraison » ; sur la legend, « Légende » (legend).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Boutons radio non groupés</h3>
+    <form class="demo" onsubmit="return false"><p style="margin:0 0 .2rem">Civilité</p>
+      <input type="radio" id="c-civ-1" name="civilite"><label class="inline" for="c-civ-1">Madame</label>
+      <input type="radio" id="c-civ-2" name="civilite"><label class="inline" for="c-civ-2">Monsieur</label>
+    </form>
+    <p class="attendu"><strong>Attendu :</strong> ! « Plusieurs boutons radio « civilite » hors fieldset ou role="group" (11.5) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Cases à cocher non groupées</h3>
+    <form class="demo" onsubmit="return false"><p style="margin:0 0 .2rem">Centres d’intérêt</p>
+      <input type="checkbox" id="c-int-1" name="interets"><label class="inline" for="c-int-1">Sport</label>
+      <input type="checkbox" id="c-int-2" name="interets"><label class="inline" for="c-int-2">Culture</label>
+    </form>
+    <p class="attendu"><strong>Attendu :</strong> ! « Plusieurs cases « interets » hors fieldset ou role="group" (11.5) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>role="radiogroup"</h3>
+    <form class="demo" onsubmit="return false"><div role="radiogroup" aria-labelledby="c-taille-intitule"><p id="c-taille-intitule" style="margin:0 0 .2rem">Taille</p>
+      <input type="radio" id="c-taille-1" name="taille"><label class="inline" for="c-taille-1">S</label>
+      <input type="radio" id="c-taille-2" name="taille"><label class="inline" for="c-taille-2">M</label>
+      <input type="radio" id="c-taille-3" name="taille"><label class="inline" for="c-taille-3">L</label>
+    </div></form>
+    <p class="attendu"><strong>Attendu :</strong> sur un bouton radio, « Groupe : Taille ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Groupe sans nom</h3>
+    <form class="demo" onsubmit="return false"><fieldset>
+      <input type="checkbox" id="c-opt-1" name="options"><label class="inline" for="c-opt-1">Emballage cadeau</label>
+      <input type="checkbox" id="c-opt-2" name="options"><label class="inline" for="c-opt-2">Livraison express</label>
+    </fieldset></form>
+    <p class="attendu"><strong>Attendu :</strong> fieldset sans legend : × légende absente, « Groupe » vide sur les cases.</p>
+  </div>
+</div>
+
+<h2>11.8 Les options des listes sont-elles regroupées et nommées ?</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>optgroup avec label</h3>
+    <form class="demo" onsubmit="return false"><label for="c-dest">Destination</label><select id="c-dest" autocomplete="off">
+      <optgroup label="Europe"><option>Lisbonne</option><option>Rome</option></optgroup>
+      <optgroup label="Asie"><option>Tokyo</option><option>Séoul</option></optgroup>
+    </select></form>
+    <p class="attendu"><strong>Attendu :</strong> « Groupes d’options : Europe, Asie » (label).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>optgroup sans label</h3>
+    <form class="demo" onsubmit="return false"><label for="c-cat">Catégorie</label><select id="c-cat" autocomplete="off">
+      <optgroup label="Fruits"><option>Pomme</option><option>Poire</option></optgroup>
+      <optgroup><option>Carotte</option><option>Poireau</option></optgroup>
+    </select></form>
+    <p class="attendu"><strong>Attendu :</strong> « Fruits » puis × « optgroup sans label ».</p>
+  </div>
+</div>
+
+<h2>11.10 Contrôle de saisie : obligatoire et erreurs</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>required + indication visible</h3>
+    <form class="demo" onsubmit="return false"><label for="c-mail">E-mail <span class="req">(obligatoire)</span></label><input id="c-mail" type="email" required autocomplete="email"></form>
+    <p class="attendu"><strong>Attendu :</strong> « Obligatoire : Oui (required) » et ! « Vérifier que le caractère obligatoire est aussi indiqué visuellement (11.10) » : ici, c’est le cas.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Obligatoire non indiqué visuellement</h3>
+    <form class="demo" onsubmit="return false"><label for="c-naiss">Date de naissance</label><input id="c-naiss" aria-required="true" autocomplete="bday"></form>
+    <p class="attendu"><strong>Attendu :</strong> « Obligatoire : Oui (aria-required) » et le même constat ! : ici, rien n’est visible.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Erreur reliée au champ</h3>
+    <form class="demo" onsubmit="return false"><label for="c-cp2">Code postal <span class="req">*</span></label><input id="c-cp2" required aria-invalid="true" aria-describedby="c-cp2-aide c-cp2-erreur" value="750" autocomplete="postal-code">
+      <p id="c-cp2-aide" style="margin:.2rem 0 0;font-size:.875rem">5 chiffres, par exemple 75011.</p>
+      <p id="c-cp2-erreur" class="error-msg">Erreur : le code postal doit contenir 5 chiffres.</p></form>
+    <p class="attendu"><strong>Attendu :</strong> description = aide + erreur (aria-describedby), « Invalide : true (aria-invalid) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-describedby vers un id absent</h3>
+    <form class="demo" onsubmit="return false"><label for="c-mdp">Mot de passe</label><input id="c-mdp" type="password" aria-describedby="c-mdp-regles" autocomplete="new-password">
+      <p style="margin:.2rem 0 0;font-size:.875rem">12 caractères minimum.</p></form>
+    <p class="attendu"><strong>Attendu :</strong> × « aria-describedby : id introuvable (c-mdp-regles) ».</p>
+  </div>
+</div>
+
+<h2>11.13 Finalité des champs : autocomplete</h2>
+<p>Un champ qui concerne l’utilisateur doit avoir un <code>autocomplete</code> avec une valeur de la liste WCAG.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Valeurs valides</h3>
+    <form class="demo" onsubmit="return false">
+      <label for="c-ac-1">Code postal de livraison</label><input id="c-ac-1" autocomplete="shipping postal-code">
+      <label for="c-ac-2" style="margin-top:.5rem">Téléphone professionnel</label><input id="c-ac-2" type="tel" autocomplete="work tel">
+    </form>
+    <p class="attendu"><strong>Attendu :</strong> « Autocomplete : shipping postal-code » et « work tel » (autocomplete).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Valeur inventée</h3>
+    <form class="demo" onsubmit="return false"><label for="c-ac-3">Code postal</label><input id="c-ac-3" autocomplete="code-postal"></form>
+    <p class="attendu"><strong>Attendu :</strong> × « code-postal : « code-postal » n’est pas une valeur autorisée », compté dans « autocomplete invalide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Jeton mal placé</h3>
+    <form class="demo" onsubmit="return false"><label for="c-ac-4">Code postal (domicile)</label><input id="c-ac-4" autocomplete="home postal-code"></form>
+    <p class="attendu"><strong>Attendu :</strong> × « « home » ne s’applique qu’aux téléphones et e-mails ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>autocomplete absent</h3>
+    <form class="demo" onsubmit="return false"><label for="c-ac-5">Adresse</label><input id="c-ac-5"></form>
+    <p class="attendu"><strong>Attendu :</strong> ! « Absent : requis si le champ concerne l’utilisateur (11.13) ».</p>
+  </div>
+</div>
+</div>
+<script>
+  // Cases à cocher ARIA : bascule au clic et à la barre d’espace.
+  document.querySelectorAll('[role="checkbox"]').forEach((c) => {
+    const toggle = () => c.setAttribute('aria-checked', c.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+    c.addEventListener('click', toggle);
+    c.addEventListener('keydown', (e) => { if (e.key === ' ') { e.preventDefault(); toggle(); } });
+  });
+</script>
+</body>
+</html>
