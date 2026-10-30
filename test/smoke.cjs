@@ -23,7 +23,7 @@ const load = (n) => decodeURIComponent(fs.readFileSync(path.join(__dirname, '..'
   console.log('toggle off:', await p.evaluate(() => !document.getElementById('rgaa-1-images') && !document.getElementById('rgaa-1-images-dim')));
 
   await p.evaluate(load('rgaa-11-formulaires'));
-  for (const s of ['#f1', 'label[for=f1]', '#h1', '#fs legend', '#r1', '#cb1', '#f3', '#sel', '#ac1', '#b1']) { await hover(s); console.log('FORM', s, '→', await panel('rgaa-11-formulaires')); }
+  for (const s of ['#f1', 'label[for=f1]', '#h1', '#fs legend', '#r1', '#cb1', '#f3', '#sel', '#ac1', '#ac2', '#ac3', '#b1']) { await hover(s); console.log('FORM', s, '→', await panel('rgaa-11-formulaires')); }
   await p.focus('#f2'); console.log('FOCUS #f2 →', await panel('rgaa-11-formulaires'));
   await p.keyboard.press('Escape');
   console.log('esc off:', await p.evaluate(() => !document.getElementById('rgaa-11-formulaires')), 'outline restored:', JSON.stringify(await p.evaluate(() => document.getElementById('f1').style.outline + '/' + document.getElementById('f2').style.outline)));

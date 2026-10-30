@@ -38,6 +38,9 @@ const AC_TYPES = ['text', 'email', 'tel', 'url', 'password', 'search', 'number',
 const roleOf = (e) => (e.getAttribute('role') || '').trim().split(/\s+/)[0];
 const tagOf = (e) => e.tagName.toLowerCase();
 const isGroup = (e) => e.tagName === 'FIELDSET' || ['group', 'radiogroup'].includes(roleOf(e));
+/* Rôles dont le nom accessible peut venir du contenu (ARIA, « name from content »). */
+const NAME_FROM_CONTENT = ['checkbox', 'radio', 'switch', 'option', 'menuitemcheckbox', 'menuitemradio', 'treeitem'];
+const nameFromContent = (e) => NAME_FROM_CONTENT.includes(roleOf(e)) && !['input', 'select', 'textarea'].includes(tagOf(e));
 const isButton = (e) => tagOf(e) === 'button' || roleOf(e) === 'button' || (tagOf(e) === 'input' && BUTTON_TYPES.includes(e.type));
 
 /** Type affiché : type d'input, rôle ARIA, contenteditable ou balise. */
@@ -58,6 +61,7 @@ const labelsOf = (e) => {
 /** Intitulé visible : texte des labels (ou contenu pour un bouton). */
 const visibleLabel = (e) => {
   if (isButton(e)) return textOf(e) || e.value || '';
+  if (nameFromContent(e) && !labelsOf(e).length) return textOf(e);
   return labelsOf(e)
     .filter((l) => !isNotExposed(l))
     .map(textOf)
@@ -86,6 +90,10 @@ const accName = (e) => {
   if (labels.length) {
     const t = labels.map(textOf).filter(Boolean);
     if (t.length) return { v: t, s: labels.length > 1 ? `${labels.length} labels` : 'label' };
+  }
+  if (nameFromContent(e)) {
+    const t = textOf(e);
+    if (t) return { v: t, s: 'contenu' };
   }
   const title = (e.getAttribute('title') || '').trim();
   if (title) return { v: title, s: 'title' };
