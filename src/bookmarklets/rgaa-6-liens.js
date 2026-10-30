@@ -10,15 +10,11 @@
  *    suite », « cliquez ici »…) ou partagé par des liens vers des
  *    destinations différentes est « à juger en contexte » ; le détail donne
  *    ce contexte (phrase, paragraphe, item de liste, cellule et en-têtes,
- *    titre qui précède) et l'auditeur tranche : « explicite seul »,
- *    « explicite en contexte » ou « non conforme ». Le test 6.1.5 (nom
+ *    titre qui précède) pour que l'auditeur juge. Le test 6.1.5 (nom
  *    accessible qui contient l'intitulé visible) est vérifié dans le code.
  * D'autres constats sont signalés sans verdict RGAA : title qui ne reprend
  * pas l'intitulé, nouvelle fenêtre non signalée, href="#" ou javascript:
  * (bouton déguisé), ancre introuvable, fichier sans format.
- *
- * Les choix de l'auditeur sont gardés tant que le bookmarklet tourne
- * (« Actualiser » compris), et perdus à l'arrêt.
  *
  * Bouton « Intitulés » (Maj+N) : affiche l'intitulé de chaque lien sur la page.
  */
@@ -58,16 +54,6 @@ const VAGUE = new Set(
 );
 const NEW_WINDOW = /nouvel(le)?\s+(fen[eê]tre|onglet)|new\s+(window|tab)|externe|external/i;
 const FILE_EXT = /\.(pdf|docx?|xlsx?|pptx?|odt|ods|odp|rtf|csv|zip|rar|7z|epub|mp3|mp4|txt)$/i;
-
-/* ---------- Choix de l'auditeur (gardé tant que le bookmarklet tourne) ---------- */
-
-/** lien → 'explicit' | 'context' | 'ko' */
-const choices = new Map();
-const CHOICES = {
-  explicit: ['ok', 'Explicite hors contexte (jugé par l’auditeur)'],
-  context: ['ok', 'Explicite en contexte (jugé par l’auditeur)'],
-  ko: ['error', 'Non explicite, même en contexte (jugé par l’auditeur)'],
-};
 
 /* ---------- Intitulé (nom accessible) ---------- */
 
@@ -308,14 +294,12 @@ const criteria = (e) => {
     if (!norm(e.name).includes(norm(vt))) x.push(['error', `Le nom accessible ne contient pas l’intitulé visible « ${cut(vt, 60)} » (test 6.1.5)`]);
     else x.push(['ok', 'L’intitulé visible est repris dans le nom accessible (test 6.1.5)']);
   }
-  const choice = choices.get(e.el);
   const dup = e.dupName.length;
   let main;
-  if (choice) main = CHOICES[choice];
-  else if (e.vague) main = ['warning', `Peu explicite hors contexte (${e.vague}) : juger avec le contexte`];
+  if (e.vague) main = ['warning', `Peu explicite hors contexte (${e.vague}) : juger avec le contexte`];
   else if (dup) main = ['warning', `Même intitulé que ${plural(dup, 'autre lien')} vers une autre destination : juger avec le contexte`];
   else main = ['ok', 'Intitulé non générique (pertinence à juger)'];
-  if (!choice && e.vague && dup) x.push(['warning', `Même intitulé que ${plural(dup, 'autre lien')} vers une autre destination`]);
+  if (e.vague && dup) x.push(['warning', `Même intitulé que ${plural(dup, 'autre lien')} vers une autre destination`]);
   c['6.1'] = { status: worst([main[0], ...x.map((a) => a[0])]), text: main[1], quote: e.name, s: n.s, extra: x };
   return c;
 };
@@ -351,7 +335,6 @@ const collect = () => {
   const found = deepAll(LINK_SEL).filter(isLink);
   entries = found.map(analyse);
   byEl = new Map(entries.map((e) => [e.el, e]));
-  [...choices.keys()].forEach((l) => !l.isConnected && choices.delete(l));
   // Doublons : même intitulé vers des destinations différentes, et inversement.
   const shown = entries.filter((e) => !e.hidden);
   const named = shown.filter((e) => e.name && e.dest.key);
@@ -375,7 +358,7 @@ const collect = () => {
   });
   const sorted = [...entries].sort((a, b) => RANK[b.status] - RANK[a.status] || a.idx - b.idx);
   const noName = shown.filter((e) => !e.name).length;
-  const toJudge = shown.filter((e) => e.name && !choices.has(e.el) && (e.vague || e.dupName.length)).length;
+  const toJudge = shown.filter((e) => e.name && (e.vague || e.dupName.length)).length;
   const dups = shown.filter((e) => e.dupName.length).length;
   const err = shown.filter((e) => e.status === 'error').length;
   const hidden = entries.length - shown.length;
@@ -384,13 +367,13 @@ const collect = () => {
       el: e.el,
       status: e.status,
       label: e.hidden ? `${e.name || '(sans intitulé)'} (masqué : ${e.hidden})` : e.name || '(sans intitulé)',
-      meta: e.hidden ? (e.trap ? 'focalisable malgré aria-hidden' : 'non concerné') : `${e.n.nature}${e.name ? ` · ${e.n.s}` : ''}${choices.has(e.el) ? ' · jugé' : ''}`,
+      meta: e.hidden ? (e.trap ? 'focalisable malgré aria-hidden' : 'non concerné') : `${e.n.nature}${e.name ? ` · ${e.n.s}` : ''}`,
       prefix: pills(e),
       filter: e.hidden
         ? []
         : [
             ...(e.name ? [] : ['sans']),
-            ...(e.name && !choices.has(e.el) && (e.vague || e.dupName.length) ? ['juger'] : []),
+            ...(e.name && (e.vague || e.dupName.length) ? ['juger'] : []),
             ...(e.dupName.length || e.dupDest.length ? ['doublon'] : []),
             ...(['image', 'SVG', 'composite', 'zone d’image', 'icône masquée', 'image décorative'].includes(e.n.nature) ? ['image'] : []),
           ],
@@ -507,22 +490,6 @@ const critBlock = (num, r) =>
   `${r.quote ? `<div class="quote">« ${esc(cut(r.quote, 200))} » ${src(r.s)}</div>` : ''}` +
   `${(r.extra || []).map(([t, txt]) => `<div>${flag(t, txt)}</div>`).join('')}</div></div>`;
 
-const choiceHtml = (e) => {
-  const n = `l${e.idx}`;
-  const cur = choices.get(e.el);
-  const radio = (v, label) => `<label><input type="radio" name="${n}" data-action="j-${v}"${cur === v ? ' checked' : ''}> ${label}</label>`;
-  const hint = e.vague || e.dupName.length ? 'Intitulé à juger avec le contexte ci-dessous.' : 'Supposé explicite : intitulé non générique.';
-  return (
-    `<fieldset class="choice"><legend>Intitulé explicite (6.1) ?</legend>` +
-    radio('explicit', 'Explicite seul') +
-    radio('context', 'En contexte') +
-    radio('ko', 'Non conforme') +
-    (cur ? `<button type="button" class="act" data-action="j-reset">Effacer</button>` : '') +
-    `<div class="small muted">${esc(cur ? 'Choix de l’auditeur.' : hint)}${cur ? '' : ' Cliquer la ligne du lien dans la liste pour épingler ce détail.'}</div>` +
-    `</fieldset>`
-  );
-};
-
 const elementLabel = (e) => `&lt;${esc(tagOf(e.el))}&gt;${e.role ? ` ${src(`role="${e.role}"`)}` : ''}`;
 
 const linkDetail = (e) => {
@@ -537,8 +504,7 @@ const linkDetail = (e) => {
     }</p>`;
     return { html, ctx };
   }
-  let html = e.name ? choiceHtml(e) : '';
-  html += row('Élément', elementLabel(e));
+  let html = row('Élément', elementLabel(e));
   html += row('Nature', esc(n.nature));
   html += row('Intitulé', e.name ? `${esc(cut(e.name, 200))} ${src(n.s)}` : icon('error', 'Absent') + ' <span class="text-error">aucun</span>');
   if (n.acc.parts.length > 1 && n.content === e.name) html += row('Composé de', list(n.acc.parts.map((p) => `${esc(cut(p.t, 80))} ${src(p.s === 'texte' ? 'texte' : p.s)}`)));
@@ -628,16 +594,11 @@ const setNames = (on) => {
 /* ---------- Lancement ---------- */
 
 const DETAIL_CSS = `
-.choice{border:1px solid var(--rgaa-border);border-radius:3px;margin:0 0 8px;padding:4px 8px 6px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
-.choice legend{font-weight:700;padding:0 4px}
-.choice label{display:inline-flex;align-items:center;gap:4px;cursor:pointer}
-.choice > div{flex-basis:100%}
 .crits{margin-top:8px;border-top:1px solid var(--rgaa-sep)}
 .crit{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--rgaa-sep)}
 .crit-num{flex:0 0 2.6em;font-weight:700}
 .crit-body{min-width:0;display:flex;flex-direction:column;gap:3px}
 .quote{font-style:italic}
-.act{cursor:pointer;background:none;border:1px solid var(--rgaa-border);border-radius:3px;padding:2px 8px}
 .note{margin:8px 0 0}
 .crits + .row{margin-top:8px}
 `;
@@ -680,16 +641,6 @@ const ui = inspector({
     if (!keyOk(e) || e.key.toLowerCase() !== 'n') return false;
     toggleNames();
     return true;
-  },
-  onAction(name, target) {
-    const e = findEntry(target);
-    if (!e) return;
-    const v = name.replace(/^j-/, '');
-    if (v === 'reset') choices.delete(e.el);
-    else if (CHOICES[v]) choices.set(e.el, v);
-    else return;
-    if (ui) ui.refresh();
-    if (namesHost) setNames(true);
   },
   onStop: () => setNames(false),
   inspect(target) {

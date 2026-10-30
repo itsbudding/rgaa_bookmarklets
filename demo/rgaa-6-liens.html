@@ -27,7 +27,7 @@
   Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
   <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 6 – Liens</a>
   (ou utilisez votre favori). Survolez un lien pour voir son intitulé, sa source et son contexte.
-  Cliquez sur une ligne de la liste pour épingler le détail et juger l’intitulé (Explicite seul, En contexte, Non conforme).
+  Cliquez sur une ligne de la liste pour épingler le détail à côté du lien.
   <kbd>Échap</kbd> libère le détail, puis ferme les panneaux.</p>
   <p>Les liens de cette page pointent vers <code>example.org</code> : évitez de cliquer dessus pendant l’audit.
   Les liens de navigation et le bouton « Lancer » (un lien <code>javascript:</code>) apparaissent aussi dans la liste.</p>
@@ -160,7 +160,7 @@
 
 <h2>6.1 Liens explicites</h2>
 <p>Un intitulé générique est « à juger en contexte » : le détail donne la phrase, le paragraphe, l’item de liste,
-la cellule et ses en-têtes, et le titre qui précède. L’auditeur choisit ensuite « Explicite seul », « En contexte » ou « Non conforme ».</p>
+la cellule et ses en-têtes, et le titre qui précède. C’est à l’auditeur de juger.</p>
 <div class="cases">
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>« Lire la suite » dans un paragraphe</h3>
@@ -168,7 +168,7 @@ la cellule et ses en-têtes, et le titre qui précède. L’auditeur choisit ens
       <p>La médiathèque rouvre le 4 novembre après travaux. <a href="https://example.org/actu/reouverture">Lire la suite</a></p>
     </div>
     <p class="attendu"><strong>Attendu :</strong> 6.1 ! « Peu explicite hors contexte (intitulé générique) ». Contexte : phrase
-    et paragraphe. Choisir « En contexte » passe 6.1 à ✓.</p>
+    et paragraphe.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>« Cliquez ici »</h3>
