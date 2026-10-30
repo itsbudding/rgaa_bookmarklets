@@ -6,6 +6,7 @@ const path = require('path');
 const DEMO = path.join(__dirname, '..', 'dist', 'demo');
 const PAGES = [
   ['rgaa-1-images', 'svg, img, canvas, input[type=image], [role=img], object, embed, .css-motif, .css-icone, #hote-shadow'],
+  ['rgaa-3-couleurs', 'p, a, input, button, [role=checkbox], svg'],
   ['rgaa-11-formulaires', 'input, select, textarea, button, [contenteditable], [role=checkbox], legend'],
 ];
 (async () => {

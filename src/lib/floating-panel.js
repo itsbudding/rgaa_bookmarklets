@@ -15,8 +15,9 @@
  *     id: 'rgaa-1-images',
  *     css: '',                       // CSS spécifique (optionnel)
  *     list: {                        // panneau liste (optionnel), voir
- *       title, collect, footer,      // list-panel.js : compteur de page et
- *     },                             // accès rapide aux éléments
+ *       title, collect, footer,      // list-panel.js : compteur de page,
+ *       tools, filters,              // accès rapide aux éléments, boutons
+ *     },                             // et filtres
  *     onKey(e) {                     // raccourci clavier (optionnel) :
  *       return false;                // true si la touche est traitée
  *     },
@@ -26,6 +27,10 @@
  *       return { html, highlight: [[el, 'primary'], [lbl, 'secondary']] };
  *     },
  *   });
+ *
+ * Renvoie { refresh, redraw } pour mettre à jour le panneau liste (recalcul
+ * complet, ou nouveau rendu sans recalcul), ou undefined si le bookmarklet
+ * vient d'être arrêté.
  */
 import { mount, register, toggleOff } from './panel.js';
 import { createHighlighter } from './highlight.js';
@@ -114,7 +119,7 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, minWidth
       e.preventDefault();
       // Réaffiche l'élément courant avec le nouvel état.
       if (last && !panel.hidden) render(last);
-      if (listPanel) listPanel.refresh();
+      if (listPanel) listPanel.redraw();
     }
   };
   const onScroll = () => hide();
@@ -148,4 +153,9 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, minWidth
     if (listPanel) listPanel.close();
     if (onStop) onStop();
   });
+
+  return {
+    refresh: () => listPanel && listPanel.refresh(),
+    redraw: () => listPanel && listPanel.redraw(),
+  };
 };
