@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 6 – Liens</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<style>
+  .carte { border: 1px solid var(--border); border-radius: 4px; padding: .4rem .6rem; margin-bottom: .5rem; }
+  .carte h4 { margin: 0 0 .2rem; font-size: .95rem; }
+  .carte p { margin: 0 0 .2rem; font-size: .9rem; }
+  .icone { width: 24px; height: 24px; vertical-align: middle; }
+  .lien-aria { color: var(--link); text-decoration: underline; cursor: pointer; }
+  .demo table { border-collapse: collapse; font-size: .9rem; }
+  .demo td, .demo th { border: 1px solid #999; padding: .2rem .4rem; text-align: left; }
+  .demo ul { margin: 0; padding-left: 1.2rem; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-3-couleurs.html">Couleurs</a> <a href="rgaa-4-multimedia.html">Multimédia</a> <a href="rgaa-5-tableaux.html">Tableaux</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 6 – Liens</h1>
+<div class="intro">
+  <p>Cette page rassemble des liens conformes et non conformes à la
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#6">thématique 6 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 6 – Liens</a>
+  (ou utilisez votre favori). Survolez un lien pour voir son intitulé, sa source et son contexte.
+  Cliquez sur une ligne de la liste pour épingler le détail et juger l’intitulé (Explicite seul, En contexte, Non conforme).
+  <kbd>Échap</kbd> libère le détail, puis ferme les panneaux.</p>
+  <p>Les liens de cette page pointent vers <code>example.org</code> : évitez de cliquer dessus pendant l’audit.
+  Les liens de navigation et le bouton « Lancer » (un lien <code>javascript:</code>) apparaissent aussi dans la liste.</p>
+</div>
+
+<h2>Inventaire et nature des liens</h2>
+<p>Le bookmarklet liste chaque <code>a[href]</code>, <code>area[href]</code> et <code>role="link"</code>, avec sa nature
+(texte, image, composite, SVG) et la source de son intitulé.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Lien texte</h3>
+    <div class="demo">
+      <p><a href="https://example.org/horaires">Horaires de la médiathèque</a></p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> nature « texte », intitulé (contenu). 6.1 ✓ intitulé non générique, 6.2 ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Lien image</h3>
+    <div class="demo">
+      <a href="https://example.org/"><img src="img/logo-rgaa.svg" alt="Accueil du site RGAA" width="40" height="40"></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> nature « image », intitulé « Accueil du site RGAA » (alt (img)). 6.1 ✓, 6.2 ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Lien composite</h3>
+    <div class="demo">
+      <a href="https://example.org/regions"><img src="img/france.svg" alt="Carte des régions :" width="24" height="24"> liste des antennes</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> nature « composite », intitulé « Carte des régions : liste des antennes »
+    (alt (img) + contenu), le détail montre chaque morceau.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Lien SVG</h3>
+    <div class="demo">
+      <a href="https://example.org/flux"><svg class="icone" role="img" aria-label="Flux RSS" viewBox="0 0 24 24"><circle cx="5" cy="19" r="3"/><path d="M2 9a13 13 0 0 1 13 13h-3A10 10 0 0 0 2 12z"/></svg></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> nature « SVG », intitulé « Flux RSS » (aria-label (svg)).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Lien masqué</h3>
+    <div class="demo">
+      <p>(Le lien ci-dessous est en <code>display:none</code>.)</p>
+      <a href="https://example.org/cache" style="display:none">Lien caché</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste, « masqué : display:none ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Masqué par aria-hidden mais focalisable</h3>
+    <div class="demo">
+      <a href="https://example.org/agenda" aria-hidden="true">Agenda</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Masqué par aria-hidden mais visible et focalisable ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Lien ARIA (role="link")</h3>
+    <div class="demo">
+      <span role="link" tabindex="0" class="lien-aria" data-href="https://example.org/contact">Nous contacter</span>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Lien ARIA : vérifier l’activation avec la touche Entrée (7.3) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>role="link" sans tabindex</h3>
+    <div class="demo">
+      <span role="link" class="lien-aria">Plan d’accès</span>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « role="link" sans tabindex : non atteignable au clavier (7.3) ».</p>
+  </div>
+</div>
+
+<h2>6.2 Liens sans intitulé</h2>
+<p>Un lien doit avoir un nom accessible : texte, alternative d’image, <code>aria-label</code>, <code>aria-labelledby</code> ou à défaut <code>title</code>.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Icône SVG seule</h3>
+    <div class="demo">
+      <a href="https://example.org/recherche"><svg class="icone" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 15l6 6" stroke="currentColor" stroke-width="2"/></svg></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.2 × « Lien sans intitulé », « SVG sans title ni aria-label ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Image sans alt</h3>
+    <div class="demo">
+      <a href="https://example.org/equipe"><img src="img/photo-equipe.svg" width="60" height="40"></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.2 × « img sans attribut alt ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Image seule avec alt vide</h3>
+    <div class="demo">
+      <a href="https://example.org/promo"><img src="img/bandeau-promo.svg" alt="" width="120" height="30"></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.2 × « Image décorative (alt vide) et aucun autre contenu ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Icône masquée, rien d’autre</h3>
+    <div class="demo">
+      <a href="https://example.org/panier"><svg class="icone" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h3l3 11h10l2-8H7"/></svg></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.2 × « Icône masquée par aria-hidden et aucun autre contenu ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Icône masquée et texte caché</h3>
+    <div class="demo">
+      <a href="https://example.org/panier"><svg class="icone" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h3l3 11h10l2-8H7"/></svg><span class="sr-only">Mon panier</span></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Mon panier » (contenu). 6.2 ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Icône avec aria-label</h3>
+    <div class="demo">
+      <a href="https://example.org/compte" aria-label="Mon compte"><svg class="icone" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0z"/></svg></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Mon compte » (aria-label). 6.2 ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Intitulé par title seul</h3>
+    <div class="demo">
+      <a href="https://example.org/aide" title="Aide en ligne"><svg class="icone" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/></svg></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Aide en ligne » (title). 6.2 ! « Intitulé donné par le seul attribut title ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-labelledby vers un id introuvable</h3>
+    <div class="demo">
+      <a href="https://example.org/newsletter" aria-labelledby="titre-lettre"><img src="img/motif.svg" alt="" width="30" height="30"></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.2 × « aria-labelledby : id introuvable (titre-lettre) ».</p>
+  </div>
+</div>
+
+<h2>6.1 Liens explicites</h2>
+<p>Un intitulé générique est « à juger en contexte » : le détail donne la phrase, le paragraphe, l’item de liste,
+la cellule et ses en-têtes, et le titre qui précède. L’auditeur choisit ensuite « Explicite seul », « En contexte » ou « Non conforme ».</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>« Lire la suite » dans un paragraphe</h3>
+    <div class="demo">
+      <p>La médiathèque rouvre le 4 novembre après travaux. <a href="https://example.org/actu/reouverture">Lire la suite</a></p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.1 ! « Peu explicite hors contexte (intitulé générique) ». Contexte : phrase
+    et paragraphe. Choisir « En contexte » passe 6.1 à ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>« Cliquez ici »</h3>
+    <div class="demo">
+      <p>Pour vous inscrire à l’atelier, <a href="https://example.org/inscription">cliquez ici</a>.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.1 ! intitulé générique, contexte « Pour vous inscrire à l’atelier, cliquez ici. ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Adresse web comme intitulé</h3>
+    <div class="demo">
+      <p>Site du ministère : <a href="https://www.example.org/">https://www.example.org/</a></p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.1 ! « Peu explicite hors contexte (adresse web) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Lien dans une cellule de tableau</h3>
+    <div class="demo">
+      <table>
+        <tr><th>Atelier</th><th>Programme</th></tr>
+        <tr><th>Couture</th><td><a href="https://example.org/ateliers/couture">Voir</a></td></tr>
+      </table>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.1 ! intitulé générique. Contexte : en-têtes « Programme » et « Couture ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Lien dans une liste imbriquée</h3>
+    <div class="demo">
+      <ul><li>Rapport d’activité 2025<ul><li><a href="https://example.org/rapport-2025/resume">Résumé</a></li></ul></li></ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.1 ✓ (non générique), contexte : item de liste parent « Rapport d’activité 2025 Résumé ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-label sans l’intitulé visible</h3>
+    <div class="demo">
+      <a href="https://example.org/rapport" aria-label="Télécharger le document">Rapport annuel</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.1 × « Le nom accessible ne contient pas l’intitulé visible « Rapport annuel » (test 6.1.5) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>aria-label qui reprend l’intitulé visible</h3>
+    <div class="demo">
+      <a href="https://example.org/actu/jardins" aria-label="Lire la suite de l’article sur les jardins partagés">Lire la suite</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé (aria-label) non générique, 6.1 ✓ « L’intitulé visible est repris dans le nom accessible ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Intitulé complété par un texte caché</h3>
+    <div class="demo">
+      <a href="https://example.org/actu/concert">Lire la suite<span class="sr-only"> de l’article sur le concert du 12 novembre</span></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Lire la suite de l’article sur le concert du 12 novembre », 6.1 ✓.</p>
+  </div>
+</div>
+
+<h2>Doublons</h2>
+<p>Le même intitulé vers des destinations différentes est ambigu hors contexte. Des intitulés différents vers la même
+adresse sont simplement signalés dans le détail.</p>
+<div class="cases">
+  <div class="case wide">
+    <h3><span class="badge badge--check">À vérifier</span>« En savoir plus » vers deux pages</h3>
+    <div class="demo">
+      <div class="carte"><h4>Atelier numérique</h4><p>Initiation à la tablette, tous les mardis.</p><a href="https://example.org/ateliers/numerique">En savoir plus</a></div>
+      <div class="carte"><h4>Club lecture</h4><p>Un samedi par mois, autour d’un roman.</p><a href="https://example.org/ateliers/lecture">En savoir plus</a></div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.1 ! intitulé générique et « Même intitulé que 1 autre lien vers une autre destination ».
+    Contexte : le titre h4 qui précède (« Atelier numérique », « Club lecture »). Filtre « Doublons ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Image et texte vers la même page</h3>
+    <div class="demo">
+      <a href="https://example.org/expo"><img src="img/graphique-ventes.svg" alt="Affiche de l’exposition" width="60" height="40"></a>
+      <a href="https://example.org/expo">Exposition « Cent ans de BD »</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.1 ✓ pour les deux. Le détail affiche « Même destination, autre intitulé ».</p>
+  </div>
+</div>
+
+<h2>Autres constats</h2>
+<p>Signalés « à vérifier », sans verdict RGAA sur la thématique 6 : bonnes pratiques et indices d’un autre problème.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Nouvelle fenêtre non signalée</h3>
+    <div class="demo">
+      <a href="https://example.org/partenaires" target="_blank">Nos partenaires</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Ouvre une nouvelle fenêtre sans le signaler ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Nouvelle fenêtre signalée</h3>
+    <div class="demo">
+      <a href="https://example.org/partenaires" target="_blank">Nos partenaires (nouvelle fenêtre)</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> aucun constat sur la nouvelle fenêtre.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>title qui ne reprend pas l’intitulé</h3>
+    <div class="demo">
+      <a href="https://example.org/tarifs" title="Ouvre la grille">Tarifs 2026</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Le title ne reprend pas l’intitulé du lien ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>href="#"</h3>
+    <div class="demo">
+      <a href="#" onclick="return false">Afficher le menu</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « href="#" : pas de destination, bouton déguisé probable ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>href="javascript:"</h3>
+    <div class="demo">
+      <a href="javascript:void(0)">Imprimer la page</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « href="javascript:…" : bouton déguisé probable ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Ancre introuvable</h3>
+    <div class="demo">
+      <a href="#section-inexistante">Aller aux résultats</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Ancre « #section-inexistante » introuvable dans la page ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Fichier sans format ni poids</h3>
+    <div class="demo">
+      <a href="https://example.org/docs/reglement.pdf">Règlement intérieur</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Lien vers un fichier PDF : indiquer le format et le poids ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Fichier avec format et poids</h3>
+    <div class="demo">
+      <a href="https://example.org/docs/reglement.pdf">Règlement intérieur (PDF, 240 Ko)</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> aucun constat sur le fichier.</p>
+  </div>
+</div>
+</div>
+</body>
+</html>
