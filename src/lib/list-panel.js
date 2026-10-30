@@ -25,6 +25,9 @@
  *     ],                                              // filter: 'texte'
  *   }
  *
+ * onLocate(el) (optionnel) : appelé après le clic sur une ligne, une fois le
+ * défilement lancé (le panneau flottant s'en sert pour épingler le détail).
+ *
  * Un élément peut aussi porter :
  *   els: [el1, el2...]  plusieurs éléments regroupés (chaque clic passe au suivant) ;
  *   prefix: '<span>'    HTML déjà échappé affiché avant le libellé (pastilles...).
@@ -54,7 +57,7 @@ const short = (s) => {
   return t.length > MAX_LABEL ? `${t.slice(0, MAX_LABEL - 1)}…` : t;
 };
 
-export const createListPanel = ({ id, title, collect, footer = '', tools = [], filters = [], onClose }) => {
+export const createListPanel = ({ id, title, collect, footer = '', tools = [], filters = [], onClose, onLocate }) => {
   const dlg = dialog({ id: `${id}-liste`, title, css: CSS, managed: true, focus: false, onClose });
   const hl = createHighlighter();
   let res = { summary: '', items: [] };
@@ -89,7 +92,7 @@ export const createListPanel = ({ id, title, collect, footer = '', tools = [], f
             .join('')}</ul>`
         : '<p class="muted" style="margin:0;font-style:italic">Aucun élément détecté.</p>') +
       `<div class="footer small"><div class="muted">${footer ? `${footer}<br>` : ''}` +
-      `Cliquer sur une ligne pour accéder à l'élément. Survoler un élément de la page pour le détail.</div>` +
+      `${onLocate ? 'Cliquer sur une ligne pour accéder à l’élément et épingler son détail (clic ailleurs ou Échap pour le libérer).' : 'Cliquer sur une ligne pour accéder à l\'élément.'} Survoler un élément de la page pour le détail.</div>` +
       `<div class="tools"><span class="toolset">${tools
         .map((t, i) => `<button type="button" class="tool" data-tool="${i}" aria-pressed="${!!t.pressed()}">${esc(t.label)}</button>`)
         .join('')}</span><button type="button" class="refresh">Actualiser</button></div></div>`;
@@ -131,6 +134,7 @@ export const createListPanel = ({ id, title, collect, footer = '', tools = [], f
     if (el.tabIndex >= 0 && typeof el.focus === 'function') el.focus({ preventScroll: true });
     hl.set([[el, 'locate']]);
     timer = setTimeout(() => hl.clear(), 2500);
+    if (onLocate) onLocate(el);
   });
 
   render();

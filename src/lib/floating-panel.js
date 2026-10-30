@@ -22,6 +22,12 @@
  *       return false;                // true si la touche est traitée
  *     },
  *     onStop() {},                   // nettoyage (optionnel)
+ *     pinOnLocate: true,             // clic sur une ligne de la liste : le
+ *                                    // détail est épinglé à côté de l'élément
+ *                                    // (clic ailleurs ou Échap pour libérer)
+ *     onAction(name, target, btn) {},// clic sur un bouton [data-action] du
+ *                                    // détail épinglé ; peut renvoyer une
+ *                                    // promesse, le détail est ensuite redessiné
  *     inspect(target) {              // élément sous la souris / focus
  *       return null;                 // null : rien à afficher
  *       return { html, highlight: [[el, 'primary'], [lbl, 'secondary']] };
@@ -39,18 +45,20 @@ import { isOwn, allDocuments, toTopCoords } from './a11y.js';
 
 const GAP = 15;
 
-export const inspector = ({ id, css = '', inspect, list, onKey, onStop, minWidth = 320, maxWidth = 520 }) => {
+export const inspector = ({ id, css = '', inspect, list, onKey, onStop, pinOnLocate, onAction, minWidth = 320, maxWidth = 520 }) => {
   if (toggleOff(id)) return;
 
   const { host, panel } = mount(
     id,
-    `.panel{pointer-events:none;min-width:${minWidth}px;max-width:min(${maxWidth}px,calc(100vw - 10px))}${css}`,
+    `.panel{pointer-events:none;min-width:${minWidth}px;max-width:min(${maxWidth}px,calc(100vw - 10px))}` +
+      `.panel.pinned{pointer-events:auto;max-height:calc(100vh - 10px);overflow-y:auto}${css}`,
   );
   panel.setAttribute('role', 'status');
   panel.hidden = true;
 
   const hl = createHighlighter();
   let last = null;
+  let pinned = null;
 
   const hide = () => {
     panel.hidden = true;
@@ -90,7 +98,46 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, minWidth
     panel.hidden = false;
   };
 
+  /** Détail épinglé : à droite de l'élément, sinon à gauche, sinon dessous ou dessus. */
+  const placePinned = () => {
+    if (!pinned || panel.hidden) return;
+    const r = pinned.getBoundingClientRect();
+    const [left, top] = toTopCoords(pinned.ownerDocument.defaultView, r.left, r.top);
+    const w = panel.offsetWidth;
+    const h = panel.offsetHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let x;
+    let y = top;
+    if (left + r.width + 8 + w <= vw - 5) x = left + r.width + 8;
+    else if (left - 8 - w >= 5) x = left - 8 - w;
+    else {
+      x = left;
+      y = top + r.height + 8 + h <= vh ? top + r.height + 8 : top - h - 8;
+    }
+    panel.style.left = `${Math.max(5, Math.min(x, vw - w - 5))}px`;
+    panel.style.top = `${Math.max(5, Math.min(y, vh - h - 5))}px`;
+  };
+
+  const unpin = () => {
+    pinned = null;
+    panel.classList.remove('pinned');
+    hide();
+  };
+
+  const pin = (el) => {
+    pinned = el;
+    last = el;
+    render(el);
+    if (panel.hidden) return unpin();
+    panel.classList.add('pinned');
+    placePinned();
+    // Le défilement est animé : on replace le panneau une fois arrivé.
+    setTimeout(placePinned, 450);
+  };
+
   const update = (target, x, y, anchor) => {
+    if (pinned) return;
     if (!target || target.nodeType !== 1 || isOwn(target)) return hide();
     if (target !== last) {
       last = target;
@@ -114,20 +161,41 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, minWidth
     update(t, 0, 0, { left, top, bottom: top + r.height });
   };
   const onKeyDown = (e) => {
-    if (e.key === 'Escape') return stop();
+    if (e.key === 'Escape') return pinned ? unpin() : stop();
     if (onKey && onKey(e)) {
       e.preventDefault();
       // Réaffiche l'élément courant avec le nouvel état.
       if (last && !panel.hidden) render(last);
+      if (pinned) placePinned();
       if (listPanel) listPanel.redraw();
     }
   };
-  const onScroll = () => hide();
+  const onScroll = () => (pinned ? placePinned() : hide());
+  // Un clic dans la page (hors panneaux) libère le détail épinglé.
+  const onPointerDown = (e) => {
+    if (pinned && !isOwn(realTarget(e))) unpin();
+  };
+
+  panel.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-action]');
+    if (!b || !onAction || !last) return;
+    const target = last;
+    const action = b.dataset.action;
+    Promise.resolve(onAction(action, target, b))
+      .catch((err) => console.error(`[${id}]`, err))
+      .then(() => {
+        if (last !== target || panel.hidden) return;
+        render(target);
+        if (pinned) placePinned();
+        const again = panel.querySelector(`[data-action="${action}"]`);
+        if (again) again.focus();
+      });
+  });
 
   let listPanel = null;
   if (list) {
     try {
-      listPanel = createListPanel({ id, ...list, onClose: () => (listPanel = null) });
+      listPanel = createListPanel({ id, ...list, onClose: () => (listPanel = null), onLocate: pinOnLocate ? pin : undefined });
     } catch (err) {
       console.error(`[${id}]`, err);
     }
@@ -139,6 +207,7 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, minWidth
     d.addEventListener('focusin', onFocus, true);
     d.addEventListener('keydown', onKeyDown, true);
     d.addEventListener('scroll', onScroll, true);
+    d.addEventListener('pointerdown', onPointerDown, true);
   });
 
   const stop = register(id, () => {
@@ -147,6 +216,7 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, minWidth
       d.removeEventListener('focusin', onFocus, true);
       d.removeEventListener('keydown', onKeyDown, true);
       d.removeEventListener('scroll', onScroll, true);
+      d.removeEventListener('pointerdown', onPointerDown, true);
     });
     hl.clear();
     host.remove();
@@ -157,5 +227,7 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, minWidth
   return {
     refresh: () => listPanel && listPanel.refresh(),
     redraw: () => listPanel && listPanel.redraw(),
+    /** Élément épinglé (ou affiché) dans le panneau de détail, ou null. */
+    current: () => pinned || (panel.hidden ? null : last),
   };
 };
