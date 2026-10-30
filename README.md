@@ -1,26 +1,110 @@
 # Bookmarklets RGAA
 
-Collection de bookmarklets pour aider à vérifier les critères du
-[RGAA](https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/) sur une page web.
+Trois bookmarklets pour aider à auditer une page web selon le
+[RGAA 4.1](https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/).
+Ils s'installent comme des favoris et fonctionnent sur n'importe quelle page,
+sans extension ni compte.
 
-| Bookmarklet | Thématique | Type de panneau | Ce qu'il vérifie |
-| --- | --- | --- | --- |
-| `rgaa-1-images` | 1. Images | flottant (survol / focus) | nom accessible, images décoratives (1.2), `role="img"` des SVG, contenu de repli d'`object`/`canvas`, alternative suspecte (1.3), description (1.6), légende `figure` (1.9), images CSS, nom du lien. Maj+I estompe les images pour repérer les images texte (1.8). |
-| `rgaa-2-cadres` | 2. Cadres | fixe (liste) | `iframe` et `frame`, titre (2.1), titre générique ou en double (2.2), domaine, cadres masqués non concernés, cadres imbriqués. |
-| `rgaa-11-formulaires` | 11. Formulaires | flottant (survol / focus) | champs natifs, ARIA et `contenteditable`, nom accessible, placeholder seul, intitulé visible contenu dans le nom (11.2.5, 11.9.2), regroupement (11.5), `optgroup` (11.8), obligatoire et invalide (11.10), validité d'`autocomplete` (11.13). |
+Ce sont des **aides à l'audit**, pas des outils de test automatique : ils
+rendent visibles les informations utiles (nom accessible, titre, étiquette…)
+et signalent les problèmes probables. La pertinence d'une alternative ou d'un
+intitulé reste à juger par l'auditeur.
 
-Les bookmarklets à panneau flottant affichent en tête un compteur pour toute
-la page. Tous parcourent aussi les Shadow DOM ouverts et les iframes de même
-origine.
+| Bookmarklet | Thématique RGAA | Utilisation |
+| --- | --- | --- |
+| **RGAA 1 – Images** | 1. Images | Survoler une image (ou lui donner le focus au clavier) |
+| **RGAA 2 – Cadres** | 2. Cadres | Liste de tous les cadres de la page |
+| **RGAA 11 – Formulaires** | 11. Formulaires | Survoler un champ, un bouton, un groupe ou un label |
 
 ## Installation
 
-Ouvrez `dist/index.html` dans le navigateur et glissez les liens dans la barre
-de favoris, ou copiez le contenu d'un fichier `dist/*.js` dans l'URL d'un favori.
+1. Téléchargez le dépôt (bouton **Code › Download ZIP** sur GitHub) et décompressez-le.
+2. Ouvrez `dist/index.html` dans votre navigateur.
+3. Glissez chacun des trois liens dans votre barre de favoris.
 
-Un second clic sur le bookmarklet (ou la touche Échap) le désactive.
+Autre méthode : créez un favori et collez comme adresse le contenu d'un des
+fichiers `dist/rgaa-1-images.js`, `dist/rgaa-2-cadres.js` ou
+`dist/rgaa-11-formulaires.js`.
 
-## Structure
+## Utilisation
+
+- **Lancer** : ouvrez la page à auditer, puis cliquez sur le favori.
+- **Arrêter** : cliquez une seconde fois sur le favori, ou appuyez sur **Échap**.
+- Les trois bookmarklets sont indépendants et peuvent tourner en même temps.
+- Ils inspectent aussi le contenu des Shadow DOM ouverts et des iframes de
+  même origine. Une iframe chargée après le lancement n'est prise en compte
+  qu'en relançant le bookmarklet.
+- Ils ne modifient pas la page, à part des contours temporaires autour des
+  éléments inspectés.
+
+### Lire le panneau
+
+| Icône | Signification |
+| --- | --- |
+| ✓ vert | Conforme, ou image décorative correctement balisée |
+| ! orange | À vérifier par l'auditeur |
+| × rouge | Erreur probable |
+| ∅ gris | Élément masqué, non restitué (non concerné) |
+
+Chaque valeur est suivie de sa source en italique, par exemple `(alt)`,
+`(aria-label)` ou `(label)`, pour savoir d'où vient le nom accessible.
+
+Sur la page, l'élément inspecté est entouré d'un **trait bleu continu**, et
+les éléments liés (label, description, élément survolé) d'un **trait orange
+pointillé**.
+
+### RGAA 1 – Images
+
+Au survol d'une image (`img`, `svg`, `canvas`, `object`, `embed`, `area`,
+`input type="image"`, `role="img"`, image CSS), le panneau affiche :
+
+- en tête, le compteur de la page : images, sans alternative, à vérifier, décoratives ;
+- le **statut** : décorative (`alt=""`, `aria-hidden`, `role="presentation"`) ou le **nom accessible** ;
+- le **fichier** source, pour juger la pertinence de l'alternative ;
+- la **description détaillée** (`aria-describedby`, lien adjacent, `longdesc`) ;
+- la **légende** (`figure` / `figcaption`) ;
+- si l'image est dans un lien, le **nom accessible du lien**.
+
+Constats signalés : image décorative avec `title` ou `aria-label` (1.2),
+SVG sans `role="img"` (1.1.5), alternative qui reprend le nom du fichier,
+générique ou trop longue (1.3), `longdesc` obsolète (1.6), `figure` sans
+`role` ni `aria-label` (1.9).
+
+**Maj+I** estompe toutes les images de la page : un texte qui disparaît est
+une image texte (critère 1.8).
+
+### RGAA 2 – Cadres
+
+Un panneau en haut à droite liste les `iframe` et `frame` de la page, avec :
+
+- le compteur : cadres restitués, sans titre, non concernés ;
+- pour chaque cadre, son **titre**, son **domaine** et son niveau d'imbrication ;
+- les cadres masqués, marqués « non concernés » par le critère 2.1 ;
+- les titres génériques ou identiques à un autre cadre (2.2).
+
+Un clic sur une ligne fait défiler jusqu'au cadre et l'entoure 3 secondes.
+Le panneau se déplace à la souris ou au clavier (flèches sur l'en-tête).
+
+### RGAA 11 – Formulaires
+
+Au survol d'un champ (natif, ARIA ou `contenteditable`), d'un bouton, d'un
+groupe, d'un label ou d'un texte d'aide, le panneau affiche :
+
+- en tête, le compteur de la page : champs, sans étiquette, placeholder seul, autocomplete invalide ;
+- le **nom accessible** (ou la légende d'un groupe, l'intitulé d'un bouton) ;
+- la **description**, le **type**, le caractère **obligatoire** et **invalide** ;
+- le **groupe** du champ et les **groupes d'options** d'une liste ;
+- l'attribut **autocomplete**, avec la validité de sa valeur.
+
+Constats signalés : placeholder utilisé comme seule étiquette (11.1), label
+masqué, `aria-labelledby` vers un id absent, nom accessible qui ne contient
+pas l'intitulé visible (11.2.5, 11.9.2), cases ou boutons radio non groupés
+(11.5), `optgroup` sans label (11.8), indication visuelle d'obligation à
+vérifier (11.10), `autocomplete` absent ou invalide (11.13).
+
+## Développement
+
+### Structure
 
 ```
 src/
@@ -44,7 +128,7 @@ npm run build   # génère dist/
 npm test        # test de fumée (nécessite Playwright)
 ```
 
-## Base commune
+### Base commune
 
 Tous les panneaux sont rendus dans un **Shadow DOM** : les styles de la page
 auditée ne s'appliquent pas au panneau (plus besoin de `all:revert` et de
@@ -71,7 +155,7 @@ icon('hidden')            // ∅ gris     « Masqué »
 Tout texte provenant de la page doit passer par `esc()` (ou `value()`, qui
 échappe déjà) avant d'être injecté dans le panneau.
 
-## Template « panneau flottant »
+### Template « panneau flottant »
 
 Pour les bookmarklets d'inspection au survol (comme 1 et 11) :
 
@@ -98,7 +182,7 @@ recalculé au plus une fois par seconde. Le template gère aussi : suivi de la s
 se place sous l'élément), repositionnement dans la fenêtre, masquage au
 défilement, contours sur la page, arrêt par Échap ou second clic.
 
-## Template « panneau fixe »
+### Template « panneau fixe »
 
 Pour les bookmarklets qui listent des éléments (comme 2) :
 

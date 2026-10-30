@@ -10,6 +10,8 @@ mkdirSync(OUT, { recursive: true });
 
 const files = readdirSync(SRC).filter((f) => f.endsWith('.js')).sort((a, b) => a.localeCompare(b, 'fr', { numeric: true }));
 const links = [];
+// Nom affiché du lien : « rgaa-11-formulaires » → « RGAA 11 – Formulaires ».
+const label = (name) => name.replace(/^rgaa-(\d+)-(.*)$/, (_, n, t) => `RGAA ${n} – ${t[0].toUpperCase()}${t.slice(1)}`);
 
 for (const file of files) {
   const res = await build({
@@ -45,7 +47,7 @@ a{display:inline-block;padding:.4rem .8rem;margin:.25rem 0;border:2px solid #005
 <h1>Bookmarklets RGAA</h1>
 <p>Glissez chaque lien dans votre barre de favoris. Cliquez une seconde fois sur un bookmarklet (ou appuyez sur Échap) pour le désactiver.</p>
 <ul>
-${links.map((l) => `<li><a href="${esc(l.url)}">${esc(l.name)}</a></li>`).join('\n')}
+${links.map((l) => `<li><a href="${esc(l.url)}">${esc(label(l.name))}</a></li>`).join('\n')}
 </ul>
 </body>
 </html>
