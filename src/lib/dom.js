@@ -58,3 +58,9 @@ export const checks = (items) => {
   const list = items.filter(Boolean);
   return list.length ? `<ul class="checks">${list.map(([t, txt]) => `<li>${flag(t, txt)}</li>`).join('')}</ul>` : '';
 };
+
+/** Valeur de la ligne « Rôle » à partir de roleInfo() (a11y.js). */
+export const roleValue = (info) =>
+  info.role
+    ? `${esc(info.role)} ${src(info.source)}`
+    : `<span class="muted">aucun rôle ARIA</span> ${src(info.source)}`;

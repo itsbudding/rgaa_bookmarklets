@@ -12,9 +12,9 @@ intitulé reste à juger par l'auditeur.
 
 | Bookmarklet | Thématique RGAA | Utilisation |
 | --- | --- | --- |
-| **RGAA 1 – Images** | 1. Images | Survoler une image (ou lui donner le focus au clavier) |
+| **RGAA 1 – Images** | 1. Images | Liste des images + détail au survol (ou au focus clavier) |
 | **RGAA 2 – Cadres** | 2. Cadres | Liste de tous les cadres de la page |
-| **RGAA 11 – Formulaires** | 11. Formulaires | Survoler un champ, un bouton, un groupe ou un label |
+| **RGAA 11 – Formulaires** | 11. Formulaires | Liste des champs et boutons + détail au survol (ou au focus) |
 
 ## Installation
 
@@ -53,13 +53,34 @@ Sur la page, l'élément inspecté est entouré d'un **trait bleu continu**, et
 les éléments liés (label, description, élément survolé) d'un **trait orange
 pointillé**.
 
+### Deux panneaux : l'aperçu et le détail
+
+Les bookmarklets 1 et 11 ouvrent deux panneaux :
+
+- **le panneau liste**, en haut à droite : le compteur de la page et la liste
+  des éléments concernés, avec un statut et un libellé court. Un clic sur une
+  ligne fait défiler jusqu'à l'élément et l'entoure ; un champ de formulaire
+  reçoit aussi le focus, ce qui ouvre son détail. Le bouton « Actualiser »
+  recalcule la liste après un changement de la page. Ce panneau se déplace
+  et se ferme indépendamment ;
+- **le panneau de détail**, qui suit la souris : toutes les informations de
+  l'élément survolé ou focalisé.
+
+Le panneau de détail affiche le **rôle** de l'élément et sa source :
+`(attribut role)` quand il est donné par un attribut `role`, ou
+`(implicite, <input type="checkbox">)` quand il vient de la balise HTML.
+
 ### RGAA 1 – Images
+
+La liste donne le compteur (sans alternative, à vérifier, décoratives) et
+chaque image balisée ; les images CSS n'y figurent pas, mais sont détectées
+au survol.
 
 Au survol d'une image (`img`, `svg`, `canvas`, `object`, `embed`, `area`,
 `input type="image"`, `role="img"`, image CSS), le panneau affiche :
 
-- en tête, le compteur de la page : images, sans alternative, à vérifier, décoratives ;
 - le **statut** : décorative (`alt=""`, `aria-hidden`, `role="presentation"`) ou le **nom accessible** ;
+- le **rôle** et sa source ;
 - le **fichier** source, pour juger la pertinence de l'alternative ;
 - la **description détaillée** (`aria-describedby`, lien adjacent, `longdesc`) ;
 - la **légende** (`figure` / `figcaption`) ;
@@ -87,12 +108,14 @@ Le panneau se déplace à la souris ou au clavier (flèches sur l'en-tête).
 
 ### RGAA 11 – Formulaires
 
+La liste donne le compteur (champs, sans étiquette, placeholder seul,
+autocomplete invalide) et chaque champ, groupe et bouton.
+
 Au survol d'un champ (natif, ARIA ou `contenteditable`), d'un bouton, d'un
 groupe, d'un label ou d'un texte d'aide, le panneau affiche :
 
-- en tête, le compteur de la page : champs, sans étiquette, placeholder seul, autocomplete invalide ;
 - le **nom accessible** (ou la légende d'un groupe, l'intitulé d'un bouton) ;
-- la **description**, le **type**, le caractère **obligatoire** et **invalide** ;
+- la **description**, le **rôle** et sa source, le caractère **obligatoire** et **invalide** ;
 - le **groupe** du champ et les **groupes d'options** d'une liste ;
 - l'attribut **autocomplete**, avec la validité de sa valeur.
 
@@ -111,13 +134,14 @@ src/
   lib/                  base commune
     theme.js            tokens (police, tailles, couleurs) + CSS de base
     dom.js              rendu : esc(), icon(), row(), value(), list(), src(),
-                        flag(), checks()
-    a11y.js             helpers : idrefs(), textOf(), norm(), isNotExposed(),
+                        flag(), checks(), roleValue()
+    a11y.js             helpers : idrefs(), textOf(), norm(), isNotExposed(), roleInfo(),
                         deepAll() (Shadow DOM + iframes), allDocuments()
     panel.js            hôte Shadow DOM + activation/désactivation
     highlight.js        contours sur la page, styles d'origine restaurés
     floating-panel.js   TEMPLATE panneau flottant  → inspector()
     dialog-panel.js     TEMPLATE panneau fixe      → dialog()
+    list-panel.js       TEMPLATE panneau liste (aperçu des panneaux flottants)
   bookmarklets/         un fichier par bookmarklet
 dist/                   versions installables générées (ne pas modifier à la main)
 ```
@@ -165,7 +189,13 @@ import { row, value } from '../lib/dom.js';
 
 inspector({
   id: 'rgaa-x-exemple',
-  summary: () => '<strong>Page :</strong> 12 liens', // compteur optionnel, en tête
+  list: {                           // panneau liste (optionnel)
+    title: 'Liens',
+    collect: () => ({
+      summary: '12 liens · 1 sans intitulé',          // compteur de page
+      items: [{ el, status: 'error', label: 'Sans intitulé', meta: 'link' }],
+    }),
+  },
   inspect(target) {                 // élément survolé ou focalisé
     const el = target.closest('a');
     if (!el) return null;           // null : panneau masqué
@@ -177,8 +207,9 @@ inspector({
 });
 ```
 
-`summary()` (optionnel) affiche un compteur de page en tête du panneau,
-recalculé au plus une fois par seconde. Le template gère aussi : suivi de la souris, inspection au focus clavier (le panneau
+`list` (optionnel) ouvre le panneau liste (`list-panel.js`) : compteur,
+éléments cliquables, bouton « Actualiser ». Il se ferme avec le bookmarklet.
+Le template gère aussi : suivi de la souris, inspection au focus clavier (le panneau
 se place sous l'élément), repositionnement dans la fenêtre, masquage au
 défilement, contours sur la page, arrêt par Échap ou second clic.
 

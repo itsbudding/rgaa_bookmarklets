@@ -18,15 +18,20 @@ const load = (n) => decodeURIComponent(fs.readFileSync(path.join(__dirname, '..'
   for (const s of ['#i1', '#i2', '#i3', '#i4', '#i5', '#s1', '#s2', '#c1', '#i6', '#bg1', '#host']) { await hover(s); console.log('IMG', s, '→', await panel('rgaa-1-images')); }
   await hover('#g1'); console.log('IMG gradient hidden:', await p.evaluate(() => document.getElementById('rgaa-1-images').shadowRoot.querySelector('.panel').hidden));
   console.log('xss escaped:', !(await p.evaluate(() => !!document.getElementById('rgaa-1-images').shadowRoot.querySelector('.panel b:not(strong)'))));
+  console.log('LISTE IMG →', await panel('rgaa-1-images-liste'));
   await p.keyboard.press('Shift+I'); console.log('dim on:', await p.evaluate(() => !!document.getElementById('rgaa-1-images-dim')));
   await p.evaluate(load('rgaa-1-images'));
-  console.log('toggle off:', await p.evaluate(() => !document.getElementById('rgaa-1-images') && !document.getElementById('rgaa-1-images-dim')));
+  console.log('toggle off:', await p.evaluate(() => !document.getElementById('rgaa-1-images') && !document.getElementById('rgaa-1-images-liste') && !document.getElementById('rgaa-1-images-dim')));
 
   await p.evaluate(load('rgaa-11-formulaires'));
-  for (const s of ['#f1', 'label[for=f1]', '#h1', '#fs legend', '#r1', '#cb1', '#f3', '#sel', '#ac1', '#b1']) { await hover(s); console.log('FORM', s, '→', await panel('rgaa-11-formulaires')); }
+  for (const s of ['#f1', 'label[for=f1]', '#h1', '#fs legend', '#r1', '#cb1', '#f3', '#sel', '#ac1', '#ac2', '#ac3', '#b1']) { await hover(s); console.log('FORM', s, '→', await panel('rgaa-11-formulaires')); }
+  console.log('LISTE FORM →', await panel('rgaa-11-formulaires-liste'));
+  await p.evaluate(() => document.getElementById('rgaa-11-formulaires-liste').shadowRoot.querySelectorAll('.item')[1].click());
+  await p.waitForTimeout(100);
+  console.log('CLIC LISTE → focus', await p.evaluate(() => document.activeElement.id), '| panneau :', await panel('rgaa-11-formulaires'));
   await p.focus('#f2'); console.log('FOCUS #f2 →', await panel('rgaa-11-formulaires'));
   await p.keyboard.press('Escape');
-  console.log('esc off:', await p.evaluate(() => !document.getElementById('rgaa-11-formulaires')), 'outline restored:', JSON.stringify(await p.evaluate(() => document.getElementById('f1').style.outline + '/' + document.getElementById('f2').style.outline)));
+  console.log('esc off:', await p.evaluate(() => !document.getElementById('rgaa-11-formulaires') && !document.getElementById('rgaa-11-formulaires-liste')), 'outline restored:', JSON.stringify(await p.evaluate(() => document.getElementById('f1').style.outline + '/' + document.getElementById('f2').style.outline)));
 
   await p.evaluate(load('rgaa-2-cadres'));
   console.log('CADRES →', await panel('rgaa-2-cadres'));

@@ -12,8 +12,8 @@
  * en compte. Le label et la description du champ sont entourés (11.4).
  */
 import { inspector } from '../lib/floating-panel.js';
-import { row, value, icon, esc, src, list, checks, flag } from '../lib/dom.js';
-import { idrefs, textOf, norm, deepAll, isOwn, isNotExposed, byId } from '../lib/a11y.js';
+import { row, value, icon, esc, src, list, checks, flag, roleValue } from '../lib/dom.js';
+import { idrefs, textOf, norm, deepAll, isOwn, isNotExposed, roleInfo } from '../lib/a11y.js';
 
 const ARIA_FIELDS = ['textbox', 'searchbox', 'combobox', 'listbox', 'checkbox', 'radio', 'switch', 'slider', 'spinbutton', 'button'];
 const FIELD =
@@ -38,15 +38,11 @@ const AC_TYPES = ['text', 'email', 'tel', 'url', 'password', 'search', 'number',
 const roleOf = (e) => (e.getAttribute('role') || '').trim().split(/\s+/)[0];
 const tagOf = (e) => e.tagName.toLowerCase();
 const isGroup = (e) => e.tagName === 'FIELDSET' || ['group', 'radiogroup'].includes(roleOf(e));
+/* Rôles dont le nom accessible peut venir du contenu (ARIA, « name from content »). */
+const NAME_FROM_CONTENT = ['checkbox', 'radio', 'switch', 'option', 'menuitemcheckbox', 'menuitemradio', 'treeitem'];
+const nameFromContent = (e) => NAME_FROM_CONTENT.includes(roleOf(e)) && !['input', 'select', 'textarea'].includes(tagOf(e));
 const isButton = (e) => tagOf(e) === 'button' || roleOf(e) === 'button' || (tagOf(e) === 'input' && BUTTON_TYPES.includes(e.type));
 
-/** Type affiché : type d'input, rôle ARIA, contenteditable ou balise. */
-const typeOf = (e) => {
-  if (roleOf(e) && (ARIA_FIELDS.includes(roleOf(e)) || isGroup(e))) return `role="${roleOf(e)}"`;
-  if (tagOf(e) === 'input') return e.type;
-  if (e.isContentEditable && !['input', 'textarea'].includes(tagOf(e))) return 'contenteditable';
-  return tagOf(e);
-};
 
 /** Labels natifs, ou label englobant pour les champs ARIA. */
 const labelsOf = (e) => {
@@ -58,6 +54,7 @@ const labelsOf = (e) => {
 /** Intitulé visible : texte des labels (ou contenu pour un bouton). */
 const visibleLabel = (e) => {
   if (isButton(e)) return textOf(e) || e.value || '';
+  if (nameFromContent(e) && !labelsOf(e).length) return textOf(e);
   return labelsOf(e)
     .filter((l) => !isNotExposed(l))
     .map(textOf)
@@ -86,6 +83,10 @@ const accName = (e) => {
   if (labels.length) {
     const t = labels.map(textOf).filter(Boolean);
     if (t.length) return { v: t, s: labels.length > 1 ? `${labels.length} labels` : 'label' };
+  }
+  if (nameFromContent(e)) {
+    const t = textOf(e);
+    if (t) return { v: t, s: 'contenu' };
   }
   const title = (e.getAttribute('title') || '').trim();
   if (title) return { v: title, s: 'title' };
@@ -143,29 +144,43 @@ const ungrouped = (f) => {
   return same.length > 1;
 };
 
-const summary = () => {
-  const fields = deepAll(FIELD).filter((e) => !isOwn(e) && !isNotExposed(e) && !isButton(e));
-  let noName = 0;
-  let placeholder = 0;
-  let badAc = 0;
-  fields.forEach((e) => {
-    const n = accName(e);
-    if (n.insufficient) placeholder++;
-    else if (!hasName(n)) noName++;
-    const ac = e.getAttribute('autocomplete');
-    if (ac && !checkAutocomplete(ac).ok) badAc++;
-  });
-  return (
-    `<strong>Page :</strong> ${fields.length} champ${fields.length > 1 ? 's' : ''} · ` +
-    `${noName ? icon('error') + ' ' : ''}${noName} sans étiquette · ` +
-    `${placeholder ? icon('warning') + ' ' : ''}${placeholder} placeholder seul · ` +
-    `${badAc ? icon('error') + ' ' : ''}${badAc} autocomplete invalide`
-  );
+/** Statut d'un champ pour la liste et le compteur. */
+const status = (e) => {
+  const n = accName(e);
+  const ac = e.getAttribute('autocomplete');
+  const badAc = !!(ac && !checkAutocomplete(ac).ok);
+  if (n.insufficient) return { status: 'warning', label: `Placeholder seul : ${n.v}`, badAc };
+  if (!hasName(n)) return { status: 'error', label: isButton(e) ? 'Bouton sans intitulé' : 'Sans étiquette', badAc };
+  return { status: badAc ? 'error' : 'ok', label: Array.isArray(n.v) ? n.v.join(' ') : n.v, badAc };
 };
+
+/** Panneau liste : compteur de page, champs et boutons. */
+const collect = () => {
+  const els = deepAll(`${FIELD},${GROUP}`).filter((e) => !isOwn(e) && !isNotExposed(e));
+  const items = els.map((el) => {
+    const r = roleInfo(el);
+    return { el, meta: r.role || typeOfTag(el), ...status(el) };
+  });
+  const fields = items.filter((i) => !isButton(i.el) && !isGroup(i.el));
+  const noName = fields.filter((i) => i.status === 'error' && !i.badAc).length;
+  const placeholder = fields.filter((i) => i.status === 'warning').length;
+  const badAc = fields.filter((i) => i.badAc).length;
+  const btnNoName = items.filter((i) => isButton(i.el) && i.status === 'error').length;
+  return {
+    items,
+    summary:
+      `${fields.length} champ${fields.length > 1 ? 's' : ''} · ` +
+      `${noName ? icon('error') + ' ' : ''}${noName} sans étiquette · ` +
+      `${placeholder ? icon('warning') + ' ' : ''}${placeholder} placeholder seul · ` +
+      `${badAc ? icon('error') + ' ' : ''}${badAc} autocomplete invalide` +
+      (btnNoName ? ` · ${icon('error')} ${btnNoName} bouton${btnNoName > 1 ? 's' : ''} sans intitulé` : ''),
+  };
+};
+const typeOfTag = (e) => (e.isContentEditable ? 'contenteditable' : e.tagName.toLowerCase());
 
 inspector({
   id: 'rgaa-11-formulaires',
-  summary,
+  list: { title: 'Champs et boutons', collect },
   inspect(target) {
     const r = resolveField(target);
     if (!r) return null;
@@ -209,8 +224,11 @@ inspector({
     if (d && d.missing.length) found.push(['error', `aria-describedby : id introuvable (${d.missing.join(', ')})`]);
     if (d) d.els.forEach((el) => hl.push([el, 'secondary']));
 
+    const ri = roleInfo(f);
+    html += row('Rôle', roleValue(ri));
+    if (!ri.role && f.isContentEditable) found.push(['error', 'Zone contenteditable sans role (ex. role="textbox") : non identifiée comme champ (11.1)']);
+
     if (!group) {
-      html += row('Type', esc(typeOf(f)));
 
       // Obligatoire et invalide (11.10)
       if (!isButton(f)) {

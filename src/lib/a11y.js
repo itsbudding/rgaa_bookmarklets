@@ -129,3 +129,63 @@ export const toTopCoords = (view, x, y) => {
   }
   return [x, y];
 };
+
+/* ---- Rôle ARIA : explicite (attribut role) ou implicite (sémantique HTML) ---- */
+
+const INPUT_ROLES = {
+  text: 'textbox', email: 'textbox', tel: 'textbox', url: 'textbox', search: 'searchbox',
+  number: 'spinbutton', range: 'slider', checkbox: 'checkbox', radio: 'radio',
+  button: 'button', submit: 'button', reset: 'button', image: 'button',
+};
+
+/** Rôle implicite d'un élément d'après sa balise (HTML-AAM, cas courants). */
+const implicitRole = (e) => {
+  const tag = e.tagName.toLowerCase();
+  switch (tag) {
+    case 'input': {
+      const t = e.type;
+      if (['text', 'email', 'tel', 'url', 'search'].includes(t) && e.hasAttribute('list')) return 'combobox';
+      return INPUT_ROLES[t] || null;
+    }
+    case 'select':
+      return e.multiple || e.size > 1 ? 'listbox' : 'combobox';
+    case 'textarea':
+      return 'textbox';
+    case 'button':
+      return 'button';
+    case 'fieldset':
+      return 'group';
+    case 'img':
+      return e.getAttribute('alt') === '' ? 'presentation' : 'img';
+    case 'area':
+      return e.hasAttribute('href') ? 'link' : null;
+    case 'a':
+      return e.hasAttribute('href') ? 'link' : null;
+    case 'figure':
+      return 'figure';
+    case 'option':
+      return 'option';
+    default:
+      return null;
+  }
+};
+
+/** Balise affichée comme source d'un rôle implicite : <input type="checkbox">. */
+const tagLabel = (e) => {
+  const tag = e.tagName.toLowerCase();
+  if (tag === 'input') return `<input type="${e.type}">`;
+  if (tag === 'img' && e.getAttribute('alt') === '') return '<img alt="">';
+  return `<${tag}>`;
+};
+
+/**
+ * Rôle de l'élément et sa source.
+ * @returns {{role: string|null, from: 'attribut'|'balise'|null, source: string}}
+ */
+export const roleInfo = (e) => {
+  const explicit = (e.getAttribute('role') || '').trim().split(/\s+/)[0];
+  if (explicit) return { role: explicit, from: 'attribut', source: `attribut role` };
+  const r = implicitRole(e);
+  if (r) return { role: r, from: 'balise', source: `implicite, ${tagLabel(e)}` };
+  return { role: null, from: null, source: tagLabel(e) };
+};
