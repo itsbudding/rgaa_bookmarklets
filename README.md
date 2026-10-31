@@ -1,6 +1,6 @@
 # Bookmarklets RGAA
 
-Sept bookmarklets pour aider à auditer une page web selon le
+Huit bookmarklets pour aider à auditer une page web selon le
 [RGAA 4.1](https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/).
 Ils s'installent comme des favoris et fonctionnent sur n'importe quelle page,
 sans extension ni compte.
@@ -18,17 +18,18 @@ intitulé reste à juger par l'auditeur.
 | **RGAA 4 – Multimédia** | 4. Multimédia | Inventaire des médias, une pastille par critère + détail au survol ou épinglé |
 | **RGAA 5 – Tableaux** | 5. Tableaux | Liste des tableaux, type choisi par l'auditeur, une pastille par critère + en-têtes de chaque cellule au survol |
 | **RGAA 6 – Liens** | 6. Liens | Liste des liens et de leur intitulé, intitulés vagues à juger avec leur contexte, une pastille par critère |
+| **RGAA 7 – Composants ARIA** | 7. Scripts | Code ARIA des composants (rôle, états, structure, nom, focus) et zones de messages, une pastille par critère + annonces des messages |
 | **RGAA 11 – Formulaires** | 11. Formulaires | Liste des champs et boutons + détail au survol (ou au focus) |
 
 ## Installation
 
 1. Téléchargez le dépôt (bouton **Code › Download ZIP** sur GitHub) et décompressez-le.
 2. Ouvrez `dist/index.html` dans votre navigateur.
-3. Glissez chacun des sept liens dans votre barre de favoris.
+3. Glissez chacun des huit liens dans votre barre de favoris.
 
 Autre méthode : créez un favori et collez comme adresse le contenu d'un des
 fichiers `dist/rgaa-1-images.js`, `dist/rgaa-2-cadres.js`, `dist/rgaa-3-couleurs.js`,
-`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js`, `dist/rgaa-6-liens.js` ou
+`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js`, `dist/rgaa-6-liens.js`, `dist/rgaa-7-composants.js` ou
 `dist/rgaa-11-formulaires.js`.
 
 ### Pages de démo
@@ -44,7 +45,7 @@ bookmarklet sans l'installer.
 
 - **Lancer** : ouvrez la page à auditer, puis cliquez sur le favori.
 - **Arrêter** : cliquez une seconde fois sur le favori, ou appuyez sur **Échap**.
-- Les sept bookmarklets sont indépendants et peuvent tourner en même temps.
+- Les huit bookmarklets sont indépendants et peuvent tourner en même temps.
 - Ils inspectent aussi le contenu des Shadow DOM ouverts et des iframes de
   même origine. Une iframe chargée après le lancement n'est prise en compte
   qu'en relançant le bookmarklet.
@@ -395,6 +396,85 @@ Limites :
 - un `div` ou un `span` cliquable sans rôle n'est pas détecté ;
 - les liens ajoutés après le lancement : « Actualiser ».
 
+### RGAA 7 – Composants ARIA
+
+Ce bookmarklet ne couvre que ce qui se **lit dans le code** de la
+thématique 7 (Scripts). Le comportement des composants ne se vérifie qu'en
+les utilisant : activation au clavier, mise à jour des états, changements
+de contexte (7.4) et alternatives (7.2) restent à tester à la main. Un
+composant sans erreur n'est donc **jamais ✓** : il reste ! « à tester à la
+main ».
+
+La liste a deux filtres :
+
+- **Composants** : éléments avec un rôle de composant ARIA (`button`,
+  `checkbox`, `tab`, `listbox`, `slider`, `dialog`…), `<dialog>`, éléments
+  qui portent un état ou une relation ARIA (`aria-expanded`,
+  `aria-pressed`, `aria-controls`…), et éléments non natifs avec un
+  attribut `onclick` (sauf un conteneur qui contient déjà des éléments
+  focalisables) ;
+- **Messages** : `role="status"`, `alert`, `log`, `progressbar`, `timer`,
+  `marquee`, `<output>` et `aria-live`.
+
+Ce qui est vérifié, avec une pastille par critère (`7.1 ×`, `7.3 !`,
+`7.5 !`) :
+
+- **7.1.1, code ARIA** : rôle inconnu ou abstrait (`role="buton"`,
+  `role="widget"`) ; état obligatoire absent (`aria-checked` pour
+  `checkbox`, `switch`, `radio`…, `aria-expanded` pour `combobox`,
+  `aria-valuenow` pour `slider`) ; valeur invalide (`aria-expanded="oui"`)
+  ou hors limites (`aria-valuenow`) ; attribut non permis sur le rôle
+  (`aria-checked` sur un `button`, `aria-pressed` sur un lien) ; structure
+  (`tab` hors d'un `tablist`, `option` hors d'une `listbox`, `menuitem`
+  hors d'un `menu`, `tablist` ou `listbox` vide) ; `aria-controls`,
+  `aria-labelledby`, `aria-describedby`, `aria-activedescendant`… vers un
+  id introuvable ou en double (un `aria-controls` introuvable sur un bouton
+  fermé est « à vérifier » : le contenu peut être créé à l'ouverture) ;
+  élément focalisable dans un `aria-hidden="true"` ; élément cliquable
+  (`onclick`) sans rôle. Un lien transformé en bouton (ou l'inverse) est
+  signalé « à vérifier » ;
+- **7.1.3, nom** : composant sans nom accessible ; nom (`aria-label`,
+  `aria-labelledby`, `title`) qui ne contient pas le texte visible. Le nom
+  et le rôle sont affichés pour que l'auditeur juge leur pertinence ;
+- **7.3, focus** : rôle interactif sans `tabindex` (ne peut pas recevoir le
+  focus) ou avec `tabindex="-1"` hors d'un groupe ; groupe à focus
+  itinérant (`tablist`, `listbox`, `tree`, `radiogroup`, `toolbar`…) dont
+  aucun élément n'est atteignable avec Tab (le focus géré par
+  `aria-activedescendant` est accepté) ; élément cliquable non
+  focalisable ; `onmouseover` sans équivalent au focus (à vérifier) ;
+  `blur()` dans `onfocus` (test 7.3.2) ;
+- **7.5, zones de messages** : `aria-live` invalide ou `off`, zone trop
+  large (`body`, `main`, plus de 50 éléments), `aria-live` sans
+  `aria-atomic="true"`, `progressbar` hors limites. Le détail rappelle le
+  test qui s'applique selon le type de message (7.5.1 succès ou résultat,
+  7.5.2 erreur, 7.5.3 progression), à juger par l'auditeur.
+
+**Détail.** Rôle et source, nom et source, attributs ARIA lus au moment du
+survol (après avoir ouvert un menu, survoler à nouveau le bouton montre si
+`aria-expanded` a changé), éléments référencés (entourés en orange), focus
+(`tabindex`), gestionnaires `on…` présents.
+
+**Outils** :
+
+- **Rôles** (Maj+R) : affiche au-dessus de chaque composant son rôle, son
+  nom et ses états (`tab « Livraison » selected=true`), en rouge s'il est en
+  erreur ;
+- **Annonces** (Maj+A) : affiche en bas de l'écran le texte annoncé par les
+  zones de messages quand leur contenu change (poli ou immédiat). Une zone
+  ajoutée à la page en même temps que son texte est signalée : elle est
+  souvent non annoncée. Seules les zones déclarées sont surveillées : un
+  message visible à l'écran mais absent de la bande n'est pas restitué.
+
+Limites :
+
+- les éléments rendus cliquables par `addEventListener` (cas le plus
+  courant) ne sont pas détectés, seuls les attributs `onclick`… le sont ;
+- les messages affichés hors d'une zone de messages ne sont pas détectés ;
+- règles ARIA limitées aux rôles courants (ARIA 1.2) ; la restitution réelle
+  par chaque lecteur d'écran n'est pas garantie ;
+- composants ajoutés après le lancement : « Actualiser » (la bande
+  d'annonces, elle, suit la page en direct).
+
 ### RGAA 11 – Formulaires
 
 La liste donne le compteur (champs, sans étiquette, placeholder seul,
@@ -425,7 +505,8 @@ src/
     dom.js              rendu : esc(), icon(), row(), value(), list(), src(),
                         flag(), checks(), roleValue()
     a11y.js             helpers : idrefs(), textOf(), norm(), isNotExposed(), roleInfo(),
-                        deepAll() (Shadow DOM + iframes), allDocuments()
+                        implicitRole(), deepAll() (Shadow DOM + iframes), allDocuments()
+    name.js             nom accessible et texte visible : nameOf(), visibleText()
     panel.js            hôte Shadow DOM + activation/désactivation
     highlight.js        contours sur la page, styles d'origine restaurés
     color.js            couleurs : lecture, transparence, ratio de contraste
