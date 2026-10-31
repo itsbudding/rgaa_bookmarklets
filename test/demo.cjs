@@ -10,6 +10,7 @@ const PAGES = [
   ['rgaa-4-multimedia', 'video, audio, iframe, lite-youtube, a'],
   ['rgaa-5-tableaux', 'caption, th, td, [role=cell], [role=gridcell], [role=columnheader]'],
   ['rgaa-6-liens', 'a, [role=link]'],
+  ['rgaa-7-composants', '[role], button, a, [onclick], [aria-live]'],
   ['rgaa-11-formulaires', 'input, select, textarea, button, [contenteditable], [role=checkbox], legend'],
 ];
 (async () => {

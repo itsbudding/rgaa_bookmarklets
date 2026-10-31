@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 7 – Composants ARIA</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<style>
+  .faux-bouton { display: inline-block; padding: .2rem .6rem; border: 1px solid #555; border-radius: 3px; background: #eee; cursor: pointer; }
+  .onglets [role="tab"] { display: inline-block; padding: .2rem .6rem; border: 1px solid #555; border-bottom: none; cursor: pointer; }
+  .onglets [role="tab"][aria-selected="true"] { background: #005a9c; color: #fff; }
+  .onglets [role="tabpanel"] { border: 1px solid #555; padding: .4rem; }
+  .case-cocher::before { content: "☐ " / ""; }
+  .icone { width: 20px; height: 20px; vertical-align: middle; }
+  .message { margin-top: .3rem; min-height: 1.4em; font-weight: 700; }
+  .demo ul { margin: .3rem 0 0; padding-left: 1.2rem; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-3-couleurs.html">Couleurs</a> <a href="rgaa-4-multimedia.html">Multimédia</a> <a href="rgaa-5-tableaux.html">Tableaux</a> <a href="rgaa-6-liens.html">Liens</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 7 – Composants ARIA</h1>
+<div class="intro">
+  <p>Cette page rassemble des composants conformes et non conformes dans leur code, pour la
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#7">thématique 7 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 7 – Composants ARIA</a>
+  (ou utilisez votre favori). Survolez un composant pour voir son rôle, son nom, ses attributs ARIA et son focus.
+  Cliquez sur une ligne de la liste pour épingler le détail. <kbd>Échap</kbd> libère le détail, puis ferme les panneaux.</p>
+  <p>Le bookmarklet vérifie le <strong>code</strong> : un composant sans erreur reste « à tester à la main »
+  (badge « À vérifier »), car son comportement au clavier et la mise à jour de ses états ne se lisent pas dans le code.</p>
+</div>
+
+<h2>7.1.1 Rôle, états et structure</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Bouton de menu correct</h3>
+    <div class="demo">
+      <button type="button" id="btn-menu" aria-expanded="false" aria-controls="menu-nav">Menu</button>
+      <ul id="menu-nav" hidden><li><a href="https://example.org/">Accueil</a></li><li><a href="https://example.org/contact">Contact</a></li></ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> button « Menu », 7.1 ! et 7.3 ! (à tester). Cliquez : le détail
+    affiche ensuite <code>aria-expanded="true"</code>.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Rôle mal écrit</h3>
+    <div class="demo">
+      <span role="buton" tabindex="0" class="faux-bouton">Imprimer</span>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « rôle « buton » inconnu : le rôle est ignoré ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Rôle abstrait</h3>
+    <div class="demo">
+      <div role="widget" tabindex="0" class="faux-bouton">Réglages</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « rôle abstrait « widget », interdit dans le code ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Case à cocher sans aria-checked</h3>
+    <div class="demo">
+      <div role="checkbox" tabindex="0" class="case-cocher">Recevoir la lettre d’information</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « aria-checked obligatoire pour le rôle checkbox, absent ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Valeur interdite</h3>
+    <div class="demo">
+      <button type="button" aria-expanded="oui" aria-controls="filtres">Filtres</button>
+      <div id="filtres" hidden>…</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « aria-expanded="oui" : valeur invalide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Attribut non permis sur le rôle</h3>
+    <div class="demo">
+      <button type="button" aria-checked="true">Gras</button>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « aria-checked n’est pas permis sur le rôle button » (il faut aria-pressed).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Onglets corrects</h3>
+    <div class="demo onglets">
+      <div role="tablist" aria-label="Commande">
+        <button type="button" role="tab" id="tab-1" aria-selected="true" aria-controls="panel-1">Livraison</button>
+        <button type="button" role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2" tabindex="-1">Paiement</button>
+      </div>
+      <div role="tabpanel" id="panel-1" aria-labelledby="tab-1">Livraison sous 48 h.</div>
+      <div role="tabpanel" id="panel-2" aria-labelledby="tab-2" hidden>Carte ou virement.</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> tablist, tab et tabpanel à tester (!). L’onglet en <code>tabindex="-1"</code>
+    est accepté (focus itinérant) ; le panneau masqué est non concerné (∅).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Onglets sans tablist</h3>
+    <div class="demo onglets">
+      <span role="tab" tabindex="0" aria-selected="true">Résumé</span>
+      <span role="tab" tabindex="-1" aria-selected="false">Détails</span>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « role="tab" doit être dans un tablist » sur chaque onglet ;
+    7.3 × « tabindex="-1" : pas atteignable avec Tab » sur le second.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Liste d’options vide</h3>
+    <div class="demo">
+      <ul role="listbox" aria-label="Villes" tabindex="0"><li>Lyon</li><li>Nantes</li></ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « role="listbox" ne contient aucun élément option ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-controls vers un id introuvable</h3>
+    <div class="demo">
+      <div role="switch" tabindex="0" aria-checked="false" aria-controls="panneau-absent" class="faux-bouton">Mode sombre</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « aria-controls : id introuvable (panneau-absent) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Menu créé à l’ouverture</h3>
+    <div class="demo">
+      <button type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="menu-compte">Mon compte</button>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 ! « id introuvable, peut-être créé à l’ouverture » (le menu fermé n’existe pas encore).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Lien transformé en bouton</h3>
+    <div class="demo">
+      <a href="#" role="button" aria-pressed="false">Mode lecture</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 ! « Le rôle natif (link, &lt;a&gt;) est remplacé par « button » » :
+    un bouton doit aussi réagir à la touche Espace.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Focalisable dans un aria-hidden</h3>
+    <div class="demo">
+      <div aria-hidden="true"><button type="button" aria-pressed="false">Favori</button></div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « Focalisable mais masqué par aria-hidden="true" ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Curseur hors limites</h3>
+    <div class="demo">
+      <div role="slider" tabindex="0" aria-label="Volume" aria-valuemin="0" aria-valuemax="10" aria-valuenow="12" class="faux-bouton">12</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « aria-valuenow="12" hors des limites (0 à 10) ».</p>
+  </div>
+</div>
+
+<h2>7.1.3 Nom et rôle</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Bouton icône sans nom</h3>
+    <div class="demo">
+      <div role="button" tabindex="0" class="faux-bouton"><svg class="icone" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#000" stroke-width="2"/></svg></div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « Composant button sans nom accessible ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Nom sans le texte visible</h3>
+    <div class="demo">
+      <div role="button" tabindex="0" aria-label="Valider la commande" class="faux-bouton">Payer</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « Le nom accessible ne contient pas le texte visible « Payer » ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Nom correct</h3>
+    <div class="demo">
+      <div role="button" tabindex="0" aria-label="Payer la commande" class="faux-bouton">Payer</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 ! « Nom et rôle à juger », ✓ « texte visible repris dans le nom ».</p>
+  </div>
+</div>
+
+<h2>7.3 Clavier et souris</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>role="button" sans tabindex</h3>
+    <div class="demo">
+      <div role="button" class="faux-bouton" onclick="this.textContent = 'Ajouté'">Ajouter</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.3 × « role="button" sans tabindex : ne peut pas recevoir le focus ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>role="button" avec tabindex="0"</h3>
+    <div class="demo">
+      <div role="button" tabindex="0" class="faux-bouton">Partager</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.3 ! « Activation au clavier à tester » (Entrée et Espace).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Groupe d’onglets inaccessible avec Tab</h3>
+    <div class="demo onglets">
+      <div role="tablist" aria-label="Produit">
+        <span role="tab" tabindex="-1" aria-selected="true">Description</span>
+        <span role="tab" tabindex="-1" aria-selected="false">Avis</span>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.3 × « Aucun élément du groupe tablist n’est atteignable avec Tab » sur le tablist.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>span cliquable</h3>
+    <div class="demo">
+      <span onclick="this.textContent = 'Copié'" class="faux-bouton">Copier le lien</span>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.1 × « cliquable (onclick) sans rôle » et 7.3 × « souris seulement ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Conteneur qui délègue le clic</h3>
+    <div class="demo">
+      <div onclick="void 0"><button type="button">Voir</button> <button type="button">Masquer</button></div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> le <code>div</code> n’est pas listé : il contient des boutons focalisables.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Menu au survol seul</h3>
+    <div class="demo">
+      <span role="button" tabindex="0" class="faux-bouton" onmouseover="this.nextElementSibling.hidden = false">Rubriques</span>
+      <ul hidden><li>Actualités</li></ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.3 ! « Réagit au survol de la souris sans équivalent au focus ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Focus retiré</h3>
+    <div class="demo">
+      <div role="button" tabindex="0" class="faux-bouton" onfocus="this.blur()">Suivant</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.3 × « Le focus est retiré dès qu’il arrive (test 7.3.2) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Liste d’options gérée par aria-activedescendant</h3>
+    <div class="demo">
+      <ul role="listbox" aria-label="Taille" tabindex="0" aria-activedescendant="opt-m">
+        <li role="option" id="opt-s" aria-selected="false">S</li>
+        <li role="option" id="opt-m" aria-selected="true">M</li>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.3 ✓ « Focus géré par aria-activedescendant » sur les options, statut ! (à tester).</p>
+  </div>
+</div>
+
+<h2>7.5 Messages de statut</h2>
+<p>Activez l’outil <strong>Annonces</strong> (Maj+A), puis cliquez sur les boutons : le message apparaît dans la bande en bas de l’écran.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Message de succès en role="status"</h3>
+    <div class="demo">
+      <button type="button" id="btn-panier">Ajouter au panier</button>
+      <div role="status" id="msg-panier" class="message"></div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> zone status (vide), 7.5 ! « type à juger, 7.5.1 ». Au clic, la bande affiche
+    « [poli] Produit ajouté au panier ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Erreur en role="alert"</h3>
+    <div class="demo">
+      <button type="button" id="btn-envoi">Envoyer</button>
+      <div role="alert" id="msg-envoi" class="message"></div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> zone alert, 7.5 ! « 7.5.2 ». Au clic, la bande affiche « [immédiat] 2 champs sont incorrects ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Zone créée avec son message</h3>
+    <div class="demo">
+      <button type="button" id="btn-copie">Copier</button>
+      <div id="zone-copie"></div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> au clic, une zone <code>role="status"</code> est ajoutée avec son texte :
+    la bande l’affiche avec « zone créée avec son message : souvent non annoncée ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-live invalide</h3>
+    <div class="demo">
+      <div aria-live="yes" class="message">3 résultats</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.5 × « aria-live="yes" : valeur invalide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Barre de progression hors limites</h3>
+    <div class="demo">
+      <div role="progressbar" aria-label="Envoi du fichier" aria-valuenow="140">140 %</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.5 × « aria-valuenow="140" hors des limites (0 à 100) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Barre de progression correcte</h3>
+    <div class="demo">
+      <div role="progressbar" aria-label="Téléversement" aria-valuenow="40">40 %</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 7.5 ! « type à juger, 7.5.3 (progression) ».</p>
+  </div>
+</div>
+
+<h2>Non détecté</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>div cliquable par addEventListener</h3>
+    <div class="demo">
+      <div class="faux-bouton" id="clic-script">Fermer</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> absent de la liste. Un bookmarklet ne voit pas les gestionnaires posés par
+    <code>addEventListener</code> : c’est à l’auditeur de le repérer.</p>
+  </div>
+</div>
+</div>
+<script>
+  document.getElementById('btn-menu').addEventListener('click', function () {
+    var open = this.getAttribute('aria-expanded') === 'true';
+    this.setAttribute('aria-expanded', String(!open));
+    document.getElementById('menu-nav').hidden = open;
+  });
+  document.getElementById('btn-panier').addEventListener('click', function () {
+    document.getElementById('msg-panier').textContent = 'Produit ajouté au panier';
+  });
+  document.getElementById('btn-envoi').addEventListener('click', function () {
+    document.getElementById('msg-envoi').textContent = '2 champs sont incorrects';
+  });
+  document.getElementById('btn-copie').addEventListener('click', function () {
+    var z = document.createElement('div');
+    z.setAttribute('role', 'status');
+    z.textContent = 'Lien copié';
+    document.getElementById('zone-copie').replaceChildren(z);
+  });
+  document.getElementById('clic-script').addEventListener('click', function () { this.textContent = 'Fermé'; });
+</script>
+</body>
+</html>

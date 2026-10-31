@@ -139,7 +139,7 @@ const INPUT_ROLES = {
 };
 
 /** Rôle implicite d'un élément d'après sa balise (HTML-AAM, cas courants). */
-const implicitRole = (e) => {
+export const implicitRole = (e) => {
   const tag = e.tagName.toLowerCase();
   switch (tag) {
     case 'input': {
