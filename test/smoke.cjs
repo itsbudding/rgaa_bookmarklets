@@ -30,16 +30,20 @@ const load = (n) => decodeURIComponent(fs.readFileSync(path.join(__dirname, '..'
   await p.waitForTimeout(100);
   console.log('CLIC LISTE → focus', await p.evaluate(() => document.activeElement.id), '| panneau :', await panel('rgaa-11-formulaires'));
   await p.focus('#f2'); console.log('FOCUS #f2 →', await panel('rgaa-11-formulaires'));
+  await p.keyboard.press('Escape'); // libère le détail épinglé
   await p.keyboard.press('Escape');
   console.log('esc off:', await p.evaluate(() => !document.getElementById('rgaa-11-formulaires') && !document.getElementById('rgaa-11-formulaires-liste')), 'outline restored:', JSON.stringify(await p.evaluate(() => document.getElementById('f1').style.outline + '/' + document.getElementById('f2').style.outline)));
 
   await p.evaluate(load('rgaa-2-cadres'));
-  console.log('CADRES →', await panel('rgaa-2-cadres'));
-  await p.evaluate(() => document.getElementById('rgaa-2-cadres').shadowRoot.querySelector('.item').click());
+  console.log('CADRES →', await panel('rgaa-2-cadres-liste'));
+  await p.evaluate(() => document.getElementById('rgaa-2-cadres-liste').shadowRoot.querySelector('.item').click());
+  await p.waitForTimeout(100);
+  console.log('CADRE épinglé →', await panel('rgaa-2-cadres'));
   console.log('locate outline:', await p.evaluate(() => document.querySelector('iframe').style.outline));
   await p.screenshot({ path: process.env.SHOT || path.join(__dirname, 'cadres.png') });
   await p.keyboard.press('Escape');
-  console.log('dialog esc off:', await p.evaluate(() => !document.getElementById('rgaa-2-cadres')));
+  await p.keyboard.press('Escape');
+  console.log('cadres esc off:', await p.evaluate(() => !document.getElementById('rgaa-2-cadres') && !document.getElementById('rgaa-2-cadres-liste')));
   console.log('errors:', errors.filter((e) => !/Failed to load resource/.test(e)));
   await b.close();
 })();

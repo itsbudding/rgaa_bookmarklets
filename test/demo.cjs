@@ -50,7 +50,14 @@ const PAGES = [
   await p.waitForTimeout(500);
   await p.click('.launch');
   await p.waitForTimeout(200);
-  console.log('\n===== rgaa-2-cadres\n' + (await panel('rgaa-2-cadres')).split(' | ').join('\n'));
+  console.log('\n===== rgaa-2-cadres\n' + (await panel('rgaa-2-cadres-liste')).split(' | ').join('\n'));
+  // Détail épinglé de chaque cadre (clic sur sa ligne).
+  const lines = await p.evaluate(() => document.getElementById('rgaa-2-cadres-liste').shadowRoot.querySelectorAll('.item').length);
+  for (let i = 0; i < lines; i++) {
+    await p.evaluate((i) => document.getElementById('rgaa-2-cadres-liste').shadowRoot.querySelectorAll('.item')[i].click(), i);
+    await p.waitForTimeout(100);
+    console.log(`  ${i + 1}. → ${await panel('rgaa-2-cadres')}`);
+  }
   console.log('\nerrors:', errors);
   await b.close();
   if (errors.length) process.exit(1);
