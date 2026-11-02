@@ -258,46 +258,29 @@
   </div>
 </div>
 
-<h2>9.1.3 Titres probables</h2>
-<p>Les passages qui ressemblent à un titre sont rangés dans l’accordéon « Titres probables », fermé par défaut, sous le plan.
-Le bouton « Titres probables » (<kbd>Maj+P</kbd>) les entoure sur la page.</p>
+<h2>Plan sur la page</h2>
+<p>Le bouton « Plan sur la page » (<kbd>Maj+H</kbd>) affiche le niveau de chaque titre, une couleur par niveau.
+Un titre recouvert (menu ouvert par-dessus) n’est pas marqué, et un titre qui apparaît (menu déroulant) est ajouté au plan.</p>
 <div class="cases">
   <div class="case">
-    <h3><span class="badge badge--ko">Non conforme</span>Paragraphe en gras suivi d’une liste</h3>
+    <h3><span class="badge badge--ok">Conforme</span>Menu déroulant</h3>
     <div class="demo">
-      <h1>Piscine</h1>
-      <p><strong>Horaires</strong></p>
-      <ul><li>Lundi : 12 h – 14 h</li><li>Mercredi : 10 h – 19 h</li></ul>
+      <nav aria-label="Menu" style="position:relative">
+        <button type="button" aria-expanded="false" id="ouvrir">Rubriques</button>
+        <div id="mega" hidden style="position:absolute;top:2rem;left:0;width:16rem;background:#eef5fb;border:1px solid #999;padding:.4rem;z-index:2">
+          <h2>Services</h2>
+          <p>Prêt, réservation, portage à domicile.</p>
+        </div>
+      </nav>
+      <h1>Médiathèque</h1>
+      <h2>Agenda</h2>
+      <p>Lecture de contes mercredi à 15 h.</p>
+      <script>if (window.frameElement) { const b = document.getElementById('ouvrir'); b.onclick = () => { const m = document.getElementById('mega'); m.hidden = !m.hidden; b.setAttribute('aria-expanded', String(!m.hidden)); }; }</script>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> titre probable « Horaires » (gras), suivi d’une liste, « serait un h2 sous « Piscine » ».</p>
+    <p class="attendu"><strong>Attendu :</strong> menu fermé, « h2 Services » est ∅ (masqué). Avec « Plan sur la page », ouvrir le menu :
+    « h2 Services » est ajouté au plan et marqué (! le plan commence au niveau 2, le menu étant avant le h1) ; « h1 Médiathèque » et « h2 Agenda », recouverts par le menu, ne sont plus marqués.</p>
   </div>
-  <div class="case">
-    <h3><span class="badge badge--ko">Non conforme</span>Intertitre en grand texte</h3>
-    <div class="demo">
-      <h1>Rapport annuel</h1>
-      <div class="intertitre">Nos résultats</div>
-      <p>Cette année, la fréquentation a augmenté de 12 % et les inscriptions de 8 %.</p>
-    </div>
-    <p class="attendu"><strong>Attendu :</strong> titre probable « Nos résultats » (24px), suivi d’un paragraphe.</p>
-  </div>
-  <div class="case">
-    <h3><span class="badge badge--ok">Conforme</span>Gras dans une phrase</h3>
-    <div class="demo">
-      <h1>Inscription</h1>
-      <p>L’inscription est <strong>gratuite</strong> pour les moins de 18 ans.</p>
-      <p>Il suffit de présenter une pièce d’identité à l’accueil.</p>
-    </div>
-    <p class="attendu"><strong>Attendu :</strong> rien dans les titres probables.</p>
-  </div>
-  <div class="case">
-    <h3><span class="badge badge--ok">Conforme</span>Libellé de bouton en gras</h3>
-    <div class="demo">
-      <h1>Newsletter</h1>
-      <p><button type="button"><strong>S’abonner</strong></button></p>
-      <p>Recevez chaque mois le programme des animations de la médiathèque.</p>
-    </div>
-    <p class="attendu"><strong>Attendu :</strong> rien dans les titres probables (texte d’un bouton).</p>
-  </div>
+</div>
 </div>
 </div>
 </body>

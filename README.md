@@ -19,7 +19,7 @@ intitulé reste à juger par l'auditeur.
 | **RGAA 5 – Tableaux** | 5. Tableaux | Liste des tableaux, type choisi par l'auditeur, une pastille par critère + en-têtes de chaque cellule au survol |
 | **RGAA 6 – Liens** | 6. Liens | Liste des liens et de leur intitulé, intitulés vagues à juger avec leur contexte, une pastille par critère |
 | **RGAA 7 – Composants ARIA** | 7. Scripts | Code ARIA des composants (rôle, états, structure, nom, focus) et zones de messages, une pastille par critère + annonces des messages |
-| **RGAA 9 – Titres** | 9. Structuration (critère 9.1) | Plan des titres en retrait selon le niveau, une pastille par test, titres probables non balisés dans un accordéon |
+| **RGAA 9 – Titres** | 9. Structuration (critère 9.1) | Plan des titres en retrait selon le niveau, une pastille par test, plan affiché sur la page |
 | **RGAA 11 – Formulaires** | 11. Formulaires | Liste des champs et boutons + détail au survol (ou au focus) |
 
 ## Installation
@@ -510,38 +510,33 @@ hors du plan. Un titre **caché visuellement** (classe `sr-only`, `clip`,
 hors écran) compte comme présent (glossaire RGAA) : il est dans le plan,
 avec la mention « caché visuellement ».
 
-**Titres probables (9.1.3)** : l'accordéon « Titres probables », sous le
-plan et fermé par défaut, liste les passages qui ressemblent à un titre
-sans en être un : texte court (80 caractères au plus, sans ponctuation
-finale), en gras ou au moins 1,2 fois plus grand que le texte courant de la
-page, seul dans son bloc et suivi d'un contenu (paragraphe, liste, tableau).
-Les textes de liens, boutons, champs, cellules et menus de navigation sont
-ignorés. Ils sont toujours « à vérifier », jamais en erreur.
+**9.1.3** (passage de texte qui est un titre sans en avoir le balisage) n'est
+pas détecté : il reste à repérer à l'œil, avec l'aide du plan sur la page.
 
 **Détail** (au survol, au focus, ou épinglé par un clic sur une ligne) :
 niveau et source, nom accessible et source, texte visible s'il diffère,
 titres parents (« h1 Accueil › h2 Actualités »), titre précédent (entourés
 en orange), contenu de la section jusqu'au titre suivant (sous-titres,
 paragraphes, listes, tableaux), taille de police comparée au titre parent,
-visibilité. Pour un titre probable : la raison, ce qui le suit et le niveau
-qu'il aurait (« serait un h3 sous « Actualités » »).
+visibilité.
 
 **Outils** (boutons du panneau liste, ou raccourcis) :
 
 - **Plan sur la page** (Maj+H) : entoure chaque titre et affiche son niveau
-  et son texte au-dessus, une couleur par niveau, en orange pour un point
-  à vérifier en 9.1.1 et en rouge pour une erreur. Les titres cachés
-  visuellement portent « h2 caché ». Pour comparer le plan et la mise en
-  page, et repérer les titres visuels sans étiquette (9.1.3) ;
-- **Titres probables** (Maj+P) : entoure en pointillé les titres probables ;
+  et son texte au-dessus, avec une couleur par niveau (toujours la même).
+  Un point à vérifier est précédé de « ! », une erreur de « × ». Les titres
+  cachés visuellement portent « h2 caché ». Un titre recouvert par un autre
+  élément (menu ouvert, bandeau fixe) n'est pas marqué. Le plan suit la
+  page en direct : un titre qui apparaît (méga-menu ouvert) ou disparaît
+  met la liste à jour. Pour comparer le plan et la mise en page, et repérer
+  les titres visuels sans étiquette (9.1.3) ;
 - **Copier le plan** : copie le plan en texte indenté (`h2 Actualités`,
   `  h3 Agenda`…), pour le rapport d'audit.
 
 Limites :
 
 - pertinence de la hiérarchie et du contenu des titres : à juger ;
-- titres probables : simple indice, liste incomplète, et un passage peut
-  être signalé à tort (bandeau promotionnel, slogan) ;
+- passages de texte non balisés en titre (9.1.3) : non détectés ;
 - niveau visuel : seule la taille de police est comparée (pas la couleur,
   la casse ni l'espacement) ;
 - titres ajoutés après le lancement (onglets, accordéons, chargement
@@ -660,9 +655,7 @@ Il accepte aussi `tools` (boutons à bascule à côté d'« Actualiser », comme
 `pressed()` est un simple bouton (« Copier le plan »). Un élément peut
 regrouper plusieurs éléments de la page (`els`) : chaque clic passe au suivant.
 Pour une liste arborescente, un élément peut porter `indent` (retrait) ou
-`section: true` (ligne de titre non cliquable) ; `accordions: [{ id, label }]`
-ajoute sous la liste des sections repliables, fermées par défaut, qui
-reçoivent les éléments portant `accordion: id`. `collect()` peut renvoyer
+`section: true` (ligne de titre non cliquable). `collect()` peut renvoyer
 `count`, le nombre affiché dans le titre du panneau.
 `pinOnLocate: true` épingle le détail à côté de l'élément quand on clique sa
 ligne dans la liste (clic ailleurs ou Échap pour le libérer) ; `onAction(name,

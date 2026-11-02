@@ -13,11 +13,10 @@
  *    générique, très long, en double, nom qui remplace le texte affiché (!).
  *    La pertinence reste à juger : la pastille est toujours « ! », mais la
  *    ligne est ✓ quand rien d'autre n'est signalé.
- * 9.1.3 : les passages qui ressemblent à un titre (texte court en gras ou
- * plus grand que le texte courant, suivi de contenu) sont rangés dans
- * l'accordéon « Titres probables », fermé par défaut.
+ * 9.1.3 (passages de texte non balisés en titre) reste à l'auditeur : le
+ * plan sur la page aide à repérer un titre visuel sans étiquette.
  *
- * Outils : Plan sur la page (Maj+H), Titres probables (Maj+P), Copier le plan.
+ * Outils : Plan sur la page (Maj+H), Copier le plan.
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list } from '../lib/dom.js';
@@ -70,21 +69,14 @@ const visuallyHidden = (el) => {
 
 /* ---------- Parcours : titres et passages candidats, dans l'ordre ---------- */
 
-const NOT_PROBABLE =
-  'h1,h2,h3,h4,h5,h6,[role="heading"],a,button,label,legend,caption,summary,select,textarea,option,td,th,nav,' +
-  '[role="navigation"],[role="button"],[role="link"],[role="tab"],[role="menuitem"],[role="option"],[role="tooltip"],' +
-  '[role="status"],[role="alert"],[aria-live],figcaption,blockquote,pre,code';
-const CANDIDATE_TAGS = new Set(['P', 'DIV', 'DT', 'SPAN', 'STRONG', 'B']);
 const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT', 'SVG', 'svg', 'IFRAME', 'FRAME', 'OBJECT', 'SELECT', 'TEXTAREA', 'HEAD']);
 
 /**
  * Parcourt un document (et ses Shadow DOM ouverts, mais pas ses iframes) dans
- * l'ordre : renvoie les titres, les passages candidats et, pour chaque
- * titre, le contenu de sa section (jusqu'au titre suivant).
+ * l'ordre : renvoie les titres et, pour chaque titre, le contenu de sa section (jusqu'au titre suivant).
  */
 const walkDoc = (doc) => {
   const heads = [];
-  const cands = [];
   let cur = null;
   const visit = (root) => {
     for (let c = root.firstElementChild; c; c = c.nextElementSibling) {
@@ -108,13 +100,12 @@ const walkDoc = (doc) => {
         else if (t === 'IMG' || t === 'PICTURE' || t === 'VIDEO' || t === 'FIGURE') cur.sec.img++;
         else if (t === 'FORM' || t === 'FIELDSET') cur.sec.other++;
       }
-      if (CANDIDATE_TAGS.has(c.tagName)) cands.push({ el: c, after: heads.length });
       if (c.shadowRoot) visit(c.shadowRoot);
       visit(c);
     }
   };
   if (doc.body) visit(doc.body);
-  return { heads, cands };
+  return { heads };
 };
 
 /* ---------- Analyse d'un titre ---------- */
@@ -182,68 +173,10 @@ const contentCheck = (h) => {
 
 let docs = [];
 let entries = [];
-let probables = [];
 let byEl = new Map();
 
-/** Taille du texte courant d'un document : la plus fréquente, pondérée par la longueur du texte. */
-const baseSize = (doc) => {
-  const sizes = new Map();
-  const w = doc.createTreeWalker(doc.body || doc.documentElement, 4);
-  let i = 0;
-  for (let t = w.nextNode(); t && i < 4000; t = w.nextNode(), i++) {
-    const len = t.textContent.trim().length;
-    const p = t.parentElement;
-    if (!len || !p || SKIP_TAGS.has(p.tagName) || p.closest(`${OWN},pre,code,kbd,samp,h1,h2,h3,h4,h5,h6,[role="heading"]`)) continue;
-    const s = parseFloat(styleOf(p).fontSize);
-    if (s) sizes.set(s, (sizes.get(s) || 0) + len);
-  }
-  let best = 16;
-  let max = 0;
-  sizes.forEach((v, k) => v > max && ([best, max] = [k, v]));
-  return best;
-};
-
-const BLOCK = /^(block|flex|grid|list-item|table-caption|flow-root)$/;
-
-/** Le passage est-il un « titre probable » (9.1.3) ? Renvoie la raison, ou null. */
-const probable = (c, base) => {
-  const el = c.el;
-  const raw = el.textContent.trim();
-  if (!raw || raw.length > 200) return null;
-  if (el.closest(NOT_PROBABLE) || isOwn(el) || el.querySelector('a,button,input,select,textarea,label,img,svg')) return null;
-  const cs = styleOf(el);
-  // strong / b / span : seulement s'il porte tout le texte de son bloc parent (qui est alors testé à sa place).
-  if (!BLOCK.test(cs.display)) return null;
-  // Bloc « feuille » : aucun enfant de type bloc.
-  for (const k of el.children) if (BLOCK.test(styleOf(k).display) || k.tagName === 'BR') return null;
-  const text = textOf(el);
-  if (!text || text.length > 80 || /[.!?…;,]$/.test(text) || !/\p{L}/u.test(text)) return null;
-  if (isNotExposed(el) || visuallyHidden(el)) return null;
-  // Taille et graisse du texte : chaque nœud texte doit être en gras, ou tous assez grands.
-  const nodes = [];
-  const w = el.ownerDocument.createTreeWalker(el, 4);
-  for (let t = w.nextNode(); t; t = w.nextNode()) if (t.textContent.trim()) nodes.push(styleOf(t.parentElement));
-  if (!nodes.length) return null;
-  const bold = nodes.every((s) => Number(s.fontWeight) >= 600);
-  const size = Math.min(...nodes.map((s) => parseFloat(s.fontSize) || 0));
-  const big = size >= base * 1.2 && size >= base + 2;
-  if (!bold && !big) return null;
-  // Suivi d'un contenu dans le même conteneur.
-  let next = el.nextElementSibling;
-  while (next && (SKIP_TAGS.has(next.tagName) || isNotExposed(next) || !textOf(next))) next = next.nextElementSibling;
-  if (!next || HX.test(next.tagName) || roleOf(next) === 'heading') return null;
-  const nt = textOf(next);
-  const nextKind = { UL: 'une liste', OL: 'une liste', DL: 'une liste', TABLE: 'un tableau', FORM: 'un formulaire', FIELDSET: 'un formulaire' }[next.tagName];
-  if (!nextKind && nt.length < Math.max(40, text.length + 10)) return null;
-  // Le suivant ne doit pas avoir le même style (suite de libellés en gras).
-  const ns = styleOf(next);
-  if (bold && !big && Number(ns.fontWeight) >= 600 && parseFloat(ns.fontSize) === size) return null;
-  const why = [bold ? 'gras' : '', big ? px(size) : ''].filter(Boolean).join(', ');
-  return { text, why, size, bold, next, nextKind: nextKind || (next.tagName === 'P' ? 'un paragraphe' : `un bloc <${tagOf(next)}>`) };
-};
-
 const analyseDoc = (doc, label) => {
-  const { heads, cands } = walkDoc(doc);
+  const { heads } = walkDoc(doc);
   const plan = [];
   const out = [];
   heads.forEach((h) => {
@@ -307,20 +240,7 @@ const analyseDoc = (doc, label) => {
     h.status = worst([status, h.crit['9.1.2'].base ? 'ok' : h.crit['9.1.2'].status]);
     h.indent = h.level - min;
   });
-  // Titres probables.
-  const base = baseSize(doc);
-  const probs = [];
-  const seen = new Set();
-  cands.forEach((c) => {
-    const r = probable(c, base);
-    if (!r) return;
-    // Un bloc qui contient un autre candidat retenu : on garde le plus petit.
-    if ([...seen].some((s) => c.el.contains(s) || s.contains(c.el))) return;
-    seen.add(c.el);
-    const before = plan.filter((h) => h.order < c.after).pop() || null;
-    probs.push({ el: c.el, doc, ...r, prevHead: before, would: before ? Math.min(before.level + 1, 6) : Math.max(min, 1), base, probable: true, status: 'warning' });
-  });
-  return { doc, label, plan, out, probs, min, base };
+  return { doc, label, plan, out, min };
 };
 
 const docLabel = (doc) => {
@@ -346,8 +266,7 @@ const collect = () => {
   const all = allDocuments();
   docs = all.map((doc, i) => analyseDoc(doc, i ? docLabel(doc) : ''));
   entries = docs.flatMap((d) => [...d.plan, ...d.out]);
-  probables = docs.flatMap((d) => d.probs);
-  byEl = new Map([...probables.map((p) => [p.el, p]), ...entries.map((e) => [e.el, e])]);
+  byEl = new Map(entries.map((e) => [e.el, e]));
   const items = [];
   docs.forEach((d, i) => {
     if (i && !d.plan.length && !d.out.length) return;
@@ -374,17 +293,6 @@ const collect = () => {
         meta: h.removed ? `rôle titre retiré (${h.removed})` : `masqué : ${h.hidden}`,
       }),
     ),
-  );
-  probables.forEach((p) =>
-    items.push({
-      el: p.el,
-      status: 'warning',
-      accordion: 'probables',
-      prefix: `<span class="pills">${pill('9.1.3', 'warning')}</span>`,
-      label: p.text,
-      meta: p.why,
-      filter: ['verifier'],
-    }),
   );
   const main = docs[0];
   const plan = docs.flatMap((d) => d.plan);
@@ -470,100 +378,147 @@ const headingDetail = (h) => {
   return html;
 };
 
-const probableDetail = (p) => {
-  let html = row('Passage', `&lt;${esc(tagOf(p.el))}&gt; « ${esc(cut(p.text, 100))} »`);
-  html += row('Ressemble à un titre', `${esc(p.why)} <span class="muted small">(texte courant : ${px(p.base)})</span>`);
-  html += row('Suivi de', esc(p.nextKind));
-  html += row('Serait', p.prevHead ? `un h${p.would} sous « ${esc(cut(p.prevHead.name || '(vide)', 50))} »` : `un h${p.would} (aucun titre avant)`);
-  html += `<div class="crits">${critBlock('9.1.3', {
-    status: 'warning',
-    text: 'Titre probable non balisé : si c’est un titre, utiliser h1–h6 ou role="heading" + aria-level',
-  })}</div>`;
-  return html;
-};
+/* ---------- Outil « Plan sur la page » ---------- */
 
-/* ---------- Outils sur la page : plan et titres probables ---------- */
-
-const LEVEL_COLORS = ['#0d47a1', '#1e7b34', '#4527a0', '#00695c', '#5d4037', '#37474f']; // texte blanc ≥ 4,5:1
-const PROBABLE_COLOR = '#ad1457';
+// Une couleur par niveau, toujours la même (texte blanc ≥ 4,5:1). Un point à
+// vérifier ou une erreur est indiqué par « ! » ou « × » dans l'étiquette.
+const LEVEL_COLORS = ['#0d47a1', '#1e7b34', '#4527a0', '#00695c', '#5d4037', '#37474f'];
 const OVERLAY_CSS = `
 :host{all:initial}
 .box{position:fixed;z-index:${Number(THEME.zIndex) - 1};pointer-events:none;border:2px solid;border-radius:2px;box-sizing:border-box}
-.box--dashed{border-style:dashed}
 .tag{position:fixed;z-index:${Number(THEME.zIndex) - 1};pointer-events:none;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 font:700 11px/1.3 ${THEME.font};color:#fff;padding:1px 4px;border-radius:2px}
 `;
-const overlays = { plan: null, probables: null };
 const MAX_TAGS = 2000;
+let overlay = null;
 
-const makeOverlay = (key, list) => {
-  const host = document.createElement('div');
-  host.setAttribute('data-rgaa-bookmarklet', '');
-  host.id = `${ID}-${key}`;
-  const root = host.attachShadow({ mode: 'open' });
-  root.innerHTML = `<style>${OVERLAY_CSS}</style>`;
-  const items = list.slice(0, MAX_TAGS).map(({ el, text, color, dashed }) => {
-    const box = document.createElement('div');
-    box.className = `box${dashed ? ' box--dashed' : ''}`;
-    box.style.borderColor = color;
-    const tag = document.createElement('span');
-    tag.className = 'tag';
-    tag.style.background = color;
-    tag.textContent = text;
-    root.append(box, tag);
-    return { el, box, tag };
+/**
+ * Le titre est-il visible à l'écran, et non recouvert par un autre élément
+ * (menu ouvert, bandeau fixe, fenêtre) ? On teste quelques points du titre.
+ */
+const visibleOnScreen = (el, r) => {
+  const win = el.ownerDocument.defaultView;
+  // Dans une iframe : le cadre lui-même doit être visible et non recouvert.
+  const frame = win.frameElement;
+  if (frame && !visibleOnScreen(frame, frame.getBoundingClientRect())) return false;
+  const root = el.getRootNode();
+  const hitRoot = root.elementFromPoint ? root : el.ownerDocument;
+  const pts = [
+    [r.left + Math.min(8, r.width / 2), r.top + r.height / 2],
+    [r.left + r.width / 2, r.top + r.height / 2],
+    [r.left + Math.min(8, r.width / 2), r.top + Math.min(6, r.height / 2)],
+  ];
+  return pts.some(([x, y]) => {
+    if (x < 0 || y < 0 || x >= win.innerWidth || y >= win.innerHeight) return false;
+    const hit = hitRoot.elementFromPoint(x, y);
+    return !!hit && (hit === el || el.contains(hit) || hit.contains(el));
   });
-  const place = () =>
-    items.forEach(({ el, box, tag }) => {
-      const r = el.getBoundingClientRect();
-      const [x, y] = toTopCoords(el.ownerDocument.defaultView, r.left, r.top);
-      const off = !el.isConnected || (!r.width && !r.height);
-      box.hidden = off || r.width <= 1 || r.height <= 1;
-      // Étiquette masquée quand le titre est hors de l'écran (sinon elles s'empilent en haut).
-      tag.hidden = off || y + r.height < 0 || y > window.innerHeight;
-      Object.assign(box.style, { left: `${x - 2}px`, top: `${y - 2}px`, width: `${r.width + 4}px`, height: `${r.height + 4}px` });
-      // Titre caché visuellement : l'étiquette reste visible à sa place (ramenée dans l'écran).
-      tag.style.left = `${Math.max(0, Math.min(x, window.innerWidth - 60))}px`;
-      tag.style.top = `${Math.max(0, y - 17)}px`;
-    });
-  (document.body || document.documentElement).appendChild(host);
-  place();
-  allDocuments().forEach((d) => d.addEventListener('scroll', place, true));
-  window.addEventListener('resize', place);
-  overlays[key] = { host, place };
 };
 
-const removeOverlay = (key) => {
-  const o = overlays[key];
-  if (!o) return;
-  o.host.remove();
-  allDocuments().forEach((d) => d.removeEventListener('scroll', o.place, true));
-  window.removeEventListener('resize', o.place);
-  overlays[key] = null;
+let refreshTimer = null;
+/** Recalcule la liste et le plan (titres apparus ou disparus : menu ouvert…). */
+const scheduleRefresh = () => {
+  if (refreshTimer) return;
+  refreshTimer = setTimeout(() => {
+    refreshTimer = null;
+    if (overlay && ui) ui.refresh();
+  }, 250);
+};
+
+/** Mutation due à la page elle-même (et non aux contours et panneaux des bookmarklets). */
+const pageMutation = (m) => {
+  const own = (n) => n && n.nodeType === 1 && (n.matches(OWN) || isOwn(n));
+  if (own(m.target)) return false;
+  if (m.type === 'childList') return [...m.addedNodes, ...m.removedNodes].some((n) => !own(n));
+  if (m.attributeName === 'style') {
+    // Contours posés par les bookmarklets : seule la déclaration outline change.
+    const strip = (v) => String(v || '').replace(/outline(-offset)?\s*:[^;]*;?/g, '').replace(/\s+/g, '');
+    return strip(m.oldValue) !== strip(m.target.getAttribute('style'));
+  }
+  return true;
 };
 
 const setPlan = (on) => {
-  removeOverlay('plan');
+  if (overlay) {
+    overlay.host.remove();
+    overlay.mo.forEach((mo) => mo.disconnect());
+    allDocuments().forEach((d) => {
+      d.removeEventListener('scroll', overlay.schedule, true);
+      d.removeEventListener('pointermove', overlay.schedule, true);
+    });
+    window.removeEventListener('resize', overlay.schedule);
+    cancelAnimationFrame(overlay.raf);
+    overlay = null;
+  }
   if (!on) return;
-  makeOverlay(
-    'plan',
-    docs
-      .flatMap((d) => d.plan)
-      .map((h) => {
-        const bad = h.status === 'error' || h.crit['9.1.1'].status === 'error';
-        const warn = h.crit['9.1.1'].status === 'warning';
-        return {
-          el: h.el,
-          text: `h${h.level}${h.sr ? ' caché' : ''}${h.jump ? ` (saut ${h.jump})` : ''} ${cut(h.name || '∅ vide', 40)}`,
-          color: bad ? THEME.color.error : warn ? THEME.color.warning : LEVEL_COLORS[Math.min(h.level, 6) - 1],
-        };
-      }),
-  );
-};
-
-const setProbables = (on) => {
-  removeOverlay('probables');
-  if (on) makeOverlay('probables', probables.map((p) => ({ el: p.el, text: `titre probable ? (${p.why})`, color: PROBABLE_COLOR, dashed: true })));
+  const host = document.createElement('div');
+  host.setAttribute('data-rgaa-bookmarklet', '');
+  host.id = `${ID}-plan`;
+  const root = host.attachShadow({ mode: 'open' });
+  root.innerHTML = `<style>${OVERLAY_CSS}</style>`;
+  const items = docs
+    .flatMap((d) => d.plan)
+    .slice(0, MAX_TAGS)
+    .map((h) => {
+      const st = worst([h.crit['9.1.1'].status, h.crit['9.1.2'].base ? 'ok' : h.crit['9.1.2'].status]);
+      const color = LEVEL_COLORS[Math.min(h.level, 6) - 1];
+      const box = document.createElement('div');
+      box.className = 'box';
+      box.style.borderColor = color;
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.style.background = color;
+      tag.textContent = `${st === 'error' ? '× ' : st === 'warning' ? '! ' : ''}h${h.level}${h.sr ? ' caché' : ''}${h.jump ? ` (saut ${h.jump})` : ''} ${cut(h.name || 'vide', 40)}`;
+      root.append(box, tag);
+      return { h, box, tag };
+    });
+  const hidden = docs.flatMap((d) => d.out).filter((h) => h.hidden);
+  const place = () => {
+    overlay.raf = 0;
+    let changed = false;
+    items.forEach(({ h, box, tag }) => {
+      const el = h.el;
+      const r = el.getBoundingClientRect();
+      if (!el.isConnected || !el.getClientRects().length) {
+        box.hidden = tag.hidden = true;
+        changed = true;
+        return;
+      }
+      const [x, y] = toTopCoords(el.ownerDocument.defaultView, r.left, r.top);
+      // Titre caché visuellement : seule l'étiquette, à sa place. Sinon : rien s'il est hors de l'écran ou recouvert.
+      const shown = h.sr ? y + r.height >= 0 && y <= window.innerHeight : visibleOnScreen(el, r);
+      box.hidden = !shown || !!h.sr;
+      tag.hidden = !shown;
+      if (!shown) return;
+      Object.assign(box.style, { left: `${x - 2}px`, top: `${y - 2}px`, width: `${r.width + 4}px`, height: `${r.height + 4}px` });
+      tag.style.left = `${Math.max(0, Math.min(x, window.innerWidth - 60))}px`;
+      tag.style.top = `${Math.max(0, y - 17)}px`;
+    });
+    // Un titre masqué au lancement est maintenant affiché (menu ouvert au survol) : nouvelle liste.
+    if (changed || hidden.some((h) => h.el.isConnected && !isNotExposed(h.el))) scheduleRefresh();
+  };
+  const schedule = () => {
+    if (overlay && !overlay.raf) overlay.raf = requestAnimationFrame(place);
+  };
+  const mo = allDocuments().map((d) => {
+    const o = new MutationObserver((list) => list.some(pageMutation) && scheduleRefresh());
+    o.observe(d.documentElement, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeOldValue: true,
+      attributeFilter: ['class', 'style', 'hidden', 'open', 'role', 'aria-hidden', 'aria-level', 'aria-expanded'],
+    });
+    return o;
+  });
+  overlay = { host, schedule, mo, raf: 0 };
+  (document.body || document.documentElement).appendChild(host);
+  place();
+  allDocuments().forEach((d) => {
+    d.addEventListener('scroll', schedule, true);
+    d.addEventListener('pointermove', schedule, true);
+  });
+  window.addEventListener('resize', schedule);
 };
 
 /* ---------- Copier le plan ---------- */
@@ -632,8 +587,7 @@ const keyOk = (e) => {
   const tag = e.target && e.target.tagName;
   return e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey && !['INPUT', 'TEXTAREA', 'SELECT'].includes(tag) && !e.target.isContentEditable;
 };
-const togglePlan = () => setPlan(!overlays.plan);
-const toggleProbables = () => setProbables(!overlays.probables);
+const togglePlan = () => setPlan(!overlay);
 
 const ui = inspector({
   id: ID,
@@ -645,47 +599,36 @@ const ui = inspector({
     collect() {
       const r = collect();
       // Après « Actualiser », les outils affichés suivent la nouvelle liste.
-      if (overlays.plan) setPlan(true);
-      if (overlays.probables) setProbables(true);
+      if (overlay) setPlan(true);
       return r;
     },
     filters: [
       { id: 'erreurs', label: 'Erreurs' },
       { id: 'verifier', label: 'À vérifier' },
     ],
-    accordions: [
-      {
-        id: 'probables',
-        label: 'Titres probables',
-        intro: 'Passages courts en gras ou plus grands que le texte courant, suivis de contenu (9.1.3). Liste indicative : d’autres passages peuvent être des titres.',
-      },
-    ],
     tools: [
-      { label: 'Plan sur la page', pressed: () => !!overlays.plan, toggle: togglePlan },
-      { label: 'Titres probables', pressed: () => !!overlays.probables, toggle: toggleProbables },
+      { label: 'Plan sur la page', pressed: () => !!overlay, toggle: togglePlan },
       { label: () => copied || 'Copier le plan', toggle: copyPlan },
     ],
     footer:
       'Plan dans l’ordre du document, en retrait selon le niveau (h3* : niveau donné par role="heading" ou aria-level). ' +
       'Les sauts de niveau et l’absence de h1 n’invalident pas le critère. ' +
-      'Plan sur la page (Maj+H), titres probables (Maj+P).',
+      'Plan sur la page (Maj+H) : niveau de chaque titre affiché, suivi en direct (menus ouverts…).',
   },
   onKey(e) {
     if (!keyOk(e)) return false;
     const k = e.key.toLowerCase();
-    if (k === 'h') togglePlan();
-    else if (k === 'p') toggleProbables();
-    else return false;
+    if (k !== 'h') return false;
+    togglePlan();
     return true;
   },
   onStop: () => {
-    removeOverlay('plan');
-    removeOverlay('probables');
+    clearTimeout(refreshTimer);
+    setPlan(false);
   },
   inspect(target) {
     const e = findEntry(target);
     if (!e) return null;
-    if (e.probable) return { html: probableDetail(e), highlight: [[e.el, 'primary'], ...(e.prevHead ? [[e.prevHead.el, 'secondary']] : [])] };
     const hl = [[e.el, 'primary']];
     if (e.parent) hl.push([e.parent.el, 'secondary']);
     if (e.prev && e.prev !== e.parent) hl.push([e.prev.el, 'secondary']);
