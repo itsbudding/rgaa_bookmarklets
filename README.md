@@ -1,6 +1,6 @@
 # Bookmarklets RGAA
 
-Huit bookmarklets pour aider à auditer une page web selon le
+Neuf bookmarklets pour aider à auditer une page web selon le
 [RGAA 4.1](https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/).
 Ils s'installent comme des favoris et fonctionnent sur n'importe quelle page,
 sans extension ni compte.
@@ -19,17 +19,18 @@ intitulé reste à juger par l'auditeur.
 | **RGAA 5 – Tableaux** | 5. Tableaux | Liste des tableaux, type choisi par l'auditeur, une pastille par critère + en-têtes de chaque cellule au survol |
 | **RGAA 6 – Liens** | 6. Liens | Liste des liens et de leur intitulé, intitulés vagues à juger avec leur contexte, une pastille par critère |
 | **RGAA 7 – Composants ARIA** | 7. Scripts | Code ARIA des composants (rôle, états, structure, nom, focus) et zones de messages, une pastille par critère + annonces des messages |
+| **RGAA 9 – Titres** | 9. Structuration (critère 9.1) | Plan des titres en retrait selon le niveau, une pastille par test, plan affiché sur la page |
 | **RGAA 11 – Formulaires** | 11. Formulaires | Liste des champs et boutons + détail au survol (ou au focus) |
 
 ## Installation
 
 1. Téléchargez le dépôt (bouton **Code › Download ZIP** sur GitHub) et décompressez-le.
 2. Ouvrez `dist/index.html` dans votre navigateur.
-3. Glissez chacun des huit liens dans votre barre de favoris.
+3. Glissez chacun des neuf liens dans votre barre de favoris.
 
 Autre méthode : créez un favori et collez comme adresse le contenu d'un des
 fichiers `dist/rgaa-1-images.js`, `dist/rgaa-2-cadres.js`, `dist/rgaa-3-couleurs.js`,
-`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js`, `dist/rgaa-6-liens.js`, `dist/rgaa-7-composants.js` ou
+`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js`, `dist/rgaa-6-liens.js`, `dist/rgaa-7-composants.js`, `dist/rgaa-9-titres.js` ou
 `dist/rgaa-11-formulaires.js`.
 
 ### Pages de démo
@@ -45,7 +46,7 @@ bookmarklet sans l'installer.
 
 - **Lancer** : ouvrez la page à auditer, puis cliquez sur le favori.
 - **Arrêter** : cliquez une seconde fois sur le favori, ou appuyez sur **Échap**.
-- Les huit bookmarklets sont indépendants et peuvent tourner en même temps.
+- Les neuf bookmarklets sont indépendants et peuvent tourner en même temps.
 - Ils inspectent aussi le contenu des Shadow DOM ouverts et des iframes de
   même origine. Une iframe chargée après le lancement n'est prise en compte
   qu'en relançant le bookmarklet.
@@ -70,7 +71,7 @@ pointillé**.
 
 ### Deux panneaux : l'aperçu et le détail
 
-Les bookmarklets 1, 3, 4, 5, 6 et 11 ouvrent deux panneaux :
+Les bookmarklets 1, 3, 4, 5, 6, 7, 9 et 11 ouvrent deux panneaux :
 
 - **le panneau liste**, en haut à droite : le compteur de la page et la liste
   des éléments concernés, avec un statut et un libellé court. Un clic sur une
@@ -475,6 +476,74 @@ Limites :
 - composants ajoutés après le lancement : « Actualiser » (la bande
   d'annonces, elle, suit la page en direct).
 
+### RGAA 9 – Titres
+
+Ce bookmarklet couvre le **critère 9.1** (titres). La liste montre le
+**plan des titres** (`h1`–`h6` et `role="heading"`) dans l'ordre du
+document, en retrait selon le niveau, comme la liste des titres d'un lecteur
+d'écran. Les erreurs ne remontent pas en tête : l'ordre du plan compte. Le
+filtre « Erreurs » les isole. Chaque iframe de même origine a son propre
+plan, sous une ligne « Iframe « titre du cadre » » ; un titre dans un Shadow
+DOM ouvert est à sa place dans le plan.
+
+Chaque ligne donne le niveau (`h3`, ou `h3*` quand il vient de
+`role="heading"` ou d'`aria-level`), le texte du titre et une pastille par
+test :
+
+- **9.1.1, hiérarchie** : `role="heading"` sans `aria-level`, `aria-level`
+  invalide (erreur) ; saut de niveau (`h2 → h4`), plan qui commence plus bas
+  qu'il ne descend ensuite, titre affiché plus grand que son titre parent
+  (à vérifier). Selon le glossaire du RGAA, **les sauts de niveau et
+  l'absence de `h1` n'invalident pas le critère** tant que la hiérarchie
+  reste cohérente : ils ne sont jamais en erreur, et le nombre de `h1` est
+  une simple information du compteur ;
+- **9.1.2, contenu** : titre vide, fait d'une image sans alternative ou d'un
+  contenu en `aria-hidden` (erreur) ; titre générique (« En savoir plus »,
+  « Titre »…), très long (plus de 120 caractères), identique au titre
+  précédent de même niveau, nom (`aria-label`) qui remplace le texte affiché
+  (à vérifier). La pertinence reste à juger : la pastille 9.1.2 est toujours
+  « ! », mais la ligne est ✓ quand rien d'autre n'est signalé.
+
+Les titres masqués (`display:none`, `aria-hidden`) et les `hx` dont le rôle
+est remplacé (`<h2 role="presentation">`) sont en gris (∅) en fin de liste,
+hors du plan. Un titre **caché visuellement** (classe `sr-only`, `clip`,
+hors écran) compte comme présent (glossaire RGAA) : il est dans le plan,
+avec la mention « caché visuellement ».
+
+**9.1.3** (passage de texte qui est un titre sans en avoir le balisage) n'est
+pas détecté : il reste à repérer à l'œil, avec l'aide du plan sur la page.
+
+**Détail** (au survol, au focus, ou épinglé par un clic sur une ligne) :
+niveau et source, nom accessible et source, texte visible s'il diffère,
+titres parents (« h1 Accueil › h2 Actualités »), titre précédent (entourés
+en orange), contenu de la section jusqu'au titre suivant (sous-titres,
+paragraphes, listes, tableaux), taille de police comparée au titre parent,
+visibilité.
+
+**Outils** (boutons en haut du panneau liste, ou raccourcis) :
+
+- **Plan sur la page** (affiché dès le lancement, Maj+H pour le masquer
+  ou l'afficher) : entoure chaque titre et affiche son niveau
+  et son texte au-dessus, avec une couleur par niveau (toujours la même).
+  Un point à vérifier est précédé de « ! », une erreur de « × ». Les titres
+  cachés visuellement portent « h2 caché ». Un titre recouvert par un autre
+  élément (menu ouvert, bandeau fixe) n'est pas marqué. Le plan suit la
+  page en direct : un titre qui apparaît (méga-menu ouvert) ou disparaît
+  met la liste à jour. Pour comparer le plan et la mise en page, et repérer
+  les titres visuels sans étiquette (9.1.3) ;
+- **Copier le plan** : copie le plan en texte indenté (`h2 Actualités`,
+  `  h3 Agenda`…), pour le rapport d'audit.
+
+Limites :
+
+- pertinence de la hiérarchie et du contenu des titres : à juger ;
+- passages de texte non balisés en titre (9.1.3) : non détectés ;
+- niveau visuel : seule la taille de police est comparée (pas la couleur,
+  la casse ni l'espacement) ;
+- titres ajoutés après le lancement (onglets, accordéons, chargement
+  progressif) : « Actualiser » ;
+- iframes d'une autre origine et Shadow DOM fermés : non inspectés.
+
 ### RGAA 11 – Formulaires
 
 La liste donne le compteur (champs, sans étiquette, placeholder seul,
@@ -583,8 +652,12 @@ inspector({
 éléments cliquables, bouton « Actualiser ». Il se ferme avec le bookmarklet.
 Il accepte aussi `tools` (boutons à bascule à côté d'« Actualiser », comme
 « Estomper les images » : `{ label, pressed(), toggle() }`) et `filters`
-(boutons de filtre, chaque élément portant alors `filter`). Un élément peut
+(boutons de filtre, chaque élément portant alors `filter`). Un outil sans
+`pressed()` est un simple bouton (« Copier le plan »). Un élément peut
 regrouper plusieurs éléments de la page (`els`) : chaque clic passe au suivant.
+Pour une liste arborescente, un élément peut porter `indent` (retrait) ou
+`section: true` (ligne de titre non cliquable). `collect()` peut renvoyer
+`count`, le nombre affiché dans le titre du panneau.
 `pinOnLocate: true` épingle le détail à côté de l'élément quand on clique sa
 ligne dans la liste (clic ailleurs ou Échap pour le libérer) ; `onAction(name,
 target, btn)` reçoit alors les clics sur les boutons `[data-action]` du détail.

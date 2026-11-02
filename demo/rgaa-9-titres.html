@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 9 – Titres</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<script src="titres-cadres.js" defer></script>
+<style id="styles-cas">
+  .titre-grand { font-size: 1.6rem; font-weight: 400; }
+  .titre-petit { font-size: 1rem; }
+  .intertitre { font-size: 1.5rem; }
+  .icone { color: #8a5300; }
+</style>
+<style>
+  .case .demo { padding: 0; }
+  .case .demo iframe { display: block; width: 100%; min-height: 4rem; border: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-3-couleurs.html">Couleurs</a> <a href="rgaa-4-multimedia.html">Multimédia</a> <a href="rgaa-5-tableaux.html">Tableaux</a> <a href="rgaa-6-liens.html">Liens</a> <a href="rgaa-7-composants.html">Composants ARIA</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 9 – Titres</h1>
+<div class="intro">
+  <p>Cette page rassemble des titres conformes et non conformes au
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#9.1">critère 9.1 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 9 – Titres</a>
+  (ou utilisez votre favori). La liste montre le plan des titres, en retrait selon le niveau.
+  Survolez un titre pour voir son niveau, ses titres parents et sa section.
+  Cliquez sur une ligne de la liste pour épingler le détail à côté du titre.
+  <kbd>Échap</kbd> libère le détail, puis ferme les panneaux.</p>
+  <p>Chaque exemple est dans un cadre (<code>iframe</code>) : ses titres forment un plan à part, sous une ligne
+  « Iframe « Exemple : … » » dans la liste. Le premier plan de la liste est celui de cette page de démo
+  (h1, h2 des sections, h3 des cartes), qui est cohérent.</p>
+</div>
+
+<h2>Inventaire</h2>
+<p>Le bookmarklet liste les <code>h1</code> à <code>h6</code> et les éléments <code>role="heading"</code>.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Hiérarchie stricte</h3>
+    <div class="demo">
+      <h1>Médiathèque</h1>
+      <h2>Horaires</h2>
+      <p>Du mardi au samedi, de 10 h à 18 h, et le dimanche matin.</p>
+      <h2>Accès</h2>
+      <h3>En bus</h3>
+      <p>Lignes 4 et 12, arrêt Mairie.</p>
+      <h3>En voiture</h3>
+      <p>Parking gratuit rue des Écoles.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> plan h1 › h2 › h2 › h3 › h3 en retrait, tout ✓, pastilles 9.1.1 ✓ et 9.1.2 ! (pertinence à juger). « 1 h1 ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Titre ARIA</h3>
+    <div class="demo">
+      <h1>Actualités</h1>
+      <div role="heading" aria-level="2">Agenda de la semaine</div>
+      <p>Trois rendez-vous pour toute la famille.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « h2* Agenda de la semaine », niveau 2 (role="heading" aria-level="2").</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Rôle titre retiré</h3>
+    <div class="demo">
+      <h1>Nos services</h1>
+      <h2 role="presentation">Prêt de livres</h2>
+      <p>Jusqu’à dix documents pendant trois semaines.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste « rôle titre retiré (role="presentation") », hors du plan. Le détail rappelle le 9.1.3.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Titre masqué</h3>
+    <div class="demo">
+      <h1>Menu</h1>
+      <h2 style="display:none">Menu mobile</h2>
+      <p>(Le h2 « Menu mobile » est en <code>display:none</code>.)</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste, « masqué : display:none », hors du plan.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Titre caché visuellement</h3>
+    <div class="demo">
+      <h1>Boutique</h1>
+      <h2 class="sr-only">Filtres de recherche</h2>
+      <p>Prix, couleur, taille : choisissez vos filtres.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> h2 listé normalement avec « caché visuellement » : il compte comme présent (glossaire RGAA). « Plan sur la page » affiche « h2 caché ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Titre dans un Shadow DOM</h3>
+    <div class="demo">
+      <h1>Composants</h1>
+      <div id="hote"></div>
+      <script>if (window.frameElement) document.getElementById('hote').attachShadow({ mode: 'open' }).innerHTML = '<h2>Carte produit</h2><p>Titre rendu dans un Shadow DOM ouvert.</p>';</script>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « h2 Carte produit » dans le plan, sous le h1.</p>
+  </div>
+</div>
+
+<h2>9.1.1 Hiérarchie</h2>
+<p>Les sauts de niveau et l’absence de <code>h1</code> n’invalident pas le critère (glossaire RGAA) : ils sont signalés à vérifier, ou en information.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Saut de niveau</h3>
+    <div class="demo">
+      <h1>Conférences</h1>
+      <h2>Programme</h2>
+      <h4>Matin</h4>
+      <p>Accueil et ouverture à 9 h.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> h4 ! « saut h2 → h4 » dans la ligne et dans 9.1.1 (cohérence à vérifier), jamais ×.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Page sans h1</h3>
+    <div class="demo">
+      <h2>Contact</h2>
+      <p>Écrivez-nous ou appelez-nous.</p>
+      <h2>Plan d’accès</h2>
+      <p>À deux pas de la gare.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « pas de h1 » dans la ligne de l’iframe, en information ; les deux h2 sont ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Plusieurs h1</h3>
+    <div class="demo">
+      <h1>Article 1</h1>
+      <p>Premier article de la page.</p>
+      <h1>Article 2</h1>
+      <p>Second article de la page.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « 2 h1 » en information, pas de verdict.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Plan qui commence par un h3</h3>
+    <div class="demo">
+      <h3>Alerte météo</h3>
+      <p>Vents forts attendus ce soir.</p>
+      <h2>Actualités</h2>
+      <p>Les nouvelles du quartier.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> premier titre ! « le plan commence au niveau 3, puis descend au niveau 2 ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>role="heading" sans aria-level</h3>
+    <div class="demo">
+      <h1>Recettes</h1>
+      <div role="heading">Desserts</div>
+      <p>Tartes, crèmes et gâteaux.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 9.1.1 « role="heading" sans aria-level (exigé par le test 9.1.1) : niveau 2 par défaut ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-level invalide</h3>
+    <div class="demo">
+      <h1>Recettes</h1>
+      <div role="heading" aria-level="0">Entrées</div>
+      <p>Salades et soupes.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 9.1.1 « aria-level="0" invalide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>aria-level qui remplace la balise</h3>
+    <div class="demo">
+      <h1>Guide</h1>
+      <h2 aria-level="3">Chapitre 1</h2>
+      <p>Les premiers pas.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> niveau 3 « h3* » (aria-level="3", remplace h2), ! saut h1 → h3.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Niveau visuel incohérent</h3>
+    <div class="demo">
+      <h1>Événements</h1>
+      <h2 class="titre-petit">Été 2026</h2>
+      <h3 class="titre-grand">Festival de jazz</h3>
+      <p>Trois soirs de concerts en plein air.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> h3 ! « titre de niveau 3 plus grand que son titre parent de niveau 2 (25.6px contre 16px) ».</p>
+  </div>
+</div>
+
+<h2>9.1.2 Contenu des titres</h2>
+<p>La pertinence reste à juger : la pastille 9.1.2 est toujours « ! », et la ligne est ✓ quand rien d’autre n’est signalé.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Titre vide</h3>
+    <div class="demo">
+      <h1>Accueil</h1>
+      <h2></h2>
+      <p>Paragraphe sous un titre vide.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « (titre vide) », 9.1.2 × « titre vide (aucun nom accessible) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Icône seule</h3>
+    <div class="demo">
+      <h1>Accueil</h1>
+      <h2><span class="icone" aria-hidden="true">★</span></h2>
+      <p>Nos coups de cœur.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « contenu masqué par aria-hidden : titre vide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Image sans alternative</h3>
+    <div class="demo">
+      <h1><img src="img/logo-rgaa.svg" width="40" height="40"></h1>
+      <p>Le titre de la page est une image sans attribut alt.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « titre fait d’une image sans alternative ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Image avec alternative</h3>
+    <div class="demo">
+      <h1><img src="img/logo-rgaa.svg" alt="Référentiel RGAA" width="40" height="40"></h1>
+      <p>Le titre de la page est une image avec une alternative.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Référentiel RGAA » (alt (img)).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titre générique</h3>
+    <div class="demo">
+      <h1>Bibliothèque</h1>
+      <h2>En savoir plus</h2>
+      <p>Informations sur l’inscription.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « titre générique : décrit-il la section ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titre très long</h3>
+    <div class="demo">
+      <h1>Règlement</h1>
+      <h2>Les usagers sont priés de respecter le calme dans les salles de lecture, de ne pas consommer de nourriture à proximité des collections et de rendre les documents empruntés dans les délais prévus.</h2>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « titre très long (… caractères) : paragraphe balisé en titre ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Nom qui remplace le texte affiché</h3>
+    <div class="demo">
+      <h1>Accueil</h1>
+      <h2 aria-label="Section 1">Nos offres</h2>
+      <p>Abonnements et tarifs.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> titre « Section 1 » (aria-label), ! « le nom (aria-label) remplace le texte affiché « Nos offres » ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titres en double</h3>
+    <div class="demo">
+      <h1>Questions fréquentes</h1>
+      <h2>Détails</h2>
+      <p>Comment s’inscrire ?</p>
+      <h2>Détails</h2>
+      <p>Comment prolonger un prêt ?</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> le second h2 ! « même texte que le titre h2 précédent, de même niveau » (et « titre générique »).</p>
+  </div>
+</div>
+
+<h2>Plan sur la page</h2>
+<p>Le plan sur la page est affiché dès le lancement (bouton « Plan sur la page » ou <kbd>Maj+H</kbd> pour le masquer) : niveau de chaque titre, une couleur par niveau.
+Un titre recouvert (menu ouvert par-dessus) n’est pas marqué, et un titre qui apparaît (menu déroulant) est ajouté au plan.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Menu déroulant</h3>
+    <div class="demo">
+      <nav aria-label="Menu" style="position:relative">
+        <button type="button" aria-expanded="false" id="ouvrir">Rubriques</button>
+        <div id="mega" hidden style="position:absolute;top:2rem;left:0;width:16rem;background:#eef5fb;border:1px solid #999;padding:.4rem;z-index:2">
+          <h2>Services</h2>
+          <p>Prêt, réservation, portage à domicile.</p>
+        </div>
+      </nav>
+      <h1>Médiathèque</h1>
+      <h2>Agenda</h2>
+      <p>Lecture de contes mercredi à 15 h.</p>
+      <script>if (window.frameElement) { const b = document.getElementById('ouvrir'); b.onclick = () => { const m = document.getElementById('mega'); m.hidden = !m.hidden; b.setAttribute('aria-expanded', String(!m.hidden)); }; }</script>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> menu fermé, « h2 Services » est ∅ (masqué). Ouvrir le menu :
+    « h2 Services » est ajouté au plan et marqué (! le plan commence au niveau 2, le menu étant avant le h1) ; « h1 Médiathèque » et « h2 Agenda », recouverts par le menu, ne sont plus marqués.</p>
+  </div>
+</div>
+</div>
+</div>
+</body>
+</html>
