@@ -533,6 +533,14 @@ visibilité.
   page en direct : un titre qui apparaît (méga-menu ouvert) ou disparaît
   met la liste à jour. Pour comparer le plan et la mise en page, et repérer
   les titres visuels sans étiquette (9.1.3) ;
+- **Afficher les titres cachés** : force l'affichage de tous les titres
+  masqués (`display:none`, `hidden`, `visibility:hidden`, `opacity:0`) ou
+  cachés visuellement (`sr-only`, `clip`, hors écran), et de leurs parents
+  si besoin (menu fermé, panneau replié). Un second clic rétablit la page.
+  Pour un seul titre : cliquer sa ligne dans la liste pour épingler son
+  détail, puis « Afficher ce titre » (et « Masquer à nouveau »). Un titre
+  affiché ainsi entre dans le plan, avec la mention « affiché par le
+  bookmarklet » ;
 - **Copier le plan** : copie le plan en texte indenté (`h2 Actualités`,
   `  h3 Agenda`…), pour le rapport d'audit.
 
