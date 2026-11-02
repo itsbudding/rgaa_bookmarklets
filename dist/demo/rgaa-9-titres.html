@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 9 – Titres</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<script src="titres-cadres.js" defer></script>
+<style id="styles-cas">
+  .titre-grand { font-size: 1.6rem; font-weight: 400; }
+  .titre-petit { font-size: 1rem; }
+  .intertitre { font-size: 1.5rem; }
+  .icone { color: #8a5300; }
+</style>
+<style>
+  .case .demo { padding: 0; }
+  .case .demo iframe { display: block; width: 100%; min-height: 4rem; border: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-3-couleurs.html">Couleurs</a> <a href="rgaa-4-multimedia.html">Multimédia</a> <a href="rgaa-5-tableaux.html">Tableaux</a> <a href="rgaa-6-liens.html">Liens</a> <a href="rgaa-7-composants.html">Composants ARIA</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 9 – Titres</h1>
+<div class="intro">
+  <p>Cette page rassemble des titres conformes et non conformes au
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#9.1">critère 9.1 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="javascript:(()=%3E{var L={font:'system-ui, -apple-system, %22Segoe UI%22, Roboto, Arial, sans-serif',fontSize:%2213px%22,fontSizeSmall:%2211px%22,lineHeight:%221.4%22,radius:%224px%22,zIndex:%222147483647%22,color:{text:%22%231a1a1a%22,bg:%22%23ffffff%22,border:%22%23333333%22,separator:%22%23e5e5e5%22,muted:%22%23595959%22,error:%22%23c40000%22,warning:%22%238a5300%22,ok:%22%231e7b34%22,focus:%22%23005a9c%22,highlight:%22%23e65100%22}},q=L.color,Te=%60%0A:host{all:initial}%0A.panel{%0A  --rgaa-font:${L.font};%0A  --rgaa-fs:${L.fontSize};%0A  --rgaa-fs-sm:${L.fontSizeSmall};%0A  --rgaa-text:${q.text};%0A  --rgaa-bg:${q.bg};%0A  --rgaa-border:${q.border};%0A  --rgaa-sep:${q.separator};%0A  --rgaa-muted:${q.muted};%0A  --rgaa-error:${q.error};%0A  --rgaa-warning:${q.warning};%0A  --rgaa-ok:${q.ok};%0A  --rgaa-focus:${q.focus};%0A  position:fixed;z-index:${L.zIndex};%0A  box-sizing:border-box;%0A  font:400 var(--rgaa-fs)/${L.lineHeight} var(--rgaa-font);%0A  color:var(--rgaa-text);background:var(--rgaa-bg);%0A  border:2px solid var(--rgaa-border);border-radius:${L.radius};%0A  box-shadow:0 4px 12px rgba(0,0,0,.35);%0A  padding:12px;text-align:left;letter-spacing:normal;word-spacing:normal;%0A  overflow-wrap:anywhere;%0A}%0A*,*::before,*::after{box-sizing:border-box}%0A[hidden]{display:none!important}%0A.title{margin:0;font-size:var(--rgaa-fs);font-weight:700}%0A.row{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px;margin:0 0 6px}%0A.row:last-child{margin-bottom:0}%0A.label{font-weight:700;flex-shrink:0}%0A.value{display:inline-flex;flex-wrap:wrap;align-items:baseline;gap:4px;min-width:0}%0A.src{color:var(--rgaa-muted);font-size:var(--rgaa-fs-sm);font-style:italic;white-space:nowrap}%0A.list{width:100%25;margin:4px 0 4px 20px;padding:0;list-style:disc}%0A.muted{color:var(--rgaa-muted)}%0A.text-error{color:var(--rgaa-error);font-style:italic}%0A.small{font-size:var(--rgaa-fs-sm)}%0A.icon{%0A  display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;%0A  width:14px;height:14px;border-radius:50%25;%0A  font:700 9px/1 var(--rgaa-font);color:%23fff;vertical-align:middle;%0A}%0A.icon--error{background:var(--rgaa-error)}%0A.icon--warning{background:var(--rgaa-warning)}%0A.icon--ok{background:var(--rgaa-ok)}%0A.icon--hidden{background:var(--rgaa-muted);border-radius:2px}%0A.flag{display:inline-flex;align-items:baseline;gap:5px}%0A.flag .icon{align-self:center}%0A.flag--error{color:var(--rgaa-error)}%0A.flag--warning{color:var(--rgaa-warning)}%0A.flag--ok{color:var(--rgaa-ok)}%0A.checks{list-style:none;margin:8px 0 0;padding:6px 0 0;border-top:1px solid var(--rgaa-sep)}%0A.checks li{margin:0 0 3px}%0A.legend{display:flex;flex-wrap:wrap;gap:12px;margin:0;padding:0;list-style:none}%0A.legend li{display:inline-flex;align-items:center;gap:4px}%0A.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}%0Abutton{font:inherit;color:inherit}%0A:focus-visible{outline:2px solid var(--rgaa-focus);outline-offset:2px}%0A%60;var oe=window.__rgaaBookmarklets=window.__rgaaBookmarklets||{},ue=e=%3Eoe[e]?(oe[e](),!0):!1,de=(e,t)=%3E(oe[e]=()=%3E{delete oe[e],t()},oe[e]),fe=(e,t=%22%22)=%3E{document.getElementById(e)?.remove();let r=document.createElement(%22div%22);r.id=e,r.setAttribute(%22data-rgaa-bookmarklet%22,%22%22);let o=r.attachShadow({mode:%22open%22});return o.innerHTML=%60%3Cstyle%3E${Te}${t}%3C/style%3E%3Cdiv class=%22panel%22%3E%3C/div%3E%60,(document.body||document.documentElement).appendChild(r),{host:r,root:o,panel:o.querySelector(%22.panel%22)}};var Ae={primary:{outline:%603px solid ${L.color.focus}%60,offset:%222px%22},secondary:{outline:%602px dashed ${L.color.highlight}%60,offset:%222px%22},locate:{outline:%605px solid ${L.color.highlight}%60,offset:%224px%22}},Z=window.__rgaaHighlight=window.__rgaaHighlight||new Map,Le=e=%3E{let t=Z.get(e),r=e.style;if(!t.layers.size){r.setProperty(%22outline%22,t.orig.o,t.orig.op),r.setProperty(%22outline-offset%22,t.orig.f,t.orig.fp),Z.delete(e);return}let o=[...t.layers.values()].pop();r.setProperty(%22outline%22,Ae[o].outline,%22important%22),r.setProperty(%22outline-offset%22,Ae[o].offset,%22important%22)},ge=()=%3E{let e={},t=new Set,r=()=%3E{t.forEach(s=%3E{let l=Z.get(s);l&amp;&amp;(l.layers.delete(e),Le(s))}),t.clear()};return{set:(s=[])=%3E{r(),s.forEach(([l,c])=%3E{if(!(!l||t.has(l))){if(!Z.has(l)){let a=l.style;Z.set(l,{orig:{o:a.getPropertyValue(%22outline%22),op:a.getPropertyPriority(%22outline%22),f:a.getPropertyValue(%22outline-offset%22),fp:a.getPropertyPriority(%22outline-offset%22)},layers:new Map})}Z.get(l).layers.set(e,c),t.add(l),Le(l)}})},clear:r}};var rt={%22&amp;%22:%22&amp;amp;%22,%22%3C%22:%22&amp;lt;%22,%22%3E%22:%22&amp;gt;%22,'%22':%22&amp;quot;%22,%22'%22:%22&amp;%2339;%22},x=e=%3EString(e??%22%22).replace(/[&amp;%3C%3E%22']/g,t=%3Ert[t]),ke={error:{glyph:%22×%22,label:%22Erreur%22},warning:{glyph:%22!%22,label:%22Attention%22},ok:{glyph:%22✓%22,label:%22Conforme%22},hidden:{glyph:%22∅%22,label:%22Masqué%22}},W=(e,t)=%3E%60%3Cspan class=%22icon icon--${e}%22 aria-hidden=%22true%22%3E${ke[e].glyph}%3C/span%3E%3Cspan class=%22sr-only%22%3E${x(t||ke[e].label)}%3C/span%3E%60,ae=e=%3Ee?%60%3Cspan class=%22src%22%3E(${x(e)})%3C/span%3E%60:%22%22;var T=(e,t)=%3E%60%3Cdiv class=%22row%22%3E%3Cspan class=%22label%22%3E${x(e)} :%3C/span%3E%3Cspan class=%22value%22%3E${t}%3C/span%3E%3C/div%3E%60;var nt=%60%0A.panel{top:10px;right:10px;width:340px;max-width:calc(100vw - 20px);max-height:80vh;overflow-y:auto;padding:0}%0A.hdr{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;gap:8px;%0A  padding:10px 12px;background:var(--rgaa-bg);border-bottom:1px solid var(--rgaa-sep);cursor:move;user-select:none}%0A.close{cursor:pointer;background:none;border:1px solid transparent;border-radius:3px;padding:2px 6px;font-weight:700}%0A.close:hover{border-color:var(--rgaa-border)}%0A.body{padding:10px 12px}%0A.items{list-style:none;margin:0;padding:0}%0A.item{display:flex;align-items:center;gap:8px;width:100%25;padding:8px 0;border:0;border-bottom:1px solid var(--rgaa-sep);%0A  background:none;text-align:left;cursor:pointer}%0A.item:hover{background:%23f5f5f5}%0A.footer{margin-top:10px;padding-top:8px;border-top:1px solid var(--rgaa-sep)}%0A%60,Ce=({id:e,title:t,css:r=%22%22,managed:o=!1,focus:s=!0,onClose:l})=%3E{if(!o&amp;&amp;ue(e))return null;let{host:c,panel:a}=fe(e,nt+r),u=%60${e}-title%60;a.setAttribute(%22role%22,%22dialog%22),a.setAttribute(%22aria-labelledby%22,u),a.innerHTML=%60%3Cdiv class=%22hdr%22 tabindex=%220%22 aria-label=%22Déplacer le panneau (flèches du clavier)%22%3E%3Ch2 class=%22title%22 id=%22${u}%22%3E${x(t)}%3C/h2%3E%3Cbutton type=%22button%22 class=%22close%22 aria-label=%22Fermer%22%3E✕%3C/button%3E%3C/div%3E%3Cdiv class=%22body%22%3E%3C/div%3E%60;let i=a.querySelector(%22.hdr%22),h=a.querySelector(%22.body%22),n=document.activeElement,f=(m,E)=%3E{a.style.left=%60${Math.max(0,Math.min(m,innerWidth-40))}px%60,a.style.top=%60${Math.max(0,Math.min(E,innerHeight-40))}px%60,a.style.right=%22auto%22},d=null;i.addEventListener(%22pointerdown%22,m=%3E{m.target.closest(%22.close%22)||(d={dx:m.clientX-a.offsetLeft,dy:m.clientY-a.offsetTop},i.setPointerCapture(m.pointerId))}),i.addEventListener(%22pointermove%22,m=%3Ed&amp;&amp;f(m.clientX-d.dx,m.clientY-d.dy)),i.addEventListener(%22pointerup%22,()=%3Ed=null),i.addEventListener(%22keydown%22,m=%3E{let E=m.shiftKey?50:10,I={ArrowLeft:[-E,0],ArrowRight:[E,0],ArrowUp:[0,-E],ArrowDown:[0,E]}[m.key];!I||m.target!==i||(m.preventDefault(),f(a.offsetLeft+I[0],a.offsetTop+I[1]))});let b=m=%3E{m.key===%22Escape%22&amp;&amp;(m.stopPropagation(),P())};a.addEventListener(%22keydown%22,b),a.querySelector(%22.close%22).addEventListener(%22click%22,()=%3EP());let S=()=%3E{c.remove(),s&amp;&amp;n&amp;&amp;n.focus&amp;&amp;document.contains(n)&amp;&amp;n.focus(),l&amp;&amp;l()},w=!1,P=o?()=%3E{w||(w=!0,S())}:de(e,S);return s&amp;&amp;a.querySelector(%22.close%22).focus(),{body:h,panel:a,close:P,setTitle:m=%3Ea.querySelector(%60%23${u}%60).textContent=m}};var ot={error:%22Erreur%22,warning:%22À vérifier%22,ok:%22Conforme%22,hidden:%22Décoratif ou masqué%22},Ne=60,at=%60%0A.list-summary{margin:0 0 8px}%0A.item{padding:6px 0;align-items:flex-start}%0A.item .icon{margin-top:2px}%0A.num{color:var(--rgaa-muted);min-width:2.2em;text-align:right;flex-shrink:0}%0A.meta{color:var(--rgaa-muted);font-size:var(--rgaa-fs-sm);font-style:italic;white-space:nowrap}%0A.tools{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px}%0A.toolset,.filters{display:flex;flex-wrap:wrap;gap:6px}%0A.filters{margin:0 0 8px}%0A.refresh,.tool,.filter{cursor:pointer;background:none;border:1px solid var(--rgaa-border);border-radius:3px;padding:2px 8px}%0A.tool[aria-pressed=%22true%22],.filter[aria-pressed=%22true%22]{background:var(--rgaa-focus);border-color:var(--rgaa-focus);color:%23fff}%0A.section{padding:8px 0 4px;font-weight:700;border-bottom:1px solid var(--rgaa-sep)}%0A.acc{display:flex;align-items:center;gap:6px;width:100%25;margin:8px 0 0;padding:6px 0;cursor:pointer;background:none;border:0;border-top:2px solid var(--rgaa-border);font-weight:700;text-align:left}%0A.acc::before{content:%22▸%22;display:inline-block;width:1em}%0A.acc[aria-expanded=%22true%22]::before{content:%22▾%22}%0A%60,st=e=%3E{let t=String(e??%22%22).replace(/\s+/g,%22 %22).trim();return t.length%3ENe?%60${t.slice(0,Ne-1)}…%60:t},Pe=({id:e,title:t,collect:r,footer:o=%22%22,tools:s=[],filters:l=[],accordions:c=[],onClose:a,onLocate:u})=%3E{let i=Ce({id:%60${e}-liste%60,title:t,css:at,managed:!0,focus:!1,onClose:a}),h=ge(),n={summary:%22%22,items:[]},f=[],d=%22all%22,b,S={},w=()=%3E{let m=i.panel.getRootNode().activeElement,E=m&amp;&amp;m.dataset&amp;&amp;(m.dataset.tool||m.dataset.filter||m.dataset.acc||m.classList.contains(%22refresh%22)&amp;&amp;%22refresh%22),I=l.length?[{id:%22all%22,label:%22Tout%22},...l]:[];f=n.items.filter(g=%3Eg.section?d===%22all%22:d===%22all%22||[].concat(g.filter).includes(d)),i.setTitle(%60${t} : ${n.count??n.items.length}%60);let V=0,B=g=%3E{let N=f.indexOf(g),k=g.indent?%60 style=%22padding-left:${g.indent*14}px%22%60:%22%22;return g.section?%60%3Cli class=%22section%22${k}%3E${g.prefix||%22%22}${x(g.label)}%3C/li%3E%60:%60%3Cli${k}%3E%3Cbutton type=%22button%22 class=%22item%22 data-idx=%22${N}%22%3E%3Cspan class=%22num%22 aria-hidden=%22true%22%3E${++V}.%3C/span%3E${W(g.status,ot[g.status])}%3Cspan%3E${g.prefix||%22%22}${x(st(g.label))}${g.meta?%60 %3Cspan class=%22meta%22%3E${x(g.meta)}%3C/span%3E%60:%22%22}%3C/span%3E%3C/button%3E%3C/li%3E%60},D=f.filter(g=%3E!g.accordion),X=D.length?%60%3Cul class=%22items%22%3E${D.map(B).join(%22%22)}%3C/ul%3E%60:'%3Cp class=%22muted%22 style=%22margin:0;font-style:italic%22%3EAucun élément détecté.%3C/p%3E',R=c.map(g=%3E{let N=f.filter(pe=%3Epe.accordion===g.id);if(!N.length&amp;&amp;d!==%22all%22)return%22%22;V=0;let k=typeof g.label==%22function%22?g.label():g.label;return%60%3Cbutton type=%22button%22 class=%22acc%22 data-acc=%22${x(g.id)}%22 aria-expanded=%22${!!S[g.id]}%22 aria-controls=%22acc-${x(g.id)}%22%3E${x(k)} (${N.length})%3C/button%3E%3Cdiv id=%22acc-${x(g.id)}%22${S[g.id]?%22%22:%22 hidden%22}%3E%60+(g.intro?%60%3Cp class=%22small muted%22 style=%22margin:4px 0%22%3E${g.intro}%3C/p%3E%60:%22%22)+(N.length?%60%3Cul class=%22items%22%3E${N.map(B).join(%22%22)}%3C/ul%3E%60:'%3Cp class=%22muted%22 style=%22margin:0;font-style:italic%22%3EAucun élément détecté.%3C/p%3E')+%22%3C/div%3E%22}).join(%22%22);if(i.body.innerHTML=%60%3Cp class=%22list-summary small%22%3E${n.summary}%3C/p%3E%60+(I.length?%60%3Cdiv class=%22filters%22 role=%22group%22 aria-label=%22Filtrer la liste%22%3E${I.map(g=%3E%60%3Cbutton type=%22button%22 class=%22filter%22 data-filter=%22${x(g.id)}%22 aria-pressed=%22${g.id===d}%22%3E${x(g.label)}%3C/button%3E%60).join(%22%22)}%3C/div%3E%60:%22%22)+X+R+%60%3Cdiv class=%22footer small%22%3E%3Cdiv class=%22muted%22%3E${o?%60${o}%3Cbr%3E%60:%22%22}${u?%22Cliquer sur une ligne pour accéder à l’élément et épingler son détail (clic ailleurs ou Échap pour le libérer).%22:%22Cliquer sur une ligne pour accéder à l'élément.%22} Survoler un élément de la page pour le détail.%3C/div%3E%3Cdiv class=%22tools%22%3E%3Cspan class=%22toolset%22%3E${s.map((g,N)=%3E%60%3Cbutton type=%22button%22 class=%22tool%22 data-tool=%22${N}%22${g.pressed?%60 aria-pressed=%22${!!g.pressed()}%22%60:%22%22}%3E${x(typeof g.label==%22function%22?g.label():g.label)}%3C/button%3E%60).join(%22%22)}%3C/span%3E%3Cbutton type=%22button%22 class=%22refresh%22%3EActualiser%3C/button%3E%3C/div%3E%3C/div%3E%60,E){let g=E===%22refresh%22?%22.refresh%22:m.dataset.tool?%60[data-tool=%22${E}%22]%60:m.dataset.acc?%60[data-acc=%22${E}%22]%60:%60[data-filter=%22${E}%22]%60,N=i.body.querySelector(g);N&amp;&amp;N.focus()}},P=()=%3E{n=r(),w()};return i.body.addEventListener(%22click%22,m=%3E{if(m.target.closest(%22.refresh%22))return P();let E=m.target.closest(%22.tool%22);if(E)return s[E.dataset.tool].toggle(),w();let I=m.target.closest(%22.acc%22);if(I)return S[I.dataset.acc]=!S[I.dataset.acc],w();let V=m.target.closest(%22.filter%22);if(V)return d=V.dataset.filter,w();let B=m.target.closest(%22.item%22);if(!B)return;let D=f[B.dataset.idx];if(!D)return;let X=D.els||[D.el],R=X[D.cursor=((D.cursor??-1)+1)%25X.length];if(!R||!R.isConnected)return P();clearTimeout(b),R.scrollIntoView({behavior:%22smooth%22,block:%22center%22}),R.tabIndex%3E=0&amp;&amp;typeof R.focus==%22function%22&amp;&amp;R.focus({preventScroll:!0}),h.set([[R,%22locate%22]]),b=setTimeout(()=%3Eh.clear(),2500),u&amp;&amp;u(R)}),P(),{refresh:P,redraw:w,close:()=%3E{clearTimeout(b),h.clear(),i.close()}}};var Re=%22[data-rgaa-bookmarklet]%22,G=e=%3E{let t=e.innerText;return(typeof t==%22string%22&amp;&amp;t.trim()?t:e.textContent||%22%22).replace(/\s+/g,%22 %22).trim()},z=e=%3EString(e??%22%22).toLowerCase().normalize(%22NFD%22).replace(/[̀-ͯ]/g,%22%22).replace(/[^\p{L}\p{N}]+/gu,%22 %22).trim(),it=(e,t)=%3E{let r=e.getRootNode();return(r.getElementById?r:e.ownerDocument).getElementById(t)},xe=(e,t)=%3E{let r=(e.getAttribute(t)||%22%22).trim();if(!r)return null;let o=[],s=[];return r.split(/\s+/).forEach(c=%3E{let a=it(e,c);a?o.push(a):s.push(c)}),{v:o.map(G).filter(Boolean),s:t,els:o,missing:s}};var lt=e=%3E{for(let t=e;t;t=t.parentElement||t.getRootNode().host)if(t.getAttribute&amp;&amp;t.getAttribute(%22aria-hidden%22)===%22true%22)return t;return null},me=e=%3E{if(lt(e))return%22aria-hidden%22;let t=e.ownerDocument.defaultView.getComputedStyle(e);return t.display===%22none%22||!e.getClientRects().length?%22display:none%22:t.visibility===%22hidden%22?%22visibility:hidden%22:null};var se=e=%3E{if(!e||!e.getRootNode)return!1;if(e.closest&amp;&amp;e.closest(Re))return!0;let t=e.getRootNode().host;return!!(t&amp;&amp;t.closest&amp;&amp;t.closest(Re))};var Y=(e=document,t=[])=%3E(t.push(e),e.querySelectorAll(%22iframe,frame%22).forEach(r=%3E{try{r.contentDocument&amp;&amp;Y(r.contentDocument,t)}catch{}}),t),ee=(e,t,r)=%3E{let o=e;try{for(;o&amp;&amp;o!==window&amp;&amp;o.frameElement;){let s=o.frameElement,l=s.getBoundingClientRect();t+=l.left+s.clientLeft,r+=l.top+s.clientTop,o=o.parent}}catch{}return[t,r]};var te=15,Me=({id:e,css:t=%22%22,inspect:r,list:o,onKey:s,onStop:l,pinOnLocate:c,onAction:a,minWidth:u=320,maxWidth:i=520})=%3E{if(ue(e))return;let{host:h,panel:n}=fe(e,%60.panel{pointer-events:none;min-width:${u}px;max-width:min(${i}px,calc(100vw - 10px))}.panel.pinned{pointer-events:auto;max-height:calc(100vh - 10px);overflow-y:auto}${t}%60);n.setAttribute(%22role%22,%22status%22),n.hidden=!0;let f=ge(),d=null,b=null,S=()=%3E{n.hidden=!0,f.clear(),d=null},w=(p,v,y)=%3E{let C=n.offsetWidth,A=n.offsetHeight,ne=window.innerWidth,J=window.innerHeight,F,Q;y?(F=y.left,Q=y.bottom+8+A%3EJ?y.top-A-8:y.bottom+8):(F=p+te+C%3Ene?p-C-te:p+te,Q=v+te+A%3EJ?v-A-te:v+te),n.style.left=%60${Math.max(5,Math.min(F,ne-C-5))}px%60,n.style.top=%60${Math.max(5,Math.min(Q,J-A-5))}px%60},P=p=%3E{let v=null;try{v=r(p)}catch(y){console.error(%60[${e}]%60,y)}if(!v)return S();n.innerHTML=v.html,f.set(v.highlight),n.hidden=!1},m=()=%3E{if(!b||n.hidden)return;let p=b.getBoundingClientRect(),[v,y]=ee(b.ownerDocument.defaultView,p.left,p.top),C=n.offsetWidth,A=n.offsetHeight,ne=window.innerWidth,J=window.innerHeight,F,Q=y;v+p.width+8+C%3C=ne-5?F=v+p.width+8:v-8-C%3E=5?F=v-8-C:(F=v,Q=y+p.height+8+A%3C=J?y+p.height+8:y-A-8),n.style.left=%60${Math.max(5,Math.min(F,ne-C-5))}px%60,n.style.top=%60${Math.max(5,Math.min(Q,J-A-5))}px%60},E=()=%3E{b=null,n.classList.remove(%22pinned%22),S()},I=p=%3E{if(b=p,d=p,P(p),n.hidden)return E();n.classList.add(%22pinned%22),m(),setTimeout(m,450)},V=(p,v,y,C)=%3E{if(!b){if(!p||p.nodeType!==1||se(p))return S();p!==d&amp;&amp;(d=p,P(p)),n.hidden||w(v,y,C)}},B=p=%3Ep.composedPath?p.composedPath()[0]:p.target,D=p=%3E{let[v,y]=ee(p.view,p.clientX,p.clientY);V(B(p),v,y)},X=p=%3E{let v=B(p);if(!v||v.nodeType!==1)return;let y=v.getBoundingClientRect(),[C,A]=ee(v.ownerDocument.defaultView,y.left,y.top);V(v,0,0,{left:C,top:A,bottom:A+y.height})},R=p=%3E{if(p.key===%22Escape%22)return b?E():tt();s&amp;&amp;s(p)&amp;&amp;(p.preventDefault(),d&amp;&amp;!n.hidden&amp;&amp;P(d),b&amp;&amp;m(),k&amp;&amp;k.redraw())},g=()=%3Eb?m():S(),N=p=%3E{b&amp;&amp;!se(B(p))&amp;&amp;E()};n.addEventListener(%22click%22,p=%3E{let v=p.target.closest(%22[data-action]%22);if(!v||!a||!d)return;let y=d,C=v.dataset.action;Promise.resolve(a(C,y,v)).catch(A=%3Econsole.error(%60[${e}]%60,A)).then(()=%3E{if(d!==y||n.hidden)return;P(y),b&amp;&amp;m();let A=n.querySelector(%60[data-action=%22${C}%22]%60);A&amp;&amp;A.focus()})});let k=null;if(o)try{k=Pe({id:e,...o,onClose:()=%3Ek=null,onLocate:c?I:void 0})}catch(p){console.error(%60[${e}]%60,p)}let pe=Y();pe.forEach(p=%3E{p.addEventListener(%22mousemove%22,D,!0),p.addEventListener(%22focusin%22,X,!0),p.addEventListener(%22keydown%22,R,!0),p.addEventListener(%22scroll%22,g,!0),p.addEventListener(%22pointerdown%22,N,!0)});let tt=de(e,()=%3E{pe.forEach(p=%3E{p.removeEventListener(%22mousemove%22,D,!0),p.removeEventListener(%22focusin%22,X,!0),p.removeEventListener(%22keydown%22,R,!0),p.removeEventListener(%22scroll%22,g,!0),p.removeEventListener(%22pointerdown%22,N,!0)}),f.clear(),h.remove(),k&amp;&amp;k.close(),l&amp;&amp;l()});return{refresh:()=%3Ek&amp;&amp;k.refresh(),redraw:()=%3Ek&amp;&amp;k.redraw(),current:()=%3Eb||(n.hidden?null:d)}};var $=e=%3EString(e??%22%22).replace(/\s+/g,%22 %22).trim(),ie=e=%3Ee.tagName.toLowerCase(),ct=e=%3E(e.getAttribute(%22role%22)||%22%22).trim().split(/\s+/)[0].toLowerCase(),M=(e,t)=%3Ee.ownerDocument.defaultView.getComputedStyle(e,t),Ie=e=%3E{let t=M(e);return t.display===%22none%22||t.visibility===%22hidden%22},K=(e,t)=%3E{let r=M(e,t).content;if(!r||r===%22none%22||r===%22normal%22)return%22%22;let o=r.split(/\s\/\s/),s=o[o.length-1];return $([...s.matchAll(/%22((?:[^%22\\]|\\.)*)%22/g)].map(l=%3El[1].replace(/\\(.)/g,%22$1%22)).join(%22%22).replace(/[-]/g,%22%22))},Oe=[%22script%22,%22style%22,%22template%22,%22noscript%22,%22iframe%22,%22object%22,%22embed%22,%22video%22,%22audio%22,%22select%22,%22textarea%22],De=(e,t)=%3E{e.childNodes.forEach(r=%3E{if(r.nodeType===3){let f=$(r.textContent);f&amp;&amp;(t.parts.push({t:f,s:%22texte%22}),t.text=!0);return}if(r.nodeType!==1)return;let o=ie(r),s=ct(r),l=o===%22img%22||o===%22input%22&amp;&amp;r.type===%22image%22||o===%22svg%22||s===%22img%22;if(r.getAttribute(%22aria-hidden%22)===%22true%22){(l||r.querySelector(%22img,svg%22))&amp;&amp;(t.hiddenImg=!0);return}if(Oe.includes(o)||Ie(r))return;let c=o===%22svg%22?%22svg%22:l?%22img%22:%22text%22,a=s===%22presentation%22||s===%22none%22,u=xe(r,%22aria-labelledby%22),i=$(r.getAttribute(%22aria-label%22));if(!a&amp;&amp;(u&amp;&amp;u.v.length||i)){t.parts.push(u&amp;&amp;u.v.length?{t:u.v.join(%22 %22),s:%60aria-labelledby (${o})%60}:{t:i,s:%60aria-label (${o})%60}),t[c]=!0;return}if(l){if(a||(o===%22img%22||o===%22input%22)&amp;&amp;r.getAttribute(%22alt%22)!==null&amp;&amp;!r.getAttribute(%22alt%22).trim()){t.decoImg=!0;return}if(t[c]=!0,o===%22svg%22){let f=r.querySelector(%22:scope %3E title%22);f&amp;&amp;$(f.textContent)?t.parts.push({t:$(f.textContent),s:%22title (svg)%22}):t.unnamed.push(r)}else if(o===%22img%22||o===%22input%22){let f=r.getAttribute(%22alt%22),d=$(r.getAttribute(%22title%22));f===null?d?t.parts.push({t:d,s:%60title (${o})%60}):t.unnamed.push(r):t.parts.push({t:$(f),s:%60alt (${o})%60})}else t.unnamed.push(r);return}let h=K(r,%22::before%22);h&amp;&amp;t.parts.push({t:h,s:%22CSS ::before%22}),De(r,t);let n=K(r,%22::after%22);n&amp;&amp;t.parts.push({t:n,s:%22CSS ::after%22}),(h||n)&amp;&amp;(t.text=!0)})},je=(e,{fromContent:t=!0}={})=%3E{let r={parts:[],text:!1,img:!1,svg:!1,unnamed:[],hiddenImg:!1,decoImg:!1},o=ie(e);if(o!==%22area%22&amp;&amp;t){let d=K(e,%22::before%22);d&amp;&amp;r.parts.push({t:d,s:%22CSS ::before%22}),De(e,r);let b=K(e,%22::after%22);b&amp;&amp;r.parts.push({t:b,s:%22CSS ::after%22}),(d||b)&amp;&amp;(r.text=!0)}let s=$(r.parts.map(d=%3Ed.t).join(%22 %22)),l=xe(e,%22aria-labelledby%22),c=$(e.getAttribute(%22aria-label%22)),a=$(e.getAttribute(%22title%22)),u=o===%22area%22?$(e.getAttribute(%22alt%22)):%22%22,i=e.labels&amp;&amp;e.labels.length?$([...e.labels].map(G).join(%22 %22)):%22%22,h=%22%22,n=%22%22;l&amp;&amp;l.v.length?[h,n]=[$(l.v.join(%22 %22)),%22aria-labelledby%22]:c?[h,n]=[c,%22aria-label%22]:u?[h,n]=[u,%22alt (area)%22]:i?[h,n]=[i,%22label%22]:o===%22input%22&amp;&amp;[%22button%22,%22submit%22,%22reset%22].includes(e.type)&amp;&amp;$(e.value)?[h,n]=[$(e.value),%22value%22]:o===%22input%22&amp;&amp;e.type===%22image%22&amp;&amp;$(e.getAttribute(%22alt%22))?[h,n]=[$(e.getAttribute(%22alt%22)),%22alt%22]:s?[h,n]=[s,[...new Set(r.parts.map(d=%3Ed.s===%22texte%22?%22contenu%22:d.s))].join(%22 + %22)]:a&amp;&amp;([h,n]=[a,%22title%22]);let f=%22vide%22;return o===%22area%22?f=%22zone d’image%22:r.text&amp;&amp;(r.img||r.svg)?f=%22composite%22:r.text?f=%22texte%22:r.svg&amp;&amp;!r.img?f=%22SVG%22:r.img||r.svg?f=%22image%22:r.hiddenImg?f=%22icône masquée%22:r.decoImg&amp;&amp;(f=%22image décorative%22),{name:h,s:n,acc:r,content:s,lb:l,al:c,ti:a,nature:f}},ze=e=%3E{let t=[],r=o=%3E{o.childNodes.forEach(s=%3E{if(s.nodeType===3)return t.push(s.textContent);if(s.nodeType!==1||Oe.includes(ie(s))||ie(s)===%22svg%22||Ie(s))return;let l=M(s),c=s.getBoundingClientRect();c.width%3C=1&amp;&amp;c.height%3C=1||/rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(l.clip)||l.clipPath===%22inset(50%25)%22||(t.push(%60 ${K(s,%22::before%22)} %60),r(s),t.push(%60 ${K(s,%22::after%22)} %60))})};return ie(e)!==%22area%22&amp;&amp;(t.push(K(e,%22::before%22)),r(e),t.push(K(e,%22::after%22))),$(t.join(%22 %22))};var Ee=%22rgaa-9-titres%22,We=%22[data-rgaa-bookmarklet]%22,ce=(e,t)=%3E%60%3Cspan class=%22flag flag--${e}%22%3E${W(e,e===%22hidden%22?%22Non concerné%22:void 0)}%3Cspan%3E${x(t)}%3C/span%3E%3C/span%3E%60,He={error:3,warning:2,ok:1,hidden:0},ye=e=%3Ee.reduce((t,r)=%3EHe[r]%3EHe[t]?r:t,%22ok%22),U=e=%3Ee.tagName.toLowerCase(),Ge=e=%3E(e.getAttribute(%22role%22)||%22%22).trim().split(/\s+/)[0].toLowerCase(),O=(e,t,r=%60${t}s%60)=%3E%60${e} ${e%3E1?r:t}%60,j=(e,t=120)=%3Ee.length%3Et?%60${e.slice(0,t-1)}…%60:e,re=e=%3E%60${Math.round(e*10)/10}px%60,Ke=/^H[1-6]$/,pt=new Set([%22titre%22,%22sans titre%22,%22titre de la page%22,%22titre de section%22,%22sous titre%22,%22rubrique%22,%22section%22,%22contenu%22,%22texte%22,%22en savoir plus%22,%22savoir plus%22,%22lire la suite%22,%22plus%22,%22voir plus%22,%22détails%22,%22informations%22,%22infos%22,%22divers%22,%22lorem ipsum%22,%22heading%22,%22title%22,%22untitled%22,%22new section%22,%22nouveau titre%22,%22titre 1%22,%22titre 2%22,%22titre 3%22].map(z)),ut=120,Ue=e=%3E{let t=e.getBoundingClientRect();if(t.width%3C=1||t.height%3C=1)return%22taille de 1px%22;let r=e.ownerDocument.defaultView;if(t.right+r.scrollX%3C=0||t.bottom+r.scrollY%3C=0)return%22hors écran%22;for(let o=e;o&amp;&amp;o.nodeType===1;o=o.parentElement||o.getRootNode().host||null){let s=M(o);if(/rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(s.clip)||s.clipPath===%22inset(50%25)%22)return%22clip%22;if(Number(s.opacity)===0)return%22opacity:0%22;if(o===e.ownerDocument.body)break}return%22%22},dt='h1,h2,h3,h4,h5,h6,[role=%22heading%22],a,button,label,legend,caption,summary,select,textarea,option,td,th,nav,[role=%22navigation%22],[role=%22button%22],[role=%22link%22],[role=%22tab%22],[role=%22menuitem%22],[role=%22option%22],[role=%22tooltip%22],[role=%22status%22],[role=%22alert%22],[aria-live],figcaption,blockquote,pre,code',ft=new Set([%22P%22,%22DIV%22,%22DT%22,%22SPAN%22,%22STRONG%22,%22B%22]),Se=new Set([%22SCRIPT%22,%22STYLE%22,%22TEMPLATE%22,%22NOSCRIPT%22,%22SVG%22,%22svg%22,%22IFRAME%22,%22FRAME%22,%22OBJECT%22,%22SELECT%22,%22TEXTAREA%22,%22HEAD%22]),gt=e=%3E{let t=[],r=[],o=null,s=l=%3E{for(let c=l.firstElementChild;c;c=c.nextElementSibling){if(c.matches(We)||Se.has(c.tagName))continue;let a=Ge(c),u=Ke.test(c.tagName);if(a===%22heading%22||u){let i={el:c,isHx:u,role:a,sec:{p:0,list:0,table:0,img:0,other:0},order:t.length};t.push(i),c.shadowRoot&amp;&amp;s(c.shadowRoot),u&amp;&amp;a&amp;&amp;a!==%22heading%22||(o=i);continue}if(o){let i=c.tagName;i===%22P%22?o.sec.p++:i===%22UL%22||i===%22OL%22||i===%22DL%22?o.sec.list++:i===%22TABLE%22?o.sec.table++:i===%22IMG%22||i===%22PICTURE%22||i===%22VIDEO%22||i===%22FIGURE%22?o.sec.img++:(i===%22FORM%22||i===%22FIELDSET%22)&amp;&amp;o.sec.other++}ft.has(c.tagName)&amp;&amp;r.push({el:c,after:t.length}),c.shadowRoot&amp;&amp;s(c.shadowRoot),s(c)}};return e.body&amp;&amp;s(e.body),{heads:t,cands:r}},mt=(e,t)=%3E{let r=e.getAttribute(%22aria-level%22),o=t?Number(e.tagName[1]):null,s={level:o||2,src:t?U(e):%22%22,issues:[]};if(r!==null){let l=r.trim();if(/^\d+$/.test(l)&amp;&amp;Number(l)%3E=1)return s.level=Number(l),s.src=t?s.level===o?U(e):%60aria-level=%22${l}%22, remplace ${U(e)}%60:%60role=%22heading%22 aria-level=%22${l}%22%60,s.level%3E6&amp;&amp;s.issues.push([%22warning%22,%60Niveau ${s.level} : au-delà de 6, restitution variable selon les lecteurs d’écran%60]),s;s.issues.push([t?%22warning%22:%22error%22,%60aria-level=%22${r}%22 invalide (entier de 1 ou plus attendu)${t?%60 : niveau de la balise ${U(e)} utilisé%60:%22 : niveau 2 par défaut%22}%60]),t||(s.src='role=%22heading%22, aria-level invalide')}else t||(s.src='role=%22heading%22 sans aria-level',s.issues.push([%22error%22,'role=%22heading%22 sans aria-level (exigé par le test 9.1.1) : niveau 2 par défaut']));return s},bt=e=%3E{let t=parseFloat(M(e).fontSize)||0,r=Number(M(e).fontWeight)||400;return e.querySelectorAll(%22*%22).forEach(o=%3E{if(!o.firstChild||![...o.childNodes].some(c=%3Ec.nodeType===3&amp;&amp;c.textContent.trim()))return;let s=M(o),l=parseFloat(s.fontSize)||0;l%3Et&amp;&amp;([t,r]=[l,Number(s.fontWeight)||r])}),{size:t,weight:r}},ht=e=%3E{let t=[],r=e.n;return e.name?(r.acc.unnamed.length&amp;&amp;t.push([%22warning%22,%22Contient une image sans alternative%22]),pt.has(z(e.name))&amp;&amp;t.push([%22warning%22,%22Titre générique : décrit-il la section ?%22]),e.name.length%3Eut&amp;&amp;t.push([%22warning%22,%60Titre très long (${e.name.length} caractères) : paragraphe balisé en titre ?%60]),e.visible&amp;&amp;z(e.visible)&amp;&amp;[%22aria-labelledby%22,%22aria-label%22].includes(r.s)&amp;&amp;z(e.visible)!==z(e.name)&amp;&amp;t.push([%22warning%22,%60Le nom (${r.s}) remplace le texte affiché « ${j(e.visible,60)} »%60]),e.dup&amp;&amp;t.push([%22warning%22,%60Même texte que le titre ${e.dup.tag} précédent, de même niveau (titre en double)%60]),{status:ye([%22warning%22,...t.map(s=%3Es[0])]),text:t.length?%22À vérifier%22:%22Pertinence à juger%22,extra:t,base:!t.length}):(r.acc.unnamed.length?t.push([%22error%22,%22Titre fait d’une image sans alternative%22]):r.acc.decoImg?t.push([%22error%22,%22Titre fait d’une image décorative (alt vide) : titre vide%22]):(r.acc.hiddenImg||$(e.el.textContent)&amp;&amp;e.el.querySelector('[aria-hidden=%22true%22]'))&amp;&amp;t.push([%22error%22,%22Contenu masqué par aria-hidden : titre vide%22]),{status:%22error%22,text:%22Titre vide (aucun nom accessible)%22,extra:t})},H=[],ve=[],be=[],Xe=new Map,xt=e=%3E{let t=new Map,r=e.createTreeWalker(e.body||e.documentElement,4),o=0;for(let c=r.nextNode();c&amp;&amp;o%3C4e3;c=r.nextNode(),o++){let a=c.textContent.trim().length,u=c.parentElement;if(!a||!u||Se.has(u.tagName)||u.closest(%60${We},pre,code,kbd,samp,h1,h2,h3,h4,h5,h6,[role=%22heading%22]%60))continue;let i=parseFloat(M(u).fontSize);i&amp;&amp;t.set(i,(t.get(i)||0)+a)}let s=16,l=0;return t.forEach((c,a)=%3Ec%3El&amp;&amp;([s,l]=[a,c])),s},Be=/^(block|flex|grid|list-item|table-caption|flow-root)$/,vt=(e,t)=%3E{let r=e.el,o=r.textContent.trim();if(!o||o.length%3E200||r.closest(dt)||se(r)||r.querySelector(%22a,button,input,select,textarea,label,img,svg%22))return null;let s=M(r);if(!Be.test(s.display))return null;for(let w of r.children)if(Be.test(M(w).display)||w.tagName===%22BR%22)return null;let l=G(r);if(!l||l.length%3E80||/[.!?…;,]$/.test(l)||!/\p{L}/u.test(l)||me(r)||Ue(r))return null;let c=[],a=r.ownerDocument.createTreeWalker(r,4);for(let w=a.nextNode();w;w=a.nextNode())w.textContent.trim()&amp;&amp;c.push(M(w.parentElement));if(!c.length)return null;let u=c.every(w=%3ENumber(w.fontWeight)%3E=600),i=Math.min(...c.map(w=%3EparseFloat(w.fontSize)||0)),h=i%3E=t*1.2&amp;&amp;i%3E=t+2;if(!u&amp;&amp;!h)return null;let n=r.nextElementSibling;for(;n&amp;&amp;(Se.has(n.tagName)||me(n)||!G(n));)n=n.nextElementSibling;if(!n||Ke.test(n.tagName)||Ge(n)===%22heading%22)return null;let f=G(n),d={UL:%22une liste%22,OL:%22une liste%22,DL:%22une liste%22,TABLE:%22un tableau%22,FORM:%22un formulaire%22,FIELDSET:%22un formulaire%22}[n.tagName];if(!d&amp;&amp;f.length%3CMath.max(40,l.length+10))return null;let b=M(n);if(u&amp;&amp;!h&amp;&amp;Number(b.fontWeight)%3E=600&amp;&amp;parseFloat(b.fontSize)===i)return null;let S=[u?%22gras%22:%22%22,h?re(i):%22%22].filter(Boolean).join(%22, %22);return{text:l,why:S,size:i,bold:u,next:n,nextKind:d||(n.tagName===%22P%22?%22un paragraphe%22:%60un bloc %3C${U(n)}%3E%60)}},wt=(e,t)=%3E{let{heads:r,cands:o}=gt(e),s=[],l=[];r.forEach(n=%3E{let f=n.role;if(n.doc=e,n.tag=n.isHx?U(n.el):'role=%22heading%22',n.isHx&amp;&amp;f&amp;&amp;f!==%22heading%22){n.removed=%60role=%22${f}%22%60,n.status=%22hidden%22,n.name=G(n.el),l.push(n);return}if(n.hidden=me(n.el),n.n=je(n.el),n.name=n.n.name,n.hidden){n.status=%22hidden%22,l.push(n);let d=s[s.length-1];d&amp;&amp;Object.keys(n.sec).forEach(b=%3Ed.sec[b]+=n.sec[b]);return}n.lv=mt(n.el,n.isHx),n.level=n.lv.level,n.sr=n.name?Ue(n.el):%22%22,n.visible=ze(n.el),n.font=bt(n.el),s.push(n)});let c=s.length?Math.min(...s.map(n=%3En.level)):0,a=[];s.forEach((n,f)=%3E{for(;a.length&amp;&amp;a[a.length-1].level%3E=n.level;)a.pop();n.parents=[...a],n.parent=a[a.length-1]||null,a.push(n),n.prev=s[f-1]||null,n.children=0,n.parent&amp;&amp;n.parent.children++;let d=[...n.lv.issues];f===0&amp;&amp;n.level%3Ec&amp;&amp;d.push([%22warning%22,%60Le plan commence au niveau ${n.level}, puis descend au niveau ${c} : cohérence à vérifier%60]),n.prev&amp;&amp;n.level%3En.prev.level+1&amp;&amp;(n.jump=%60h${n.prev.level} → h${n.level}%60,d.push([%22warning%22,%60Saut de niveau ${n.jump} : n’invalide pas le critère si la hiérarchie reste cohérente%60]));let b=n.parent;b&amp;&amp;!n.sr&amp;&amp;!b.sr&amp;&amp;n.font.size%3Eb.font.size+.5&amp;&amp;d.push([%22warning%22,%60Titre de niveau ${n.level} plus grand que son titre parent de niveau ${b.level} (${re(n.font.size)} contre ${re(b.font.size)}) : niveau choisi pour l’apparence ?%60]),n.h1=n.level===1,n.prev&amp;&amp;n.prev.level===n.level&amp;&amp;n.name&amp;&amp;z(n.prev.name)===z(n.name)&amp;&amp;(n.dup=n.prev);let S=ye([%22ok%22,...d.map(w=%3Ew[0])]);n.crit={%229.1.1%22:{status:S,text:d.length?S===%22error%22?%22Erreur dans le code%22:%22À vérifier%22:%22Niveau cohérent avec le titre précédent%22,extra:d}},n.crit[%229.1.2%22]=ht(n),n.status=ye([S,n.crit[%229.1.2%22].base?%22ok%22:n.crit[%229.1.2%22].status]),n.indent=n.level-c});let u=xt(e),i=[],h=new Set;return o.forEach(n=%3E{let f=vt(n,u);if(!f||[...h].some(b=%3En.el.contains(b)||b.contains(n.el)))return;h.add(n.el);let d=s.filter(b=%3Eb.order%3Cn.after).pop()||null;i.push({el:n.el,doc:e,...f,prevHead:d,would:d?Math.min(d.level+1,6):Math.max(c,1),base:u,probable:!0,status:%22warning%22})}),{doc:e,label:t,plan:s,out:l,probs:i,min:c,base:u}},yt=e=%3E{let t=e.defaultView&amp;&amp;e.defaultView.frameElement;if(!t)return%22%22;let r=$(t.getAttribute(%22title%22)||t.getAttribute(%22aria-label%22)||%22%22);return r?%60Iframe « ${j(r,50)} »%60:%60Iframe sans titre (${j($(t.getAttribute(%22src%22)||%22srcdoc%22),40)})%60},$t={error:%22erreur%22,warning:%22à vérifier%22,ok:%22conforme%22,hidden:%22non concerné%22},Et={error:%22×%22,warning:%22!%22,ok:%22✓%22,hidden:%22∅%22},Ye=(e,t)=%3E%60%3Cspan class=%22pill pill--${t}%22%3E%3Cspan aria-hidden=%22true%22%3E${e} ${Et[t]}%3C/span%3E%3Cspan class=%22sr-only%22%3E${e} ${$t[t]},%3C/span%3E%3C/span%3E%60,St=e=%3E%60%3Cspan class=%22pills%22%3E${[%229.1.1%22,%229.1.2%22].map(t=%3EYe(t,e.crit[t].status)).join(%22%22)}%3C/span%3E%60,Tt=e=%3E%60%3Cspan class=%22lvl%22%3Eh${e.level}${e.isHx&amp;&amp;!e.lv.src.startsWith(%22aria-level%22)?%22%22:%22*%22}%3C/span%3E%60,qe=e=%3E{let t=e.plan.filter(r=%3Er.level===1).length;return t?O(t,%22h1%22,%22h1%22):%22pas de h1%22},At=()=%3E{H=Y().map((a,u)=%3Ewt(a,u?yt(a):%22%22)),ve=H.flatMap(a=%3E[...a.plan,...a.out]),be=H.flatMap(a=%3Ea.probs),Xe=new Map([...be.map(a=%3E[a.el,a]),...ve.map(a=%3E[a.el,a])]);let t=[];H.forEach((a,u)=%3E{u&amp;&amp;!a.plan.length&amp;&amp;!a.out.length||(u&amp;&amp;t.push({section:!0,label:%60${a.label} : ${O(a.plan.length,%22titre%22)}, ${qe(a)}%60}),a.plan.forEach(i=%3Et.push({el:i.el,status:i.status,indent:i.indent,prefix:Tt(i)+St(i),label:i.name||%22(titre vide)%22,meta:[i.jump?%60saut ${i.jump}%60:%22%22,i.sr?%22caché visuellement%22:%22%22].filter(Boolean).join(%22 · %22),filter:[...i.status===%22error%22?[%22erreurs%22]:[],...i.status!==%22ok%22?[%22verifier%22]:[]]})))}),H.forEach(a=%3Ea.out.forEach(u=%3Et.push({el:u.el,status:%22hidden%22,label:%60${u.tag} ${u.name||%22(vide)%22}%60,meta:u.removed?%60rôle titre retiré (${u.removed})%60:%60masqué : ${u.hidden}%60}))),be.forEach(a=%3Et.push({el:a.el,status:%22warning%22,accordion:%22probables%22,prefix:%60%3Cspan class=%22pills%22%3E${Ye(%229.1.3%22,%22warning%22)}%3C/span%3E%60,label:a.text,meta:a.why,filter:[%22verifier%22]}));let r=H[0],o=H.flatMap(a=%3Ea.plan),s=o.filter(a=%3Ea.status===%22error%22).length,l=o.filter(a=%3Ea.jump).length,c=ve.length-o.length;return{count:o.length,items:t,summary:(r.plan.length?%60${O(r.plan.length,%22titre%22)}%60:%60${W(%22error%22)} aucun titre dans la page%60)+%60 · ${s?W(%22error%22)+%22 %22:%22%22}${O(s,%22erreur%22)} · ${l?W(%22warning%22)+%22 %22:%22%22}${O(l,%22saut%22)} de niveau · ${qe(r)}%60+(c?%60 · ${O(c,%22non restitué%22)}%60:%22%22)+(H.length%3E1&amp;&amp;o.length%3Er.plan.length?%60 · ${o.length-r.plan.length} dans des iframes%60:%22%22)}},Lt=e=%3E{for(let t=e;t;){let r=Xe.get(t);if(r)return r;t.parentElement?t=t.parentElement:t.getRootNode&amp;&amp;t.getRootNode().host?t=t.getRootNode().host:t=null}return null},Je=(e,t)=%3E%60%3Cdiv class=%22crit%22%3E%3Cspan class=%22crit-num%22%3E${e}%3C/span%3E%3Cdiv class=%22crit-body%22%3E${ce(t.status,t.text)}${(t.extra||[]).map(([r,o])=%3E%60%3Cdiv%3E${ce(r,o)}%3C/div%3E%60).join(%22%22)}%3C/div%3E%3C/div%3E%60,_e=e=%3E%60h${e.level} ${x(j(e.name||%22(vide)%22,50))}%60,kt=e=%3E{let t=e.sec,r=[t.p&amp;&amp;O(t.p,%22paragraphe%22),t.list&amp;&amp;O(t.list,%22liste%22),t.table&amp;&amp;O(t.table,%22tableau%22,%22tableaux%22),t.img&amp;&amp;O(t.img,%22image ou média%22,%22images ou médias%22),t.other&amp;&amp;O(t.other,%22formulaire%22)].filter(Boolean),o=e.children?%60${O(e.children,%22sous-titre%22)} · %60:%22%22;return r.length?%60${o}${r.join(%22, %22)} avant le titre suivant%60:%60${o}%3Cspan class=%22muted%22%3Eaucun paragraphe, liste ni tableau avant le titre suivant%3C/span%3E%60},Ct=e=%3E{if(e.removed)return T(%22Élément%22,%60&amp;lt;${x(e.tag)}&amp;gt; ${ae(e.removed)}%60)+T(%22Texte%22,x(j(e.name||%22(vide)%22)))+%60%3Cp class=%22note%22%3E${ce(%22hidden%22,%60Rôle titre retiré par ${e.removed} : ce texte n’est pas restitué comme un titre%60)}%3C/p%3E%3Cp class=%22note%22%3E${ce(%22warning%22,%22Si ce texte est un titre, il doit être balisé comme tel (9.1.3)%22)}%3C/p%3E%60;if(e.hidden)return T(%22Élément%22,%60&amp;lt;${x(U(e.el))}&amp;gt;%60)+T(%22Titre%22,x(j(e.name||%22(vide)%22)))+%60%3Cp class=%22note%22%3E${ce(%22hidden%22,%60Masqué (${e.hidden}) : non restitué, non concerné%60)}%3C/p%3E%60;let t=e.n,r=T(%22Niveau%22,%60${e.level} ${ae(e.lv.src)}%60);return r+=T(%22Titre%22,e.name?%60${x(j(e.name,200))} ${ae(t.s)}%60:%60${W(%22error%22,%22Absent%22)} %3Cspan class=%22text-error%22%3Evide%3C/span%3E%60),e.visible&amp;&amp;z(e.visible)!==z(e.name)&amp;&amp;(r+=T(%22Texte visible%22,x(j(e.visible)))),e.parents.length?r+=T(%22Titres parents%22,e.parents.map(_e).join(%22 › %22)):r+=T(%22Titres parents%22,'%3Cspan class=%22muted%22%3Eaucun (premier niveau du plan)%3C/span%3E'),e.prev&amp;&amp;e.prev!==e.parent&amp;&amp;(r+=T(%22Titre précédent%22,_e(e.prev))),r+=T(%22Section%22,kt(e)),r+=T(%22Apparence%22,%60${re(e.font.size)}${e.font.weight%3E=600?%22, gras%22:%22%22}${e.parent&amp;&amp;!e.parent.sr?%60 %3Cspan class=%22muted small%22%3E(titre parent : ${re(e.parent.font.size)})%3C/span%3E%60:%22%22}%60),r+=T(%22Visibilité%22,e.sr?%60caché visuellement ${ae(e.sr)} %3Cspan class=%22muted small%22%3Ecompte comme présent (glossaire RGAA)%3C/span%3E%60:%22affiché%22),r+='%3Cdiv class=%22crits%22%3E',[%229.1.1%22,%229.1.2%22].forEach(o=%3Er+=Je(o,e.crit[o])),r+=%22%3C/div%3E%22,r},Nt=e=%3E{let t=T(%22Passage%22,%60&amp;lt;${x(U(e.el))}&amp;gt; « ${x(j(e.text,100))} »%60);return t+=T(%22Ressemble à un titre%22,%60${x(e.why)} %3Cspan class=%22muted small%22%3E(texte courant : ${re(e.base)})%3C/span%3E%60),t+=T(%22Suivi de%22,x(e.nextKind)),t+=T(%22Serait%22,e.prevHead?%60un h${e.would} sous « ${x(j(e.prevHead.name||%22(vide)%22,50))} »%60:%60un h${e.would} (aucun titre avant)%60),t+=%60%3Cdiv class=%22crits%22%3E${Je(%229.1.3%22,{status:%22warning%22,text:'Titre probable non balisé : si c’est un titre, utiliser h1–h6 ou role=%22heading%22 + aria-level'})}%3C/div%3E%60,t},Pt=[%22%230d47a1%22,%22%231e7b34%22,%22%234527a0%22,%22%2300695c%22,%22%235d4037%22,%22%2337474f%22],Rt=%22%23ad1457%22,Mt=%60%0A:host{all:initial}%0A.box{position:fixed;z-index:${Number(L.zIndex)-1};pointer-events:none;border:2px solid;border-radius:2px;box-sizing:border-box}%0A.box--dashed{border-style:dashed}%0A.tag{position:fixed;z-index:${Number(L.zIndex)-1};pointer-events:none;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;%0Afont:700 11px/1.3 ${L.font};color:%23fff;padding:1px 4px;border-radius:2px}%0A%60,_={plan:null,probables:null},It=2e3,Qe=(e,t)=%3E{let r=document.createElement(%22div%22);r.setAttribute(%22data-rgaa-bookmarklet%22,%22%22),r.id=%60${Ee}-${e}%60;let o=r.attachShadow({mode:%22open%22});o.innerHTML=%60%3Cstyle%3E${Mt}%3C/style%3E%60;let s=t.slice(0,It).map(({el:c,text:a,color:u,dashed:i})=%3E{let h=document.createElement(%22div%22);h.className=%60box${i?%22 box--dashed%22:%22%22}%60,h.style.borderColor=u;let n=document.createElement(%22span%22);return n.className=%22tag%22,n.style.background=u,n.textContent=a,o.append(h,n),{el:c,box:h,tag:n}}),l=()=%3Es.forEach(({el:c,box:a,tag:u})=%3E{let i=c.getBoundingClientRect(),[h,n]=ee(c.ownerDocument.defaultView,i.left,i.top),f=!c.isConnected||!i.width&amp;&amp;!i.height;a.hidden=f||i.width%3C=1||i.height%3C=1,u.hidden=f||n+i.height%3C0||n%3Ewindow.innerHeight,Object.assign(a.style,{left:%60${h-2}px%60,top:%60${n-2}px%60,width:%60${i.width+4}px%60,height:%60${i.height+4}px%60}),u.style.left=%60${Math.max(0,Math.min(h,window.innerWidth-60))}px%60,u.style.top=%60${Math.max(0,n-17)}px%60});(document.body||document.documentElement).appendChild(r),l(),Y().forEach(c=%3Ec.addEventListener(%22scroll%22,l,!0)),window.addEventListener(%22resize%22,l),_[e]={host:r,place:l}},he=e=%3E{let t=_[e];t&amp;&amp;(t.host.remove(),Y().forEach(r=%3Er.removeEventListener(%22scroll%22,t.place,!0)),window.removeEventListener(%22resize%22,t.place),_[e]=null)},Ze=e=%3E{he(%22plan%22),e&amp;&amp;Qe(%22plan%22,H.flatMap(t=%3Et.plan).map(t=%3E{let r=t.status===%22error%22||t.crit[%229.1.1%22].status===%22error%22,o=t.crit[%229.1.1%22].status===%22warning%22;return{el:t.el,text:%60h${t.level}${t.sr?%22 caché%22:%22%22}${t.jump?%60 (saut ${t.jump})%60:%22%22} ${j(t.name||%22∅ vide%22,40)}%60,color:r?L.color.error:o?L.color.warning:Pt[Math.min(t.level,6)-1]}}))},et=e=%3E{he(%22probables%22),e&amp;&amp;Qe(%22probables%22,be.map(t=%3E({el:t.el,text:%60titre probable ? (${t.why})%60,color:Rt,dashed:!0})))},Ot=()=%3EH.filter((e,t)=%3E!t||e.plan.length).map((e,t)=%3E{let r=e.plan.map(o=%3E%60${%22  %22.repeat(o.indent)}h${o.level} ${o.name||%22(titre vide)%22}${o.sr?%22 [caché visuellement]%22:%22%22}%60);return(t?%60%0A${e.label}%0A%60:%22%22)+(r.length?r.join(%60%0A%60):%22(aucun titre)%22)}).join(%60%0A%60),$e=%22%22,Dt=()=%3E{let e=Ot(),t=o=%3E{$e=o?%22Plan copié%22:%22Copie impossible%22,le&amp;&amp;le.redraw(),setTimeout(()=%3E{$e=%22%22,le&amp;&amp;le.redraw()},2e3)},r=()=%3E{let o=document.createElement(%22textarea%22);o.setAttribute(%22data-rgaa-bookmarklet%22,%22%22),o.value=e,o.style.cssText=%22position:fixed;left:-9999px;top:0%22,document.body.appendChild(o),o.select();let s=!1;try{s=document.execCommand(%22copy%22)}catch{}o.remove(),t(s)};navigator.clipboard&amp;&amp;navigator.clipboard.writeText?navigator.clipboard.writeText(e).then(()=%3Et(!0),r):r()},jt=%60%0A.crits{margin-top:8px;border-top:1px solid var(--rgaa-sep)}%0A.crit{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--rgaa-sep)}%0A.crit-num{flex:0 0 2.8em;font-weight:700}%0A.crit-body{min-width:0;display:flex;flex-direction:column;gap:3px}%0A.note{margin:8px 0 0}%0A%60,zt=%60%0A.item %3E span:last-child{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px}%0A.lvl{font-weight:700;color:var(--rgaa-focus);min-width:2em}%0A.pills{order:3;flex-basis:100%25;display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}%0A.pill{font-size:var(--rgaa-fs-sm);border:1px solid currentColor;border-radius:3px;padding:0 3px;white-space:nowrap}%0A.pill--error{color:var(--rgaa-error)}%0A.pill--warning{color:var(--rgaa-warning)}%0A.pill--ok{color:var(--rgaa-ok)}%0A.pill--hidden{color:var(--rgaa-muted)}%0A%60,Ht=e=%3E{let t=e.target&amp;&amp;e.target.tagName;return e.shiftKey&amp;&amp;!e.ctrlKey&amp;&amp;!e.metaKey&amp;&amp;!e.altKey&amp;&amp;![%22INPUT%22,%22TEXTAREA%22,%22SELECT%22].includes(t)&amp;&amp;!e.target.isContentEditable},Ve=()=%3EZe(!_.plan),Fe=()=%3Eet(!_.probables),le=Me({id:Ee,css:jt,maxWidth:480,pinOnLocate:!0,list:{title:%22Titres%22,collect(){let e=At();return _.plan&amp;&amp;Ze(!0),_.probables&amp;&amp;et(!0),e},filters:[{id:%22erreurs%22,label:%22Erreurs%22},{id:%22verifier%22,label:%22À vérifier%22}],accordions:[{id:%22probables%22,label:%22Titres probables%22,intro:%22Passages courts en gras ou plus grands que le texte courant, suivis de contenu (9.1.3). Liste indicative : d’autres passages peuvent être des titres.%22}],tools:[{label:%22Plan sur la page%22,pressed:()=%3E!!_.plan,toggle:Ve},{label:%22Titres probables%22,pressed:()=%3E!!_.probables,toggle:Fe},{label:()=%3E$e||%22Copier le plan%22,toggle:Dt}],footer:'Plan dans l’ordre du document, en retrait selon le niveau (h3* : niveau donné par role=%22heading%22 ou aria-level). Les sauts de niveau et l’absence de h1 n’invalident pas le critère. Plan sur la page (Maj+H), titres probables (Maj+P).'},onKey(e){if(!Ht(e))return!1;let t=e.key.toLowerCase();if(t===%22h%22)Ve();else if(t===%22p%22)Fe();else return!1;return!0},onStop:()=%3E{he(%22plan%22),he(%22probables%22)},inspect(e){let t=Lt(e);if(!t)return null;if(t.probable)return{html:Nt(t),highlight:[[t.el,%22primary%22],...t.prevHead?[[t.prevHead.el,%22secondary%22]]:[]]};let r=[[t.el,%22primary%22]];return t.parent&amp;&amp;r.push([t.parent.el,%22secondary%22]),t.prev&amp;&amp;t.prev!==t.parent&amp;&amp;r.push([t.prev.el,%22secondary%22]),t.n&amp;&amp;t.n.lb&amp;&amp;t.n.lb.els.forEach(o=%3Er.push([o,%22secondary%22])),{html:Ct(t),highlight:r}}}),we=document.getElementById(%60${Ee}-liste%60);if(le&amp;&amp;we&amp;&amp;we.shadowRoot){let e=document.createElement(%22style%22);e.textContent=zt,we.shadowRoot.appendChild(e)}})();">Lancer RGAA 9 – Titres</a>
+  (ou utilisez votre favori). La liste montre le plan des titres, en retrait selon le niveau.
+  Survolez un titre pour voir son niveau, ses titres parents et sa section.
+  Cliquez sur une ligne de la liste pour épingler le détail à côté du titre.
+  <kbd>Échap</kbd> libère le détail, puis ferme les panneaux.</p>
+  <p>Chaque exemple est dans un cadre (<code>iframe</code>) : ses titres forment un plan à part, sous une ligne
+  « Iframe « Exemple : … » » dans la liste. Le premier plan de la liste est celui de cette page de démo
+  (h1, h2 des sections, h3 des cartes), qui est cohérent.</p>
+</div>
+
+<h2>Inventaire</h2>
+<p>Le bookmarklet liste les <code>h1</code> à <code>h6</code> et les éléments <code>role="heading"</code>.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Hiérarchie stricte</h3>
+    <div class="demo">
+      <h1>Médiathèque</h1>
+      <h2>Horaires</h2>
+      <p>Du mardi au samedi, de 10 h à 18 h, et le dimanche matin.</p>
+      <h2>Accès</h2>
+      <h3>En bus</h3>
+      <p>Lignes 4 et 12, arrêt Mairie.</p>
+      <h3>En voiture</h3>
+      <p>Parking gratuit rue des Écoles.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> plan h1 › h2 › h2 › h3 › h3 en retrait, tout ✓, pastilles 9.1.1 ✓ et 9.1.2 ! (pertinence à juger). « 1 h1 ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Titre ARIA</h3>
+    <div class="demo">
+      <h1>Actualités</h1>
+      <div role="heading" aria-level="2">Agenda de la semaine</div>
+      <p>Trois rendez-vous pour toute la famille.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « h2* Agenda de la semaine », niveau 2 (role="heading" aria-level="2").</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Rôle titre retiré</h3>
+    <div class="demo">
+      <h1>Nos services</h1>
+      <h2 role="presentation">Prêt de livres</h2>
+      <p>Jusqu’à dix documents pendant trois semaines.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste « rôle titre retiré (role="presentation") », hors du plan. Le détail rappelle le 9.1.3.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Titre masqué</h3>
+    <div class="demo">
+      <h1>Menu</h1>
+      <h2 style="display:none">Menu mobile</h2>
+      <p>(Le h2 « Menu mobile » est en <code>display:none</code>.)</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste, « masqué : display:none », hors du plan.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Titre caché visuellement</h3>
+    <div class="demo">
+      <h1>Boutique</h1>
+      <h2 class="sr-only">Filtres de recherche</h2>
+      <p>Prix, couleur, taille : choisissez vos filtres.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> h2 listé normalement avec « caché visuellement » : il compte comme présent (glossaire RGAA). « Plan sur la page » affiche « h2 caché ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Titre dans un Shadow DOM</h3>
+    <div class="demo">
+      <h1>Composants</h1>
+      <div id="hote"></div>
+      <script>if (window.frameElement) document.getElementById('hote').attachShadow({ mode: 'open' }).innerHTML = '<h2>Carte produit</h2><p>Titre rendu dans un Shadow DOM ouvert.</p>';</script>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « h2 Carte produit » dans le plan, sous le h1.</p>
+  </div>
+</div>
+
+<h2>9.1.1 Hiérarchie</h2>
+<p>Les sauts de niveau et l’absence de <code>h1</code> n’invalident pas le critère (glossaire RGAA) : ils sont signalés à vérifier, ou en information.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Saut de niveau</h3>
+    <div class="demo">
+      <h1>Conférences</h1>
+      <h2>Programme</h2>
+      <h4>Matin</h4>
+      <p>Accueil et ouverture à 9 h.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> h4 ! « saut h2 → h4 » dans la ligne et dans 9.1.1 (cohérence à vérifier), jamais ×.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Page sans h1</h3>
+    <div class="demo">
+      <h2>Contact</h2>
+      <p>Écrivez-nous ou appelez-nous.</p>
+      <h2>Plan d’accès</h2>
+      <p>À deux pas de la gare.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « pas de h1 » dans la ligne de l’iframe, en information ; les deux h2 sont ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Plusieurs h1</h3>
+    <div class="demo">
+      <h1>Article 1</h1>
+      <p>Premier article de la page.</p>
+      <h1>Article 2</h1>
+      <p>Second article de la page.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « 2 h1 » en information, pas de verdict.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Plan qui commence par un h3</h3>
+    <div class="demo">
+      <h3>Alerte météo</h3>
+      <p>Vents forts attendus ce soir.</p>
+      <h2>Actualités</h2>
+      <p>Les nouvelles du quartier.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> premier titre ! « le plan commence au niveau 3, puis descend au niveau 2 ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>role="heading" sans aria-level</h3>
+    <div class="demo">
+      <h1>Recettes</h1>
+      <div role="heading">Desserts</div>
+      <p>Tartes, crèmes et gâteaux.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 9.1.1 « role="heading" sans aria-level (exigé par le test 9.1.1) : niveau 2 par défaut ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-level invalide</h3>
+    <div class="demo">
+      <h1>Recettes</h1>
+      <div role="heading" aria-level="0">Entrées</div>
+      <p>Salades et soupes.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 9.1.1 « aria-level="0" invalide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>aria-level qui remplace la balise</h3>
+    <div class="demo">
+      <h1>Guide</h1>
+      <h2 aria-level="3">Chapitre 1</h2>
+      <p>Les premiers pas.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> niveau 3 « h3* » (aria-level="3", remplace h2), ! saut h1 → h3.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Niveau visuel incohérent</h3>
+    <div class="demo">
+      <h1>Événements</h1>
+      <h2 class="titre-petit">Été 2026</h2>
+      <h3 class="titre-grand">Festival de jazz</h3>
+      <p>Trois soirs de concerts en plein air.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> h3 ! « titre de niveau 3 plus grand que son titre parent de niveau 2 (25.6px contre 16px) ».</p>
+  </div>
+</div>
+
+<h2>9.1.2 Contenu des titres</h2>
+<p>La pertinence reste à juger : la pastille 9.1.2 est toujours « ! », et la ligne est ✓ quand rien d’autre n’est signalé.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Titre vide</h3>
+    <div class="demo">
+      <h1>Accueil</h1>
+      <h2></h2>
+      <p>Paragraphe sous un titre vide.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « (titre vide) », 9.1.2 × « titre vide (aucun nom accessible) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Icône seule</h3>
+    <div class="demo">
+      <h1>Accueil</h1>
+      <h2><span class="icone" aria-hidden="true">★</span></h2>
+      <p>Nos coups de cœur.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « contenu masqué par aria-hidden : titre vide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Image sans alternative</h3>
+    <div class="demo">
+      <h1><img src="img/logo-rgaa.svg" width="40" height="40"></h1>
+      <p>Le titre de la page est une image sans attribut alt.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « titre fait d’une image sans alternative ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Image avec alternative</h3>
+    <div class="demo">
+      <h1><img src="img/logo-rgaa.svg" alt="Référentiel RGAA" width="40" height="40"></h1>
+      <p>Le titre de la page est une image avec une alternative.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Référentiel RGAA » (alt (img)).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titre générique</h3>
+    <div class="demo">
+      <h1>Bibliothèque</h1>
+      <h2>En savoir plus</h2>
+      <p>Informations sur l’inscription.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « titre générique : décrit-il la section ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titre très long</h3>
+    <div class="demo">
+      <h1>Règlement</h1>
+      <h2>Les usagers sont priés de respecter le calme dans les salles de lecture, de ne pas consommer de nourriture à proximité des collections et de rendre les documents empruntés dans les délais prévus.</h2>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « titre très long (… caractères) : paragraphe balisé en titre ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Nom qui remplace le texte affiché</h3>
+    <div class="demo">
+      <h1>Accueil</h1>
+      <h2 aria-label="Section 1">Nos offres</h2>
+      <p>Abonnements et tarifs.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> titre « Section 1 » (aria-label), ! « le nom (aria-label) remplace le texte affiché « Nos offres » ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titres en double</h3>
+    <div class="demo">
+      <h1>Questions fréquentes</h1>
+      <h2>Détails</h2>
+      <p>Comment s’inscrire ?</p>
+      <h2>Détails</h2>
+      <p>Comment prolonger un prêt ?</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> le second h2 ! « même texte que le titre h2 précédent, de même niveau » (et « titre générique »).</p>
+  </div>
+</div>
+
+<h2>9.1.3 Titres probables</h2>
+<p>Les passages qui ressemblent à un titre sont rangés dans l’accordéon « Titres probables », fermé par défaut, sous le plan.
+Le bouton « Titres probables » (<kbd>Maj+P</kbd>) les entoure sur la page.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Paragraphe en gras suivi d’une liste</h3>
+    <div class="demo">
+      <h1>Piscine</h1>
+      <p><strong>Horaires</strong></p>
+      <ul><li>Lundi : 12 h – 14 h</li><li>Mercredi : 10 h – 19 h</li></ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> titre probable « Horaires » (gras), suivi d’une liste, « serait un h2 sous « Piscine » ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Intertitre en grand texte</h3>
+    <div class="demo">
+      <h1>Rapport annuel</h1>
+      <div class="intertitre">Nos résultats</div>
+      <p>Cette année, la fréquentation a augmenté de 12 % et les inscriptions de 8 %.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> titre probable « Nos résultats » (24px), suivi d’un paragraphe.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Gras dans une phrase</h3>
+    <div class="demo">
+      <h1>Inscription</h1>
+      <p>L’inscription est <strong>gratuite</strong> pour les moins de 18 ans.</p>
+      <p>Il suffit de présenter une pièce d’identité à l’accueil.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien dans les titres probables.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Libellé de bouton en gras</h3>
+    <div class="demo">
+      <h1>Newsletter</h1>
+      <p><button type="button"><strong>S’abonner</strong></button></p>
+      <p>Recevez chaque mois le programme des animations de la médiathèque.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien dans les titres probables (texte d’un bouton).</p>
+  </div>
+</div>
+</div>
+</body>
+</html>

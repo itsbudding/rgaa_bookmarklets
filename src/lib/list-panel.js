@@ -30,7 +30,18 @@
  *
  * Un élément peut aussi porter :
  *   els: [el1, el2...]  plusieurs éléments regroupés (chaque clic passe au suivant) ;
- *   prefix: '<span>'    HTML déjà échappé affiché avant le libellé (pastilles...).
+ *   prefix: '<span>'    HTML déjà échappé affiché avant le libellé (pastilles...) ;
+ *   indent: 2           retrait (niveaux), pour une liste arborescente ;
+ *   section: true       ligne de titre non cliquable (label seul), affichée
+ *                       seulement sans filtre ;
+ *   accordion: 'id'     ligne rangée dans la section repliable de même id.
+ *
+ * Sections repliables (optionnel), fermées par défaut, affichées sous la
+ * liste : accordions: [{ id: 'probables', label: 'Titres probables' }].
+ * collect() peut aussi renvoyer count : nombre affiché dans le titre (par
+ * défaut, le nombre de lignes).
+ * Un outil sans pressed() est un simple bouton (pas d'aria-pressed) ;
+ * son label peut être une fonction.
  */
 import { dialog } from './dialog-panel.js';
 import { createHighlighter } from './highlight.js';
@@ -50,6 +61,10 @@ const CSS = `
 .filters{margin:0 0 8px}
 .refresh,.tool,.filter{cursor:pointer;background:none;border:1px solid var(--rgaa-border);border-radius:3px;padding:2px 8px}
 .tool[aria-pressed="true"],.filter[aria-pressed="true"]{background:var(--rgaa-focus);border-color:var(--rgaa-focus);color:#fff}
+.section{padding:8px 0 4px;font-weight:700;border-bottom:1px solid var(--rgaa-sep)}
+.acc{display:flex;align-items:center;gap:6px;width:100%;margin:8px 0 0;padding:6px 0;cursor:pointer;background:none;border:0;border-top:2px solid var(--rgaa-border);font-weight:700;text-align:left}
+.acc::before{content:"▸";display:inline-block;width:1em}
+.acc[aria-expanded="true"]::before{content:"▾"}
 `;
 
 const short = (s) => {
@@ -57,22 +72,55 @@ const short = (s) => {
   return t.length > MAX_LABEL ? `${t.slice(0, MAX_LABEL - 1)}…` : t;
 };
 
-export const createListPanel = ({ id, title, collect, footer = '', tools = [], filters = [], onClose, onLocate }) => {
+export const createListPanel = ({ id, title, collect, footer = '', tools = [], filters = [], accordions = [], onClose, onLocate }) => {
   const dlg = dialog({ id: `${id}-liste`, title, css: CSS, managed: true, focus: false, onClose });
   const hl = createHighlighter();
   let res = { summary: '', items: [] };
   let items = [];
   let filter = 'all';
   let timer;
+  const open = {};
 
   /** Affiche la liste à partir du dernier résultat de collect(). */
   const draw = () => {
     // Garde le focus sur le bouton activé, qui est recréé par le rendu.
     const active = dlg.panel.getRootNode().activeElement;
-    const keep = active && active.dataset && (active.dataset.tool || active.dataset.filter || (active.classList.contains('refresh') && 'refresh'));
+    const keep =
+      active && active.dataset && (active.dataset.tool || active.dataset.filter || active.dataset.acc || (active.classList.contains('refresh') && 'refresh'));
     const allFilters = filters.length ? [{ id: 'all', label: 'Tout' }, ...filters] : [];
-    items = res.items.filter((it) => filter === 'all' || [].concat(it.filter).includes(filter));
-    dlg.setTitle(`${title} : ${res.items.length}`);
+    items = res.items.filter((it) => (it.section ? filter === 'all' : filter === 'all' || [].concat(it.filter).includes(filter)));
+    dlg.setTitle(`${title} : ${res.count ?? res.items.length}`);
+    let n = 0;
+    const line = (it) => {
+      const i = items.indexOf(it);
+      const pad = it.indent ? ` style="padding-left:${it.indent * 14}px"` : '';
+      if (it.section) return `<li class="section"${pad}>${it.prefix || ''}${esc(it.label)}</li>`;
+      return (
+        `<li${pad}><button type="button" class="item" data-idx="${i}">` +
+        `<span class="num" aria-hidden="true">${++n}.</span>${icon(it.status, STATUS_LABEL[it.status])}` +
+        `<span>${it.prefix || ''}${esc(short(it.label))}${it.meta ? ` <span class="meta">${esc(it.meta)}</span>` : ''}</span>` +
+        `</button></li>`
+      );
+    };
+    const main = items.filter((it) => !it.accordion);
+    const mainHtml = main.length
+      ? `<ul class="items">${main.map(line).join('')}</ul>`
+      : '<p class="muted" style="margin:0;font-style:italic">Aucun élément détecté.</p>';
+    const accHtml = accordions
+      .map((a) => {
+        const list = items.filter((it) => it.accordion === a.id);
+        if (!list.length && filter !== 'all') return '';
+        n = 0;
+        const label = typeof a.label === 'function' ? a.label() : a.label;
+        return (
+          `<button type="button" class="acc" data-acc="${esc(a.id)}" aria-expanded="${!!open[a.id]}" aria-controls="acc-${esc(a.id)}">${esc(label)} (${list.length})</button>` +
+          `<div id="acc-${esc(a.id)}"${open[a.id] ? '' : ' hidden'}>` +
+          (a.intro ? `<p class="small muted" style="margin:4px 0">${a.intro}</p>` : '') +
+          (list.length ? `<ul class="items">${list.map(line).join('')}</ul>` : '<p class="muted" style="margin:0;font-style:italic">Aucun élément détecté.</p>') +
+          `</div>`
+        );
+      })
+      .join('');
     dlg.body.innerHTML =
       `<p class="list-summary small">${res.summary}</p>` +
       (allFilters.length
@@ -80,24 +128,19 @@ export const createListPanel = ({ id, title, collect, footer = '', tools = [], f
             .map((f) => `<button type="button" class="filter" data-filter="${esc(f.id)}" aria-pressed="${f.id === filter}">${esc(f.label)}</button>`)
             .join('')}</div>`
         : '') +
-      (items.length
-        ? `<ul class="items">${items
-            .map(
-              (it, i) =>
-                `<li><button type="button" class="item" data-idx="${i}">` +
-                `<span class="num" aria-hidden="true">${i + 1}.</span>${icon(it.status, STATUS_LABEL[it.status])}` +
-                `<span>${it.prefix || ''}${esc(short(it.label))}${it.meta ? ` <span class="meta">${esc(it.meta)}</span>` : ''}</span>` +
-                `</button></li>`,
-            )
-            .join('')}</ul>`
-        : '<p class="muted" style="margin:0;font-style:italic">Aucun élément détecté.</p>') +
+      mainHtml +
+      accHtml +
       `<div class="footer small"><div class="muted">${footer ? `${footer}<br>` : ''}` +
       `${onLocate ? 'Cliquer sur une ligne pour accéder à l’élément et épingler son détail (clic ailleurs ou Échap pour le libérer).' : 'Cliquer sur une ligne pour accéder à l\'élément.'} Survoler un élément de la page pour le détail.</div>` +
       `<div class="tools"><span class="toolset">${tools
-        .map((t, i) => `<button type="button" class="tool" data-tool="${i}" aria-pressed="${!!t.pressed()}">${esc(t.label)}</button>`)
+        .map(
+          (t, i) =>
+            `<button type="button" class="tool" data-tool="${i}"${t.pressed ? ` aria-pressed="${!!t.pressed()}"` : ''}>${esc(typeof t.label === 'function' ? t.label() : t.label)}</button>`,
+        )
         .join('')}</span><button type="button" class="refresh">Actualiser</button></div></div>`;
     if (keep) {
-      const sel = keep === 'refresh' ? '.refresh' : active.dataset.tool ? `[data-tool="${keep}"]` : `[data-filter="${keep}"]`;
+      const sel =
+        keep === 'refresh' ? '.refresh' : active.dataset.tool ? `[data-tool="${keep}"]` : active.dataset.acc ? `[data-acc="${keep}"]` : `[data-filter="${keep}"]`;
       const b = dlg.body.querySelector(sel);
       if (b) b.focus();
     }
@@ -113,6 +156,11 @@ export const createListPanel = ({ id, title, collect, footer = '', tools = [], f
     const tool = e.target.closest('.tool');
     if (tool) {
       tools[tool.dataset.tool].toggle();
+      return draw();
+    }
+    const acc = e.target.closest('.acc');
+    if (acc) {
+      open[acc.dataset.acc] = !open[acc.dataset.acc];
       return draw();
     }
     const f = e.target.closest('.filter');
