@@ -9,10 +9,10 @@ const ENTITIES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ENTITIES[ch]);
 
 const ICONS = {
-  error: { glyph: '×', label: 'Erreur' },
-  warning: { glyph: '!', label: 'Attention' },
+  error: { glyph: '×', label: 'Non conforme' },
+  warning: { glyph: '!', label: 'À vérifier' },
   ok: { glyph: '✓', label: 'Conforme' },
-  hidden: { glyph: '∅', label: 'Masqué' },
+  hidden: { glyph: '∅', label: 'Non concerné' },
 };
 
 /**

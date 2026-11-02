@@ -467,7 +467,7 @@ const PILLS = [
   ['7.3', ['7.3']],
   ['7.5', ['7.5']],
 ];
-const PILL_LABEL = { error: 'erreur', warning: 'à vérifier', ok: 'conforme', hidden: 'non concerné' };
+const PILL_LABEL = { error: 'non conforme', warning: 'à vérifier', ok: 'conforme', hidden: 'non concerné' };
 const GLYPH = { error: '×', warning: '!', ok: '✓', hidden: '∅' };
 
 function pills(e) {

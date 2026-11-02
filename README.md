@@ -57,10 +57,18 @@ bookmarklet sans l'installer.
 
 | Icône | Signification |
 | --- | --- |
-| ✓ vert | Conforme, ou image décorative correctement balisée |
+| ✓ vert | Conforme (par exemple une image décorative correctement balisée) |
 | ! orange | À vérifier par l'auditeur |
-| × rouge | Erreur probable |
-| ∅ gris | Élément masqué, non restitué (non concerné) |
+| × rouge | Non conforme |
+| ∅ gris | Non concerné (élément masqué, non restitué) |
+
+Ces quatre mots sont les mêmes dans tous les bookmarklets, et rappelés en
+légende en bas de chaque liste. Chaque ligne de la liste porte **une pastille
+par critère** (`1.1 ✓`, `1.3 !`…) ; la ligne prend le statut le plus grave.
+Quand le code trouve une alternative, un titre ou une étiquette sans pouvoir
+juger sa pertinence, la pastille est « ! » mais la ligne reste ✓ si rien
+d'autre n'est signalé. Dans le détail, chaque critère a son bloc avec son
+verdict et ses constats.
 
 Chaque valeur est suivie de sa source en italique, par exemple `(alt)`,
 `(aria-label)` ou `(label)`, pour savoir d'où vient le nom accessible.
@@ -71,7 +79,7 @@ pointillé**.
 
 ### Deux panneaux : l'aperçu et le détail
 
-Les bookmarklets 1, 3, 4, 5, 6, 7, 9 et 11 ouvrent deux panneaux :
+Tous les bookmarklets ouvrent deux panneaux :
 
 - **le panneau liste**, en haut à droite : le compteur de la page et la liste
   des éléments concernés, avec un statut et un libellé court. Un clic sur une
@@ -88,9 +96,13 @@ Le panneau de détail affiche le **rôle** de l'élément et sa source :
 
 ### RGAA 1 – Images
 
-La liste donne le compteur (sans alternative, à vérifier, décoratives) et
-chaque image balisée ; les images CSS n'y figurent pas, mais sont détectées
-au survol.
+La liste donne le compteur (non conformes, à vérifier, décoratives) et
+chaque image balisée, avec ses pastilles : **1.1** alternative présente,
+**1.2** image décorative ignorée, **1.3** pertinence de l'alternative (à
+juger), **1.6** description détaillée (si présente) et **1.9** légende (si
+`figcaption`). Filtres : non conformes, à vérifier, décoratives. Les images
+CSS n'y figurent pas, mais sont détectées au survol. Un clic sur une ligne
+épingle le détail à côté de l'image.
 
 Au survol d'une image (`img`, `svg`, `canvas`, `object`, `embed`, `area`,
 `input type="image"`, `role="img"`, image CSS), le panneau affiche :
@@ -113,15 +125,16 @@ une image texte (critère 1.8).
 
 ### RGAA 2 – Cadres
 
-Un panneau en haut à droite liste les `iframe` et `frame` de la page, avec :
+La liste donne les `iframe` et `frame` de la page (en retrait selon
+l'imbrication), avec le compteur (restitués, non conformes, à vérifier, non
+concernés) et deux pastilles : **2.1** titre présent (`title`) et **2.2**
+pertinence du titre (à juger ; constat si titre générique ou identique à un
+autre cadre). Les cadres masqués sont non concernés.
 
-- le compteur : cadres restitués, sans titre, non concernés ;
-- pour chaque cadre, son **titre**, son **domaine** et son niveau d'imbrication ;
-- les cadres masqués, marqués « non concernés » par le critère 2.1 ;
-- les titres génériques ou identiques à un autre cadre (2.2).
-
-Un clic sur une ligne fait défiler jusqu'au cadre et l'entoure 3 secondes.
-Le panneau se déplace à la souris ou au clavier (flèches sur l'en-tête).
+Un clic sur une ligne fait défiler jusqu'au cadre et épingle son détail :
+titre, domaine, `src`, `aria-label` (signalé mais ignoré par le RGAA),
+imbrication. Un cadre masqué est affiché 3 secondes. Le survol d'un cadre de
+même origine affiche aussi le détail.
 
 ### RGAA 3 – Couleurs
 
@@ -546,8 +559,14 @@ Limites :
 
 ### RGAA 11 – Formulaires
 
-La liste donne le compteur (champs, sans étiquette, placeholder seul,
-autocomplete invalide) et chaque champ, groupe et bouton.
+La liste donne le compteur (champs, boutons, groupes, non conformes, à
+vérifier) et chaque champ, groupe et bouton, avec ses pastilles selon sa
+nature : **11.1** étiquette, **11.2** pertinence de l'étiquette, **11.5**
+regroupement des radios et cases, **11.8** `optgroup`, **11.10** champ
+obligatoire, **11.13** `autocomplete` (champs) ; **11.6** légende et **11.7**
+pertinence de la légende (groupes) ; **11.9** intitulé (boutons). Filtres :
+non conformes, à vérifier, champs, boutons, groupes. Un clic sur une ligne
+épingle le détail.
 
 Au survol d'un champ (natif, ARIA ou `contenteditable`), d'un bouton, d'un
 groupe, d'un label ou d'un texte d'aide, le panneau affiche :
@@ -561,7 +580,9 @@ Constats signalés : placeholder utilisé comme seule étiquette (11.1), label
 masqué, `aria-labelledby` vers un id absent, nom accessible qui ne contient
 pas l'intitulé visible (11.2.5, 11.9.2), cases ou boutons radio non groupés
 (11.5), `optgroup` sans label (11.8), indication visuelle d'obligation à
-vérifier (11.10), `autocomplete` absent ou invalide (11.13).
+vérifier (11.10), `autocomplete` invalide (11.13). L'absence
+d'`autocomplete` est notée dans le détail, sans pastille : le code ne sait pas
+si le champ concerne l'utilisateur.
 
 ## Développement
 
@@ -582,6 +603,8 @@ src/
     floating-panel.js   TEMPLATE panneau flottant  → inspector()
     dialog-panel.js     TEMPLATE panneau fixe      → dialog()
     list-panel.js       TEMPLATE panneau liste (aperçu des panneaux flottants)
+    criteria.js         pastilles et blocs de critère communs : pills(), critBlocks(),
+                        fromChecks(), lineStatus()
   bookmarklets/         un fichier par bookmarklet
 demo/                   sources des pages de démo ({{BOOKMARKLET}} remplacé au build)
 dist/                   versions installables générées (ne pas modifier à la main)

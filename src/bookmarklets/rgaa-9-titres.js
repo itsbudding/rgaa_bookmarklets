@@ -250,7 +250,7 @@ const docLabel = (doc) => {
   return t ? `Iframe « ${cut(t, 50)} »` : `Iframe sans titre (${cut(clean(f.getAttribute('src') || 'srcdoc'), 40)})`;
 };
 
-const PILL_LABEL = { error: 'erreur', warning: 'à vérifier', ok: 'conforme', hidden: 'non concerné' };
+const PILL_LABEL = { error: 'non conforme', warning: 'à vérifier', ok: 'conforme', hidden: 'non concerné' };
 const GLYPH = { error: '×', warning: '!', ok: '✓', hidden: '∅' };
 const pill = (k, s) =>
   `<span class="pill pill--${s}"><span aria-hidden="true">${k} ${GLYPH[s]}</span><span class="sr-only">${k} ${PILL_LABEL[s]},</span></span>`;

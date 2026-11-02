@@ -25,6 +25,8 @@
  *     ],                                              // filter: 'texte'
  *   }
  *
+ * beforeLocate(el) (optionnel) : appelé juste avant le défilement (ex. afficher
+ * temporairement un élément masqué).
  * onLocate(el) (optionnel) : appelé après le clic sur une ligne, une fois le
  * défilement lancé (le panneau flottant s'en sert pour épingler le détail).
  *
@@ -39,13 +41,22 @@
  * défaut, le nombre de lignes).
  * Un outil sans pressed() est un simple bouton (pas d'aria-pressed) ;
  * son label peut être une fonction. toolsOnTop: true place les outils et
- * « Actualiser » en haut du panneau, sous le compteur.
+ * « Actualiser » en haut du panneau, sous le compteur. css : styles en plus
+ * (pastilles...). La légende des statuts est affichée en bas de chaque liste.
  */
 import { dialog } from './dialog-panel.js';
 import { createHighlighter } from './highlight.js';
 import { icon, esc } from './dom.js';
 
-const STATUS_LABEL = { error: 'Erreur', warning: 'À vérifier', ok: 'Conforme', hidden: 'Décoratif ou masqué' };
+const STATUS_LABEL = { error: 'Non conforme', warning: 'À vérifier', ok: 'Conforme', hidden: 'Non concerné' };
+
+/** Légende commune à toutes les listes. */
+const LEGEND =
+  '<ul class="legend muted" aria-hidden="true">' +
+  [['ok', 'conforme'], ['warning', 'à vérifier'], ['error', 'non conforme'], ['hidden', 'non concerné']]
+    .map(([t, l]) => `<li>${icon(t)}${l}</li>`)
+    .join('') +
+  '</ul>';
 const MAX_LABEL = 60;
 
 const CSS = `
@@ -62,6 +73,7 @@ const CSS = `
 .refresh,.tool,.filter{cursor:pointer;background:none;border:1px solid var(--rgaa-border);border-radius:3px;padding:2px 8px}
 .tool[aria-pressed="true"],.filter[aria-pressed="true"]{background:var(--rgaa-focus);border-color:var(--rgaa-focus);color:#fff}
 .section{padding:8px 0 4px;font-weight:700;border-bottom:1px solid var(--rgaa-sep)}
+.footer .legend{margin:0 0 6px;gap:4px 10px}
 `;
 
 const short = (s) => {
@@ -69,8 +81,8 @@ const short = (s) => {
   return t.length > MAX_LABEL ? `${t.slice(0, MAX_LABEL - 1)}…` : t;
 };
 
-export const createListPanel = ({ id, title, collect, footer = '', tools = [], filters = [], toolsOnTop = false, onClose, onLocate }) => {
-  const dlg = dialog({ id: `${id}-liste`, title, css: CSS, managed: true, focus: false, onClose });
+export const createListPanel = ({ id, title, collect, footer = '', tools = [], filters = [], toolsOnTop = false, css = '', beforeLocate, onClose, onLocate }) => {
+  const dlg = dialog({ id: `${id}-liste`, title, css: CSS + css, managed: true, focus: false, onClose });
   const hl = createHighlighter();
   let res = { summary: '', items: [] };
   let items = [];
@@ -116,7 +128,7 @@ export const createListPanel = ({ id, title, collect, footer = '', tools = [], f
             .join('')}</div>`
         : '') +
       mainHtml +
-      `<div class="footer small"><div class="muted">${footer ? `${footer}<br>` : ''}` +
+      `<div class="footer small">${LEGEND}<div class="muted">${footer ? `${footer}<br>` : ''}` +
       `${onLocate ? 'Cliquer sur une ligne pour accéder à l’élément et épingler son détail (clic ailleurs ou Échap pour le libérer).' : 'Cliquer sur une ligne pour accéder à l\'élément.'} Survoler un élément de la page pour le détail.</div>` +
       (toolsOnTop ? '' : toolsHtml) +
       '</div>';
@@ -154,6 +166,7 @@ export const createListPanel = ({ id, title, collect, footer = '', tools = [], f
     const el = els[(it.cursor = ((it.cursor ?? -1) + 1) % els.length)];
     if (!el || !el.isConnected) return render();
     clearTimeout(timer);
+    if (beforeLocate) beforeLocate(el);
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     // Focus si l'élément est focalisable : le panneau flottant s'ouvre à côté.
     if (el.tabIndex >= 0 && typeof el.focus === 'function') el.focus({ preventScroll: true });

@@ -1,17 +1,23 @@
 /**
- * RGAA 1 – Images : au survol (ou au focus), affiche pour l'image :
- *  - son statut (porteuse d'information ou décorative) et son nom accessible ;
- *  - le fichier source, pour juger la pertinence de l'alternative (1.3) ;
- *  - la description détaillée (1.6) et la légende (1.9) ;
- *  - l'éventuelle image CSS et, dans un lien, le nom accessible du lien ;
- *  - les constats : SVG sans role="img", alt suspect, longdesc obsolète...
- * En tête : le compteur des images de la page.
- * Bouton « Estomper les images » ou Maj+I : estompe toutes les images pour
+ * RGAA 1 – Images : liste des images de la page, une pastille par critère :
+ *  - 1.1 alternative présente (×), svg sans role="img" (!) ;
+ *  - 1.2 image décorative correctement ignorée, sans aria-label ni title (×) ;
+ *  - 1.3 pertinence de l'alternative : toujours à juger (!), constats si nom
+ *    de fichier, alternative générique ou longue ;
+ *  - 1.6 description détaillée (si présente) : pertinence à juger (1.7) ;
+ *  - 1.9 légende (si figcaption) : figure, role et aria-label attendus.
+ * Détail au survol (ou au focus), épinglé au clic sur une ligne : nom
+ * accessible, fichier, description, légende, image CSS, lien parent.
+ * Outil « Estomper les images » ou Maj+I : estompe toutes les images pour
  * repérer les images texte (1.8).
  */
 import { inspector } from '../lib/floating-panel.js';
-import { row, value, src, esc, flag, checks, icon, roleValue } from '../lib/dom.js';
-import { idrefs, textOf, norm, deepAll, isOwn, ariaHiddenAncestor, presentational, allDocuments, roleInfo } from '../lib/a11y.js';
+import { row, value, src, esc, flag, icon, roleValue } from '../lib/dom.js';
+import { idrefs, textOf, norm, deepAll, isOwn, ariaHiddenAncestor, presentational, allDocuments, roleInfo, isNotExposed } from '../lib/a11y.js';
+import { pills, critBlocks, lineStatus, fromChecks, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
+
+const ID = 'rgaa-1-images';
+const CRIT = ['1.1', '1.2', '1.3', '1.6', '1.9'];
 
 const IMG = 'img,area,input[type="image"],svg,object[type^="image/"],embed[type^="image/"],canvas,[role="img"]';
 const GENERIC = ['image', 'img', 'photo', 'picture', 'icone', 'icon', 'logo', 'visuel', 'illustration', 'graphique', 'spacer', 'blank'];
@@ -176,39 +182,134 @@ const setDim = (on) => {
   });
 };
 
-/** Statut d'une image pour la liste et le compteur. */
-const status = (e) => {
-  if (decorative(e)) return { status: 'hidden', label: 'Décorative' };
-  const n = imgName(e, false);
-  if (!n) return { status: 'error', label: 'Sans alternative' };
-  const label = n.v.map((x) => (typeof x === 'object' ? x.t : x)).join(' ');
-  if ((tagOf(e) === 'svg' && e.getAttribute('role') !== 'img') || (n.s === 'alt' && suspiciousAlt(n.v[0], fileOf(e))))
-    return { status: 'warning', label };
-  return { status: 'ok', label };
+const plural = (n, s, p = `${s}s`) => `${n} ${n > 1 ? p : s}`;
+const nameText = (n) => (n ? n.v.map((x) => (typeof x === 'object' ? x.t : x)).join(' ') : '');
+
+/**
+ * Analyse d'une image : critères et informations du détail.
+ * css : image CSS trouvée sur l'élément (détail au survol seulement).
+ */
+const analyse = (t, css = null) => {
+  const tag = tagOf(t);
+  const e = { el: t, css, tag };
+  const nx = tag === 'area' ? null : isNotExposed(t);
+  // aria-hidden : image décorative (1.2) ; display:none… : non concernée.
+  e.hidden = nx && nx !== 'aria-hidden' ? nx : null;
+  e.deco = e.hidden ? null : decorative(t);
+  e.name = imgName(t, !!css);
+  e.file = fileOf(t);
+  e.crit = {};
+  if (e.hidden) {
+    e.status = 'hidden';
+    return e;
+  }
+  e.desc = description(t);
+  e.cap = caption(t);
+  const c = e.crit;
+  if (e.deco) {
+    const named = namingAttrs(t);
+    c['1.2'] = fromChecks(named.length ? [['error', `Image décorative avec ${named.join(', ')} : à retirer`]] : [], {
+      ok: `Décorative, ignorée par les lecteurs d’écran (${e.deco})`,
+    });
+  } else {
+    const x = [];
+    if (!e.name) {
+      if (css) x.push(['warning', 'Image CSS sans alternative : vérifier qu’elle est décorative']);
+      else if (tag === 'embed') x.push(['error', 'embed sans alternative : ajouter aria-label ou un texte adjacent (1.1.7)']);
+      else x.push(['error', 'Aucune alternative']);
+    }
+    if (tag === 'svg' && t.getAttribute('role') !== 'img') x.push(['warning', 'svg porteur d’information sans role="img" (1.1.5)']);
+    const lb = idrefs(t, 'aria-labelledby');
+    if (lb && lb.missing.length) x.push(['error', `aria-labelledby : id introuvable (${lb.missing.join(', ')})`]);
+    c['1.1'] = fromChecks(x, { ok: 'Alternative présente' });
+    if (e.name) {
+      const sus = e.name.s === 'alt' && suspiciousAlt(e.name.v[0], e.file);
+      c['1.3'] = fromChecks(sus ? [['warning', sus]] : [], { judge: 'Pertinence de l’alternative à juger' });
+    }
+    const d = idrefs(t, 'aria-describedby');
+    const dx = [];
+    if (e.desc.warn) dx.push(['warning', e.desc.warn]);
+    if (d && d.missing.length) dx.push(['error', `aria-describedby : id introuvable (${d.missing.join(', ')})`]);
+    if (e.desc.r || dx.length) c['1.6'] = fromChecks(dx, { judge: 'Description détaillée présente : pertinence à juger (1.7)' });
+  }
+  if (e.cap.r) c['1.9'] = fromChecks(e.cap.warns, { ok: 'Légende correctement associée' });
+  e.status = lineStatus(c);
+  return e;
 };
 
-/** Panneau liste : compteur de page et images balisées. */
+/* ---- Panneau liste ---- */
+
 const collect = () => {
   const imgs = deepAll(IMG).filter((e) => !isOwn(e) && !(tagOf(e) !== 'svg' && e.closest('svg')));
-  const items = imgs.map((el) => ({ el, meta: tagOf(el), ...status(el) }));
-  const n = (st) => items.filter((i) => i.status === st).length;
-  const missing = n('error');
-  const toCheck = n('warning');
-  const deco = n('hidden');
+  const all = imgs.map((el) => analyse(el));
+  const items = all.map((e) => ({
+    el: e.el,
+    status: e.status,
+    label: e.hidden ? nameText(e.name) || 'Image masquée' : e.deco ? 'Décorative' : nameText(e.name) || 'Sans alternative',
+    meta: [e.tag, e.hidden ? `masquée : ${e.hidden}` : ''].filter(Boolean).join(' · '),
+    prefix: e.hidden ? '' : pills(e.crit, CRIT),
+    filter: [
+      ...(e.status === 'error' ? ['erreurs'] : []),
+      ...(['error', 'warning'].includes(e.status) ? ['verifier'] : []),
+      ...(e.deco ? ['deco'] : []),
+    ],
+  }));
+  const n = (st) => all.filter((e) => e.status === st).length;
+  const err = n('error');
+  const warn = n('warning');
+  const deco = all.filter((e) => e.deco).length;
+  const hidden = n('hidden');
   return {
     items,
     summary:
-      `${missing ? icon('error') + ' ' : ''}${missing} sans alternative · ` +
-      `${toCheck ? icon('warning') + ' ' : ''}${toCheck} à vérifier · ${deco} décorative${deco > 1 ? 's' : ''}`,
+      `${plural(all.length, 'image')} · ${err ? icon('error') + ' ' : ''}${err} non conforme${err > 1 ? 's' : ''} · ` +
+      `${warn ? icon('warning') + ' ' : ''}${warn} à vérifier · ${plural(deco, 'décorative')}` +
+      (hidden ? ` · ${plural(hidden, 'masquée')}` : ''),
   };
 };
 
+/* ---- Détail ---- */
+
+const detail = (e) => {
+  const t = e.el;
+  if (e.hidden) {
+    return (
+      row('Élément', `&lt;${esc(e.tag)}&gt;`) +
+      (e.file ? row('Fichier', `<span class="muted">${esc(e.file)}</span>`) : '') +
+      `<p class="note">${flag('hidden', `Masquée (${e.hidden}) : non restituée, non concernée`)}</p>`
+    );
+  }
+  let html = row('Statut', e.deco ? `Décorative ${src(e.deco)}` : 'Porteuse d’information');
+  if (!e.deco) html += row('Nom accessible', e.css && !e.name ? '<span class="muted">aucun</span>' : value(e.name));
+  if (!e.css || t.matches(IMG)) html += row('Rôle', roleValue(roleInfo(t)));
+  if (e.file) html += row('Fichier', `<span class="muted">${esc(e.file)}</span>`);
+  if (!e.deco) html += row('Description', e.desc.r ? value(e.desc.r) : '<span class="muted">aucune</span>');
+  if (e.cap.r) html += row('Légende', value(e.cap.r));
+  if (e.css) html += row('Image CSS', `Oui ${src(e.css.prop)}`);
+  const link = t.closest('a[href],[role="link"]');
+  html += row('Image dans un lien', link ? 'Oui' : 'Non');
+  if (link) html += row('Nom accessible du lien', value(linkName(link)));
+  html += critBlocks(e.crit, CRIT);
+  return html;
+};
+
 inspector({
-  id: 'rgaa-1-images',
+  id: ID,
+  css: CRIT_CSS,
+  pinOnLocate: true,
   list: {
     title: 'Images',
     collect,
-    footer: 'Bouton « Estomper les images » ou Maj+I : estomper / rétablir les images (1.8). Les images CSS ne sont pas listées.',
+    css: PILL_CSS,
+    toolsOnTop: true,
+    filters: [
+      { id: 'erreurs', label: 'Non conformes' },
+      { id: 'verifier', label: 'À vérifier' },
+      { id: 'deco', label: 'Décoratives' },
+    ],
+    footer:
+      'La pertinence d’une alternative reste à juger (pastille 1.3 « ! ») : la ligne reste ✓ si rien d’autre n’est signalé. ' +
+      'Estomper les images ou Maj+I : repérer les images texte (1.8). Les images CSS ne sont pas listées.',
     tools: [{ label: 'Estomper les images', pressed: () => dimmed, toggle: () => setDim(!dimmed) }],
   },
   onKey(e) {
@@ -231,46 +332,9 @@ inspector({
       }
     } else css = cssImage(t);
     if (!t) return null;
-
-    const deco = decorative(t);
-    const name = imgName(t, !!css);
-    const file = fileOf(t);
-    const desc = description(t);
-    const cap = caption(t);
-    const link = t.closest('a[href],[role="link"]');
-    const found = [];
-
-    let html = '';
-    if (deco) {
-      html += row('Statut', `${flag('ok', 'Décorative')} ${src(deco)}`);
-      const named = namingAttrs(t);
-      if (named.length) found.push(['error', `Image décorative avec ${named.join(', ')} : à retirer (1.2)`]);
-    } else {
-      html += row('Nom accessible', css && !name ? flag('warning', 'Aucun : vérifier que l’image CSS est décorative') : value(name));
-    }
-    if (!css || t.matches(IMG)) html += row('Rôle', roleValue(roleInfo(t)));
-    if (file) html += row('Fichier', `<span class="muted">${esc(file)}</span>`);
-    if (!deco) {
-      html += row('Description', desc.r ? value(desc.r) : '<span class="muted">aucune</span>');
-      if (desc.warn) found.push(['warning', desc.warn]);
-    }
-    if (cap.r) html += row('Légende', value(cap.r));
-    found.push(...cap.warns);
-    if (css) html += row('Image CSS', `Oui ${src(css.prop)}`);
-    html += row('Image dans un lien', link ? 'Oui' : 'Non');
-    if (link) html += row('Nom accessible du lien', value(linkName(link)));
-
-    if (!deco && tagOf(t) === 'svg' && t.getAttribute('role') !== 'img')
-      found.push(['warning', 'svg porteur d’information sans role="img" (1.1.5)']);
-    if (!deco && name && name.s === 'alt') {
-      const sus = suspiciousAlt(name.v[0], file);
-      if (sus) found.push(['warning', `${sus} (1.3)`]);
-    }
-    if (!deco && tagOf(t) === 'embed' && !name) found.push(['error', 'embed sans alternative : ajouter aria-label ou un texte adjacent (1.1.7)']);
-    const lb = idrefs(t, 'aria-labelledby');
-    if (lb && lb.missing.length) found.push(['error', `aria-labelledby : id introuvable (${lb.missing.join(', ')})`]);
-
-    html += checks(found);
-    return { html, highlight: [[t, 'primary'], ...(desc.r && desc.r.els ? desc.r.els.map((d) => [d, 'secondary']) : [])] };
+    const e = analyse(t, css);
+    const hl = [[t, 'primary']];
+    if (e.desc && e.desc.r && e.desc.r.els) e.desc.r.els.forEach((d) => hl.push([d, 'secondary']));
+    return { html: detail(e), highlight: hl };
   },
 });
