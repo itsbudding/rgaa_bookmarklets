@@ -596,6 +596,7 @@ const ui = inspector({
   pinOnLocate: true,
   list: {
     title: 'Titres',
+    toolsOnTop: true,
     collect() {
       const r = collect();
       // Après « Actualiser », les outils affichés suivent la nouvelle liste.
@@ -613,7 +614,7 @@ const ui = inspector({
     footer:
       'Plan dans l’ordre du document, en retrait selon le niveau (h3* : niveau donné par role="heading" ou aria-level). ' +
       'Les sauts de niveau et l’absence de h1 n’invalident pas le critère. ' +
-      'Plan sur la page (Maj+H) : niveau de chaque titre affiché, suivi en direct (menus ouverts…).',
+      'Plan sur la page (affiché au lancement, Maj+H pour le masquer ou l’afficher) : niveau de chaque titre, suivi en direct (menus ouverts…).',
   },
   onKey(e) {
     if (!keyOk(e)) return false;
@@ -643,4 +644,9 @@ if (ui && listHost && listHost.shadowRoot) {
   const st = document.createElement('style');
   st.textContent = LIST_CSS;
   listHost.shadowRoot.appendChild(st);
+}
+// Le plan sur la page est affiché dès le lancement.
+if (ui) {
+  setPlan(true);
+  ui.redraw();
 }

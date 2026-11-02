@@ -520,9 +520,10 @@ en orange), contenu de la section jusqu'au titre suivant (sous-titres,
 paragraphes, listes, tableaux), taille de police comparée au titre parent,
 visibilité.
 
-**Outils** (boutons du panneau liste, ou raccourcis) :
+**Outils** (boutons en haut du panneau liste, ou raccourcis) :
 
-- **Plan sur la page** (Maj+H) : entoure chaque titre et affiche son niveau
+- **Plan sur la page** (affiché dès le lancement, Maj+H pour le masquer
+  ou l'afficher) : entoure chaque titre et affiche son niveau
   et son texte au-dessus, avec une couleur par niveau (toujours la même).
   Un point à vérifier est précédé de « ! », une erreur de « × ». Les titres
   cachés visuellement portent « h2 caché ». Un titre recouvert par un autre
