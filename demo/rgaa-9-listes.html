@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 9 – Listes</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<style id="styles-cas">
+  .sans-puce { list-style: none; padding-left: 0; }
+  .puce-css::before { content: "•"; margin-right: .4em; }
+  .carte { display: inline-block; border: 1px solid #999; padding: .2rem .4rem; margin: .1rem; }
+  .barre a { margin-right: .6rem; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-3-couleurs.html">Couleurs</a> <a href="rgaa-4-multimedia.html">Multimédia</a> <a href="rgaa-5-tableaux.html">Tableaux</a> <a href="rgaa-6-liens.html">Liens</a> <a href="rgaa-7-composants.html">Composants ARIA</a> <a href="rgaa-9-titres.html">Titres</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 9 – Listes</h1>
+<div class="intro">
+  <p>Cette page rassemble des listes conformes et non conformes au
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#9.3">critère 9.3 du RGAA</a>.
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 9 – Listes</a>
+  (ou utilisez votre favori). La liste montre chaque liste de la page, les sous-listes en retrait,
+  avec une pastille par test (9.3.1 non ordonnée, 9.3.2 ordonnée, 9.3.3 description).
+  Les listes sont entourées sur la page (<kbd>Maj+U</kbd> pour masquer ou afficher le calque).
+  Cliquez sur une ligne de la liste pour épingler le détail. <kbd>Échap</kbd> libère le détail, puis ferme les panneaux.</p>
+</div>
+
+<h2>Inventaire</h2>
+<p>Le bookmarklet liste les <code>ul</code>, <code>ol</code>, <code>menu</code>, <code>dl</code> et les éléments <code>role="list"</code>.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Liste non ordonnée</h3>
+    <div class="demo">
+      <ul>
+        <li>Pain</li>
+        <li>Fromage</li>
+        <li>Raisin</li>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « ul · 3 éléments », 9.3.1 ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Liste ordonnée</h3>
+    <div class="demo">
+      <ol start="3">
+        <li>Remplir le formulaire</li>
+        <li>Joindre un justificatif</li>
+        <li>Envoyer la demande</li>
+      </ol>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « ol », 9.3.2 ✓, détail « liste ordonnée, start="3" » ; numéros 3, 4, 5 sur la page.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Listes imbriquées dans une nav</h3>
+    <div class="demo">
+      <nav aria-label="Menu principal">
+        <ul>
+          <li><a href="#">Accueil</a></li>
+          <li><a href="#">Nos offres</a>
+            <ul>
+              <li><a href="#">Particuliers</a></li>
+              <li><a href="#">Entreprises</a></li>
+            </ul>
+          </li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ ul « navigation « Menu principal » », et la sous-liste en retrait dessous ; détail « Sous-liste de l’élément « Nos offres » ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Liste ARIA</h3>
+    <div class="demo">
+      <div role="list">
+        <div role="listitem">Lundi</div>
+        <div role="listitem">Mardi</div>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « list* », pastilles 9.3.1 ✓ et 9.3.2 ✓ (une liste ARIA vaut pour les deux).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Liste dans un Shadow DOM</h3>
+    <div class="demo"><div id="hote-shadow"></div></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « ul » « Rouge, Vert… », dans l’ordre du document.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Liste masquée</h3>
+    <div class="demo">
+      <ul style="display:none">
+        <li>Menu mobile 1</li>
+        <li>Menu mobile 2</li>
+      </ul>
+      <p>(Une <code>ul</code> en <code>display:none</code>.)</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste « masquée : display:none ». « Afficher cette liste » (détail épinglé) ou « Afficher les listes cachées » l’affiche et l’ajoute à l’inventaire.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Liste vide</h3>
+    <div class="demo">
+      <ul></ul>
+      <p>(Une <code>ul</code> sans élément.)</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste « liste vide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Composant menu</h3>
+    <div class="demo">
+      <ul role="menubar" aria-label="Édition">
+        <li role="none"><a role="menuitem" href="#">Copier</a></li>
+        <li role="none"><a role="menuitem" href="#">Coller</a></li>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ gris « rôle remplacé (role="menubar") : composant, voir RGAA 7 ».</p>
+  </div>
+</div>
+
+<h2>9.3.1 Listes non ordonnées</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>div dans une ul</h3>
+    <div class="demo">
+      <ul>
+        <li>Accueil</li>
+        <div>Actualités</div>
+        <li>Contact</li>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 9.3.1 « Enfant &lt;div&gt; : non restitué comme élément de liste », la div entourée en orange.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Liste imbriquée hors d’un li</h3>
+    <div class="demo">
+      <ul>
+        <li>Fruits</li>
+        <ul>
+          <li>Pomme</li>
+          <li>Poire</li>
+        </ul>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « Liste imbriquée directement dans la liste, hors d’un élément de liste » ; la sous-liste elle-même est ✓, en retrait.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>li hors liste</h3>
+    <div class="demo">
+      <div>
+        <li>Livraison</li>
+        <li>Retours</li>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « li hors liste », une seule ligne pour les 2 li : « 2 li hors de ul, ol ou menu ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>role="list" sans listitem</h3>
+    <div class="demo">
+      <div role="list">
+        <div role="listitem">Rouge</div>
+        <div>Bleu</div>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « Enfant &lt;div&gt; sans role="listitem" ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>listitem hors liste</h3>
+    <div class="demo">
+      <div role="listitem">Élément seul</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « Élément role="listitem" hors d’un role="list" ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Rôle de liste retiré</h3>
+    <div class="demo">
+      <ul role="presentation">
+        <li>Paris</li>
+        <li>Lyon</li>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Rôle de liste retiré (role="presentation") : non conforme si ces éléments sont présentés comme une liste ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>li retiré de la liste</h3>
+    <div class="demo">
+      <ul>
+        <li>Thé</li>
+        <li role="presentation">Café</li>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « Élément retiré de la liste (li role="presentation") ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Liste sans puce</h3>
+    <div class="demo">
+      <ul class="sans-puce">
+        <li>Facebook</li>
+        <li>Mastodon</li>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ ; le détail indique « Marqueur : none » et rappelle que Safari peut ne pas annoncer la liste (pas une non-conformité).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Liste d’un seul élément</h3>
+    <div class="demo">
+      <ul>
+        <li>Seul élément</li>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Un seul élément : est-ce vraiment une liste ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Puces écrites dans des paragraphes</h3>
+    <div class="demo">
+      <p>• Livraison offerte</p>
+      <p>• Retour gratuit</p>
+      <p>• Paiement en trois fois</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> section « Hors liste » : ! « 3 lignes à puces hors liste : liste non ordonnée (ul) attendue ? » (9.3.1), entourées en violet pointillé.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Tirets séparés par des br</h3>
+    <div class="demo">
+      <p>Pièces à fournir :<br>– une pièce d’identité<br>– un justificatif de domicile</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « 2 lignes à puces hors liste (séparées par &lt;br&gt;) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Puces en CSS sur des div</h3>
+    <div class="demo">
+      <div class="puce-css">Wi-Fi gratuit</div>
+      <div class="puce-css">Parking</div>
+      <div class="puce-css">Petit-déjeuner</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « 3 lignes à puces hors liste », marqueur « puce CSS ::before « • » ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Menu de navigation en div</h3>
+    <div class="demo">
+      <nav aria-label="Pied de page" class="barre">
+        <a href="#">Mentions légales</a>
+        <a href="#">Accessibilité</a>
+        <a href="#">Plan du site</a>
+      </nav>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> section « Hors liste » : ! « 3 liens de navigation hors liste : menu à structurer en liste (ul) ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Liste ARIA chargée par morceaux</h3>
+    <div class="demo">
+      <div role="list">
+        <div role="listitem" aria-setsize="50" aria-posinset="1">Résultat 1</div>
+        <div role="listitem" aria-setsize="50" aria-posinset="2">Résultat 2</div>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓, détail « aria-setsize="50" (2 présents dans la page) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>aria-posinset invalide</h3>
+    <div class="demo">
+      <div role="list">
+        <div role="listitem" aria-setsize="3" aria-posinset="0">Premier</div>
+        <div role="listitem" aria-setsize="3" aria-posinset="2">Deuxième</div>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « aria-posinset="0" invalide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Cartes sans liste</h3>
+    <div class="demo">
+      <span class="carte">Offre A</span><span class="carte">Offre B</span><span class="carte">Offre C</span>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien de signalé (aucun marqueur écrit) : à repérer à l’œil, le calque n’entoure rien ici.</p>
+  </div>
+</div>
+
+<h2>9.3.2 Listes ordonnées</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>ul numérotée dans le texte</h3>
+    <div class="demo">
+      <ul>
+        <li>1. Créer un compte</li>
+        <li>2. Confirmer l’adresse</li>
+        <li>3. Choisir un mot de passe</li>
+      </ul>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 9.3.1 ✓ et 9.3.2 ! « Éléments numérotés dans le texte : liste ordonnée (ol) attendue ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Étapes numérotées hors liste</h3>
+    <div class="demo">
+      <p>1) Préchauffer le four</p>
+      <p>2) Mélanger la farine et le beurre</p>
+      <p>3) Enfourner 20 minutes</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> section « Hors liste » : ! « 3 lignes numérotées hors liste : liste ordonnée (ol) attendue ? » (9.3.2).</p>
+  </div>
+</div>
+
+<h2>9.3.3 Listes de description</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>dl correcte</h3>
+    <div class="demo">
+      <dl>
+        <dt>Horaires</dt>
+        <dd>9 h – 18 h</dd>
+        <dt>Adresse</dt>
+        <dd>2 rue de la Paix</dd>
+      </dl>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « dl · 2 termes / 2 descriptions », 9.3.3 ✓.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>dl avec div de groupe</h3>
+    <div class="demo">
+      <dl>
+        <div><dt>Prix</dt><dd>12 €</dd></div>
+        <div><dt>Poids</dt><dd>300 g</dd></div>
+      </dl>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ (un div qui regroupe dt et dd est permis).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>dt sans dd</h3>
+    <div class="demo">
+      <dl>
+        <dt>Auteur</dt>
+        <dd>Victor Hugo</dd>
+        <dt>Éditeur</dt>
+      </dl>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « Terme (dt) sans description (dd) après lui ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>dd en premier</h3>
+    <div class="demo">
+      <dl>
+        <dd>Description orpheline</dd>
+        <dt>Terme</dt>
+        <dd>Sa description</dd>
+      </dl>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « Description (dd) sans terme (dt) avant elle ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>p dans une dl</h3>
+    <div class="demo">
+      <dl>
+        <dt>Format</dt>
+        <dd>Poche</dd>
+        <p>Note : stock limité.</p>
+      </dl>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « Enfant &lt;p&gt; interdit dans une liste de description ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>dt et dd hors dl</h3>
+    <div class="demo">
+      <div>
+        <dt>Couleur</dt>
+        <dd>Bleu</dd>
+      </div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « 2 dt/dd hors d’une dl ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>dl avec role="list"</h3>
+    <div class="demo">
+      <dl role="list">
+        <dt>Terme</dt>
+        <dd>Description</dd>
+      </dl>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « role="list" remplace la liste de description ».</p>
+  </div>
+</div>
+
+<h2>Non signalé</h2>
+<p>Ces passages ne doivent pas être signalés : ils vérifient l’absence de faux positif.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Tiret dans une phrase</h3>
+    <div class="demo">
+      <p>Ouvert du lundi au vendredi - sauf jours fériés.</p>
+      <p>- Une seule ligne qui commence par un tiret.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien (une seule ligne à tiret).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Dates et nombres</h3>
+    <div class="demo">
+      <p>1. janvier : fermeture annuelle.</p>
+      <p>5. Ce numéro ne suit pas le précédent.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien (la numérotation ne se suit pas).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Code avec des tirets</h3>
+    <div class="demo">
+      <pre>- item: a
+- item: b</pre>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien (contenu de <code>pre</code>).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Mots séparés par des virgules</h3>
+    <div class="demo">
+      <p>Ingrédients : farine, sucre, œufs, beurre.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien (le glossaire RGAA cite ce cas : pas de structure de liste exigée).</p>
+  </div>
+</div>
+
+<h2>Calque et listes cachées</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Sous-menu déroulant</h3>
+    <div class="demo">
+      <nav aria-label="Rubriques">
+        <ul>
+          <li><button type="button" aria-expanded="false" id="ouvrir">Services</button>
+            <ul id="sous-menu" hidden>
+              <li><a href="#">Prêt</a></li>
+              <li><a href="#">Réservation</a></li>
+            </ul>
+          </li>
+          <li><a href="#">Agenda</a></li>
+        </ul>
+      </nav>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> sous-menu fermé, ∅ « masquée : display:none ». Ouvrir le sous-menu : la sous-liste passe dans l’inventaire, en retrait, et elle est entourée sur la page.</p>
+  </div>
+</div>
+</div>
+<script>
+  document.getElementById('hote-shadow').attachShadow({ mode: 'open' }).innerHTML = '<ul><li>Rouge</li><li>Vert</li></ul>';
+  const ouvrir = document.getElementById('ouvrir');
+  ouvrir.onclick = () => {
+    const m = document.getElementById('sous-menu');
+    m.hidden = !m.hidden;
+    ouvrir.setAttribute('aria-expanded', String(!m.hidden));
+  };
+</script>
+</body>
+</html>
