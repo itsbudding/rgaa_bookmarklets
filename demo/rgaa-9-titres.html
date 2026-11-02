@@ -78,7 +78,7 @@
       <h2 style="display:none">Menu mobile</h2>
       <p>(Le h2 « Menu mobile » est en <code>display:none</code>.)</p>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste, « masqué : display:none », hors du plan.</p>
+    <p class="attendu"><strong>Attendu :</strong> ∅ en fin de liste, « masqué : display:none », hors du plan. « Afficher ce titre » (détail épinglé) ou « Afficher les titres cachés » (liste) l’affiche et l’ajoute au plan.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Titre caché visuellement</h3>
@@ -244,6 +244,16 @@
       <p>Abonnements et tarifs.</p>
     </div>
     <p class="attendu"><strong>Attendu :</strong> titre « Section 1 » (aria-label), ! « le nom (aria-label) remplace le texte affiché « Nos offres » ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titre qui n’introduit aucun contenu</h3>
+    <div class="demo">
+      <h1>Actualités</h1>
+      <h2>Suivez-nous</h2>
+      <h2>Agenda</h2>
+      <p>Lecture de contes mercredi à 15 h.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> « Suivez-nous » ! « n’introduit aucun contenu avant le titre suivant : est-ce vraiment un titre ? ». « Actualités », suivi de sous-titres, n’est pas signalé.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>Titres en double</h3>

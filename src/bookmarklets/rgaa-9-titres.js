@@ -75,21 +75,34 @@ const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT', 'SVG', 'sv
  * Parcourt un document (et ses Shadow DOM ouverts, mais pas ses iframes) dans
  * l'ordre : renvoie les titres et, pour chaque titre, le contenu de sa section (jusqu'au titre suivant).
  */
+/** Éléments ignorés par le parcours mais qui sont du contenu de section. */
+const MEDIA_TAGS = new Set(['SVG', 'svg', 'IFRAME', 'FRAME', 'OBJECT', 'SELECT', 'TEXTAREA']);
+
 const walkDoc = (doc) => {
   const heads = [];
   let cur = null;
   const visit = (root) => {
-    for (let c = root.firstElementChild; c; c = c.nextElementSibling) {
-      if (c.matches(OWN) || SKIP_TAGS.has(c.tagName)) continue;
+    for (let c = root.firstChild; c; c = c.nextSibling) {
+      // Texte de la section (masqué compris : un panneau replié reste du contenu).
+      if (c.nodeType === 3) {
+        if (cur) cur.sec.text += c.textContent.trim().length;
+        continue;
+      }
+      if (c.nodeType !== 1 || c.matches(OWN)) continue;
+      if (SKIP_TAGS.has(c.tagName)) {
+        if (cur && MEDIA_TAGS.has(c.tagName)) cur.sec.other++;
+        continue;
+      }
       const role = roleOf(c);
       const isHx = HX.test(c.tagName);
       if (role === 'heading' || isHx) {
-        const h = { el: c, isHx, role, sec: { p: 0, list: 0, table: 0, img: 0, other: 0 }, order: heads.length };
+        const h = { el: c, isHx, role, sec: { p: 0, list: 0, table: 0, img: 0, other: 0, text: 0 }, order: heads.length };
         heads.push(h);
         // Le contenu d'un titre ne fait pas partie de sa section.
         if (c.shadowRoot) visit(c.shadowRoot);
         // Un h2 role="presentation" n'est plus un titre : sa section reste celle du titre précédent.
         if (!(isHx && role && role !== 'heading')) cur = h;
+        else if (cur) cur.sec.text += c.textContent.trim().length;
         continue;
       }
       if (cur) {
@@ -98,7 +111,7 @@ const walkDoc = (doc) => {
         else if (t === 'UL' || t === 'OL' || t === 'DL') cur.sec.list++;
         else if (t === 'TABLE') cur.sec.table++;
         else if (t === 'IMG' || t === 'PICTURE' || t === 'VIDEO' || t === 'FIGURE') cur.sec.img++;
-        else if (t === 'FORM' || t === 'FIELDSET') cur.sec.other++;
+        else if (t === 'FORM' || t === 'FIELDSET' || t === 'INPUT' || t === 'BUTTON' || t === 'CANVAS' || t === 'AUDIO') cur.sec.other++;
       }
       if (c.shadowRoot) visit(c.shadowRoot);
       visit(c);
@@ -164,6 +177,7 @@ const contentCheck = (h) => {
   if (h.visible && norm(h.visible) && ['aria-labelledby', 'aria-label'].includes(n.s) && norm(h.visible) !== norm(h.name)) {
     x.push(['warning', `Le nom (${n.s}) remplace le texte affiché « ${cut(h.visible, 60)} »`]);
   }
+  if (h.empty) x.push(['warning', 'N’introduit aucun contenu avant le titre suivant : est-ce vraiment un titre ?']);
   if (h.dup) x.push(['warning', `Même texte que le titre ${h.dup.tag} précédent, de même niveau (titre en double)`]);
   const status = worst(['warning', ...x.map((a) => a[0])]);
   return { status, text: x.length ? 'À vérifier' : 'Pertinence à juger', extra: x, base: !x.length };
@@ -220,6 +234,9 @@ const analyseDoc = (doc, label) => {
     h.prev = plan[i - 1] || null;
     h.children = 0;
     if (h.parent) h.parent.children++;
+    // Titre sans texte, image, liste ni sous-titre avant le titre suivant.
+    const next = plan[i + 1];
+    h.empty = !(next && next.level > h.level) && !Object.values(h.sec).some(Boolean);
     const x = [...h.lv.issues];
     if (i === 0 && h.level > min) x.push(['warning', `Le plan commence au niveau ${h.level}, puis descend au niveau ${min} : cohérence à vérifier`]);
     if (h.prev && h.level > h.prev.level + 1) {
@@ -278,7 +295,9 @@ const collect = () => {
         indent: h.indent,
         prefix: lvlTag(h) + pills(h),
         label: h.name || '(titre vide)',
-        meta: [h.jump ? `saut ${h.jump}` : '', h.sr ? 'caché visuellement' : ''].filter(Boolean).join(' · '),
+        meta: [h.jump ? `saut ${h.jump}` : '', h.sr ? 'caché visuellement' : '', revealed.has(h.el) ? `affiché par le bookmarklet (${revealed.get(h.el)})` : '']
+          .filter(Boolean)
+          .join(' · '),
         filter: [...(h.status === 'error' ? ['erreurs'] : []), ...(h.status !== 'ok' ? ['verifier'] : [])],
       }),
     );
@@ -322,6 +341,83 @@ const findEntry = (target) => {
   return null;
 };
 
+/* ---------- Afficher les titres cachés ou masqués ---------- */
+
+/** Élément → attribut style d'origine (null : pas d'attribut), pour tout rétablir. */
+const touched = new Map();
+/** Titres affichés par le bookmarklet → raison d'origine (« display:none », « clip »…). */
+const revealed = new Map();
+const INLINE = /^(A|ABBR|B|BDI|BDO|CITE|CODE|DFN|EM|I|KBD|MARK|Q|S|SAMP|SMALL|SPAN|STRONG|SUB|SUP|TIME|U|VAR|LABEL)$/;
+const DISPLAY = { LI: 'list-item', TABLE: 'table', TR: 'table-row', TD: 'table-cell', TH: 'table-cell', THEAD: 'table-header-group', TBODY: 'table-row-group', TFOOT: 'table-footer-group', CAPTION: 'table-caption', SUMMARY: 'list-item' };
+
+const force = (el, props) => {
+  if (!touched.has(el)) touched.set(el, el.getAttribute('style'));
+  Object.entries(props).forEach(([k, v]) => el.style.setProperty(k, v, 'important'));
+};
+
+/** Ancêtres de l'élément (Shadow DOM compris), du plus proche au <body>. */
+const chain = (el) => {
+  const out = [];
+  for (let e = el; e && e.nodeType === 1; e = e.parentElement || (e.getRootNode().host || null)) {
+    out.push(e);
+    if (e === el.ownerDocument.body) break;
+  }
+  return out;
+};
+
+const SR_RESET = {
+  position: 'static', clip: 'auto', 'clip-path': 'none', width: 'auto', height: 'auto', overflow: 'visible',
+  margin: '0', 'white-space': 'normal', transform: 'none', left: 'auto', top: 'auto', 'text-indent': '0',
+};
+
+/** Force l'affichage d'un titre : lui et, si besoin, ses parents (display, visibility, opacity, sr-only, zone repliée). */
+const reveal = (h) => {
+  if (revealed.has(h.el) || isOwn(h.el)) return;
+  const why = h.hidden || h.sr || 'masqué';
+  const el = h.el;
+  // De haut en bas : un parent masqué empêche de mesurer ses enfants.
+  chain(el)
+    .reverse()
+    .forEach((e) => {
+      const cs = styleOf(e);
+      if (cs.display === 'none') force(e, { display: DISPLAY[e.tagName] || (INLINE.test(e.tagName) ? 'inline' : 'block') });
+      if (Number(cs.opacity) === 0) force(e, { opacity: '1' });
+      if (/rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(cs.clip) || cs.clipPath === 'inset(50%)') force(e, SR_RESET);
+      else if (e !== el && /hidden|clip/.test(cs.overflow) && e.getBoundingClientRect().height < 2) force(e, { height: 'auto', 'max-height': 'none', overflow: 'visible' });
+    });
+  if (styleOf(el).visibility !== 'visible') force(el, { visibility: 'visible' });
+  const r = el.getBoundingClientRect();
+  const win = el.ownerDocument.defaultView;
+  if (r.width <= 1 || r.height <= 1 || r.right + win.scrollX <= 0 || r.bottom + win.scrollY <= 0) force(el, SR_RESET);
+  revealed.set(el, why);
+};
+
+/** Rétablit un titre (ou tous) : styles d'origine des éléments modifiés. */
+const unreveal = (el) => {
+  const els = el ? [el] : [...revealed.keys()];
+  els.forEach((e) => revealed.delete(e));
+  // Un parent partagé n'est rétabli que si plus aucun titre affiché ne se trouve dedans.
+  [...touched.keys()].forEach((t) => {
+    if ([...revealed.keys()].some((x) => t === x || t.contains(x) || (x.getRootNode().host && t.contains(x.getRootNode().host)))) return;
+    const orig = touched.get(t);
+    if (orig === null) t.removeAttribute('style');
+    else t.setAttribute('style', orig);
+    touched.delete(t);
+  });
+};
+
+/** Titres que l'on peut afficher : masqués par CSS, ou cachés visuellement. */
+const revealable = () =>
+  entries.filter((h) => !h.removed && !revealed.has(h.el) && ((h.hidden && h.hidden !== 'aria-hidden') || h.sr || (h.hidden === 'aria-hidden' && !h.el.getClientRects().length)));
+
+let revealAll = false;
+const toggleRevealAll = () => {
+  revealAll = !revealAll;
+  if (revealAll) revealable().forEach(reveal);
+  else unreveal();
+  if (ui) ui.refresh();
+};
+
 /* ---------- Détail ---------- */
 
 const critBlock = (num, r) =>
@@ -340,7 +436,19 @@ const sectionText = (h) => {
     s.other && plural(s.other, 'formulaire'),
   ].filter(Boolean);
   const kids = h.children ? `${plural(h.children, 'sous-titre')} · ` : '';
-  return parts.length ? `${kids}${parts.join(', ')} avant le titre suivant` : `${kids}<span class="muted">aucun paragraphe, liste ni tableau avant le titre suivant</span>`;
+  if (parts.length) return `${kids}${parts.join(', ')} avant le titre suivant`;
+  if (s.text) return `${kids}du texte (${s.text} caractères) avant le titre suivant`;
+  return `${kids}<span class="muted">aucun contenu avant le titre suivant</span>`;
+};
+
+/** Bouton du détail épinglé : afficher le titre, ou le masquer à nouveau. */
+const revealButton = (h) => {
+  if (revealed.has(h.el)) return `<p class="note"><button type="button" class="act" data-action="unreveal">Masquer à nouveau</button></p>`;
+  if (!((h.hidden && h.el.getClientRects().length === 0) || h.sr || (h.hidden && h.hidden !== 'aria-hidden'))) return '';
+  return (
+    `<p class="note"><button type="button" class="act" data-action="reveal">Afficher ce titre</button> ` +
+    `<span class="small muted">(force son affichage et, si besoin, celui de ses parents)</span></p>`
+  );
 };
 
 const headingDetail = (h) => {
@@ -356,7 +464,8 @@ const headingDetail = (h) => {
     return (
       row('Élément', `&lt;${esc(tagOf(h.el))}&gt;`) +
       row('Titre', esc(cut(h.name || '(vide)'))) +
-      `<p class="note">${flag('hidden', `Masqué (${h.hidden}) : non restitué, non concerné`)}</p>`
+      `<p class="note">${flag('hidden', `Masqué (${h.hidden}) : non restitué, non concerné`)}</p>` +
+      revealButton(h)
     );
   }
   const n = h.n;
@@ -371,7 +480,15 @@ const headingDetail = (h) => {
     'Apparence',
     `${px(h.font.size)}${h.font.weight >= 600 ? ', gras' : ''}${h.parent && !h.parent.sr ? ` <span class="muted small">(titre parent : ${px(h.parent.font.size)})</span>` : ''}`,
   );
-  html += row('Visibilité', h.sr ? `caché visuellement ${src(h.sr)} <span class="muted small">compte comme présent (glossaire RGAA)</span>` : 'affiché');
+  html += row(
+    'Visibilité',
+    revealed.has(h.el)
+      ? `affiché par le bookmarklet <span class="muted small">(à l’origine : ${esc(revealed.get(h.el))})</span>`
+      : h.sr
+        ? `caché visuellement ${src(h.sr)} <span class="muted small">compte comme présent (glossaire RGAA)</span>`
+        : 'affiché',
+  );
+  html += revealButton(h);
   html += '<div class="crits">';
   ['9.1.1', '9.1.2'].forEach((k) => (html += critBlock(k, h.crit[k])));
   html += '</div>';
@@ -571,6 +688,7 @@ const DETAIL_CSS = `
 .crit-num{flex:0 0 2.8em;font-weight:700}
 .crit-body{min-width:0;display:flex;flex-direction:column;gap:3px}
 .note{margin:8px 0 0}
+.act{cursor:pointer;background:none;border:1px solid var(--rgaa-border);border-radius:3px;padding:2px 8px}
 `;
 const LIST_CSS = `
 .item > span:last-child{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px}
@@ -610,6 +728,14 @@ const ui = inspector({
     tools: [
       { label: 'Plan sur la page', pressed: () => !!overlay, toggle: togglePlan },
       { label: () => copied || 'Copier le plan', toggle: copyPlan },
+      {
+        label: () => {
+          const n = revealable().length;
+          return `Afficher les titres cachés${!revealAll && n ? ` (${n})` : ''}`;
+        },
+        pressed: () => revealAll,
+        toggle: toggleRevealAll,
+      },
     ],
     footer:
       'Plan dans l’ordre du document, en retrait selon le niveau (h3* : niveau donné par role="heading" ou aria-level). ' +
@@ -623,7 +749,15 @@ const ui = inspector({
     togglePlan();
     return true;
   },
+  onAction(name, target) {
+    const e = findEntry(target);
+    if (!e) return;
+    if (name === 'reveal') reveal(e);
+    else if (name === 'unreveal') unreveal(e.el);
+    if (ui) ui.refresh();
+  },
   onStop: () => {
+    unreveal();
     clearTimeout(refreshTimer);
     setPlan(false);
   },
