@@ -75,21 +75,34 @@ const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT', 'SVG', 'sv
  * Parcourt un document (et ses Shadow DOM ouverts, mais pas ses iframes) dans
  * l'ordre : renvoie les titres et, pour chaque titre, le contenu de sa section (jusqu'au titre suivant).
  */
+/** Éléments ignorés par le parcours mais qui sont du contenu de section. */
+const MEDIA_TAGS = new Set(['SVG', 'svg', 'IFRAME', 'FRAME', 'OBJECT', 'SELECT', 'TEXTAREA']);
+
 const walkDoc = (doc) => {
   const heads = [];
   let cur = null;
   const visit = (root) => {
-    for (let c = root.firstElementChild; c; c = c.nextElementSibling) {
-      if (c.matches(OWN) || SKIP_TAGS.has(c.tagName)) continue;
+    for (let c = root.firstChild; c; c = c.nextSibling) {
+      // Texte de la section (masqué compris : un panneau replié reste du contenu).
+      if (c.nodeType === 3) {
+        if (cur) cur.sec.text += c.textContent.trim().length;
+        continue;
+      }
+      if (c.nodeType !== 1 || c.matches(OWN)) continue;
+      if (SKIP_TAGS.has(c.tagName)) {
+        if (cur && MEDIA_TAGS.has(c.tagName)) cur.sec.other++;
+        continue;
+      }
       const role = roleOf(c);
       const isHx = HX.test(c.tagName);
       if (role === 'heading' || isHx) {
-        const h = { el: c, isHx, role, sec: { p: 0, list: 0, table: 0, img: 0, other: 0 }, order: heads.length };
+        const h = { el: c, isHx, role, sec: { p: 0, list: 0, table: 0, img: 0, other: 0, text: 0 }, order: heads.length };
         heads.push(h);
         // Le contenu d'un titre ne fait pas partie de sa section.
         if (c.shadowRoot) visit(c.shadowRoot);
         // Un h2 role="presentation" n'est plus un titre : sa section reste celle du titre précédent.
         if (!(isHx && role && role !== 'heading')) cur = h;
+        else if (cur) cur.sec.text += c.textContent.trim().length;
         continue;
       }
       if (cur) {
@@ -98,7 +111,7 @@ const walkDoc = (doc) => {
         else if (t === 'UL' || t === 'OL' || t === 'DL') cur.sec.list++;
         else if (t === 'TABLE') cur.sec.table++;
         else if (t === 'IMG' || t === 'PICTURE' || t === 'VIDEO' || t === 'FIGURE') cur.sec.img++;
-        else if (t === 'FORM' || t === 'FIELDSET') cur.sec.other++;
+        else if (t === 'FORM' || t === 'FIELDSET' || t === 'INPUT' || t === 'BUTTON' || t === 'CANVAS' || t === 'AUDIO') cur.sec.other++;
       }
       if (c.shadowRoot) visit(c.shadowRoot);
       visit(c);
@@ -164,6 +177,7 @@ const contentCheck = (h) => {
   if (h.visible && norm(h.visible) && ['aria-labelledby', 'aria-label'].includes(n.s) && norm(h.visible) !== norm(h.name)) {
     x.push(['warning', `Le nom (${n.s}) remplace le texte affiché « ${cut(h.visible, 60)} »`]);
   }
+  if (h.empty) x.push(['warning', 'N’introduit aucun contenu avant le titre suivant : est-ce vraiment un titre ?']);
   if (h.dup) x.push(['warning', `Même texte que le titre ${h.dup.tag} précédent, de même niveau (titre en double)`]);
   const status = worst(['warning', ...x.map((a) => a[0])]);
   return { status, text: x.length ? 'À vérifier' : 'Pertinence à juger', extra: x, base: !x.length };
@@ -220,6 +234,9 @@ const analyseDoc = (doc, label) => {
     h.prev = plan[i - 1] || null;
     h.children = 0;
     if (h.parent) h.parent.children++;
+    // Titre sans texte, image, liste ni sous-titre avant le titre suivant.
+    const next = plan[i + 1];
+    h.empty = !(next && next.level > h.level) && !Object.values(h.sec).some(Boolean);
     const x = [...h.lv.issues];
     if (i === 0 && h.level > min) x.push(['warning', `Le plan commence au niveau ${h.level}, puis descend au niveau ${min} : cohérence à vérifier`]);
     if (h.prev && h.level > h.prev.level + 1) {
@@ -340,7 +357,9 @@ const sectionText = (h) => {
     s.other && plural(s.other, 'formulaire'),
   ].filter(Boolean);
   const kids = h.children ? `${plural(h.children, 'sous-titre')} · ` : '';
-  return parts.length ? `${kids}${parts.join(', ')} avant le titre suivant` : `${kids}<span class="muted">aucun paragraphe, liste ni tableau avant le titre suivant</span>`;
+  if (parts.length) return `${kids}${parts.join(', ')} avant le titre suivant`;
+  if (s.text) return `${kids}du texte (${s.text} caractères) avant le titre suivant`;
+  return `${kids}<span class="muted">aucun contenu avant le titre suivant</span>`;
 };
 
 const headingDetail = (h) => {

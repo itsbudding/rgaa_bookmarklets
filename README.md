@@ -500,7 +500,9 @@ test :
 - **9.1.2, contenu** : titre vide, fait d'une image sans alternative ou d'un
   contenu en `aria-hidden` (erreur) ; titre générique (« En savoir plus »,
   « Titre »…), très long (plus de 120 caractères), identique au titre
-  précédent de même niveau, nom (`aria-label`) qui remplace le texte affiché
+  précédent de même niveau, titre qui n'introduit aucun contenu (ni texte,
+  ni image, ni liste, ni sous-titre avant le titre suivant : est-ce vraiment
+  un titre ?), nom (`aria-label`) qui remplace le texte affiché
   (à vérifier). La pertinence reste à juger : la pastille 9.1.2 est toujours
   « ! », mais la ligne est ✓ quand rien d'autre n'est signalé.
 
