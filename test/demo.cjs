@@ -12,6 +12,7 @@ const PAGES = [
   ['rgaa-6-liens', 'a, [role=link]'],
   ['rgaa-7-composants', '[role], button, a, [onclick], [aria-live]'],
   ['rgaa-9-titres', 'iframe'],
+  ['rgaa-9-listes', 'ul, ol, dl, [role=list], [role=listitem], div > li, div > dt, p, .puce-css, nav'],
   ['rgaa-11-formulaires', 'input, select, textarea, button, [contenteditable], [role=checkbox], legend'],
 ];
 (async () => {

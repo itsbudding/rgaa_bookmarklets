@@ -1,6 +1,6 @@
 # Bookmarklets RGAA
 
-Neuf bookmarklets pour aider à auditer une page web selon le
+Dix bookmarklets pour aider à auditer une page web selon le
 [RGAA 4.1](https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/).
 Ils s'installent comme des favoris et fonctionnent sur n'importe quelle page,
 sans extension ni compte.
@@ -20,17 +20,18 @@ intitulé reste à juger par l'auditeur.
 | **RGAA 6 – Liens** | 6. Liens | Liste des liens et de leur intitulé, intitulés vagues à juger avec leur contexte, une pastille par critère |
 | **RGAA 7 – Composants ARIA** | 7. Scripts | Code ARIA des composants (rôle, états, structure, nom, focus) et zones de messages, une pastille par critère + annonces des messages |
 | **RGAA 9 – Titres** | 9. Structuration (critère 9.1) | Plan des titres en retrait selon le niveau, une pastille par test, plan affiché sur la page |
+| **RGAA 9 – Listes** | 9. Structuration (critère 9.3) | Inventaire et structure des listes, sous-listes en retrait, lignes à puces et menus hors liste, listes affichées sur la page |
 | **RGAA 11 – Formulaires** | 11. Formulaires | Liste des champs et boutons + détail au survol (ou au focus) |
 
 ## Installation
 
 1. Téléchargez le dépôt (bouton **Code › Download ZIP** sur GitHub) et décompressez-le.
 2. Ouvrez `dist/index.html` dans votre navigateur.
-3. Glissez chacun des neuf liens dans votre barre de favoris.
+3. Glissez chacun des dix liens dans votre barre de favoris.
 
 Autre méthode : créez un favori et collez comme adresse le contenu d'un des
 fichiers `dist/rgaa-1-images.js`, `dist/rgaa-2-cadres.js`, `dist/rgaa-3-couleurs.js`,
-`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js`, `dist/rgaa-6-liens.js`, `dist/rgaa-7-composants.js`, `dist/rgaa-9-titres.js` ou
+`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js`, `dist/rgaa-6-liens.js`, `dist/rgaa-7-composants.js`, `dist/rgaa-9-titres.js`, `dist/rgaa-9-listes.js` ou
 `dist/rgaa-11-formulaires.js`.
 
 ### Pages de démo
@@ -567,6 +568,86 @@ Limites :
   progressif) : « Actualiser » ;
 - iframes d'une autre origine et Shadow DOM fermés : non inspectés.
 
+### RGAA 9 – Listes
+
+Ce bookmarklet couvre le **critère 9.3** (listes). La liste montre chaque
+`ul`, `ol`, `menu`, `dl` et `role="list"` dans l'ordre du document, les
+**sous-listes en retrait** sous leur liste parente. Les erreurs ne remontent
+pas en tête : le filtre « Erreurs » les isole. Chaque iframe de même origine
+a sa propre section ; une liste dans un Shadow DOM ouvert est à sa place.
+
+Chaque ligne donne le type (`ul`, `ol`, `dl`, `list*` pour `role="list"`),
+le début des premiers éléments (ou le nom de la liste), le nombre
+d'éléments, la navigation qui la contient, et une pastille par test :
+**9.3.1** pour `ul` et `menu`, **9.3.2** pour `ol`, **9.3.3** pour `dl` ;
+une liste ARIA vaut pour 9.3.1 et 9.3.2. Les verdicts ne viennent que du
+code :
+
+- **erreurs** : enfant qui n'est pas un élément de liste (`<div>` ou texte
+  dans une `ul`, `ul` imbriquée hors d'un `li`, enfant sans
+  `role="listitem"` dans un `role="list"`), `li role="presentation"`,
+  `li` ou `role="listitem"` hors liste, `dt`/`dd` hors `dl`, `dt` sans `dd`,
+  `dd` sans `dt`, enfant interdit ou `div` de groupe mal formé dans une
+  `dl`, `aria-posinset` / `aria-setsize` invalides ;
+- **à vérifier** : rôle de liste retiré (`<ul role="presentation">` : non
+  conforme si les éléments sont présentés comme une liste), `dl role="list"`,
+  liste d'un seul élément, `ul` dont les éléments sont numérotés dans le
+  texte (« 1. », « 2. » : liste ordonnée attendue ?), élément sans rôle
+  entre un `role="list"` et ses éléments.
+
+Une liste bien codée est **conforme** : le 9.3 ne demande que le bon
+balisage. Une liste sans puce (`list-style: none`) est conforme ; le détail
+rappelle que Safari et VoiceOver peuvent alors ne pas l'annoncer.
+
+Section **Hors liste** (toujours « à vérifier ») :
+
+- **lignes à puces écrites à la main** : au moins deux lignes qui se suivent
+  (paragraphes frères, ou lignes séparées par `<br>`) et commencent par le
+  même marqueur écrit (`•`, `-`, `–`, `*`, `>`, `✓`…) ou par une numérotation
+  qui se suit (`1.` `2.`, `1)` `2)`, `a.` `b.`), ou des éléments frères qui
+  affichent la même puce en CSS (`::before`). Aucun style n'est interprété :
+  il faut un marqueur écrit. Le contenu de `pre` et `code` est ignoré ;
+- **liens d'une navigation hors liste** : au moins deux liens d'une `nav`
+  (ou `role="navigation"`) qui ne sont dans aucune liste. Le glossaire du
+  RGAA cite le menu de navigation comme exemple de liste sans marqueur.
+
+Les listes masquées, vides, et les `ul` dont le rôle est remplacé par un
+composant (`role="menubar"`, `tablist`, `tree`, `listbox`… : voir RGAA 7)
+sont en gris (∅) en fin de liste.
+
+**Détail** (au survol, au focus, ou épinglé par un clic sur une ligne) :
+type et source (`start`, `reversed`, rôle retiré ou remplacé), nom,
+contexte (navigation, en-tête, pied de page… et liste parente), marqueur
+affiché (`list-style-type`, puce CSS), nombre d'éléments et les dix
+premiers avec leur problème éventuel, `aria-setsize`. Pour des lignes hors
+liste : les lignes, le marqueur et le balisage attendu.
+
+**Outils** (boutons en haut du panneau liste, ou raccourci) :
+
+- **Listes sur la page** (affiché dès le lancement, Maj+U pour le masquer
+  ou l'afficher) : entoure chaque liste avec son type et son nombre
+  d'éléments (`ul · 6`, `dl · 2/2`) et place un repère sur chaque élément
+  (`•`, son numéro, `dt`, `dd`) ; en rouge une erreur, en orange un point à
+  vérifier, en violet pointillé les lignes et liens hors liste. Une liste
+  recouverte n'est pas marquée. Le calque suit la page en direct : un
+  sous-menu qui s'ouvre entre dans la liste. C'est l'outil pour repérer à
+  l'œil ce qui ressemble à une liste sans en avoir le balisage (cartes,
+  menus en `div`) ;
+- **Afficher les listes cachées** : force l'affichage des listes masquées
+  (sous-menus fermés…) et de leurs parents si besoin ; un second clic
+  rétablit la page. Pour une seule liste : épingler son détail, puis
+  « Afficher cette liste ».
+
+Limites :
+
+- suites visuelles sans marqueur écrit (cartes, vignettes, menus en `div`
+  hors `nav`, étapes en colonnes) : non détectées, à repérer à l'œil ;
+- choix `ul` ou `ol` : seul le texte numéroté est repéré ; savoir si l'ordre
+  a un sens reste à juger ;
+- couples terme / description balisés autrement qu'en `dl` : non détectés ;
+- `aria-owns` : non suivi ;
+- iframes d'une autre origine et Shadow DOM fermés : non inspectés.
+
 ### RGAA 11 – Formulaires
 
 La liste donne le compteur (champs, boutons, groupes, non conformes, à
@@ -615,6 +696,8 @@ src/
     list-panel.js       TEMPLATE panneau liste (aperçu des panneaux flottants)
     criteria.js         pastilles et blocs de critère communs : pills(), critBlocks(),
                         fromChecks(), lineStatus()
+    live.js             calques sur la page : visibleOnScreen(), pageMutation(),
+                        visuallyHidden(), createRevealer() (afficher les éléments cachés)
   bookmarklets/         un fichier par bookmarklet
 demo/                   sources des pages de démo ({{BOOKMARKLET}} remplacé au build)
 dist/                   versions installables générées (ne pas modifier à la main)

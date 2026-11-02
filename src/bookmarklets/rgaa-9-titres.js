@@ -20,9 +20,10 @@
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list } from '../lib/dom.js';
-import { norm, isNotExposed, isOwn, toTopCoords, allDocuments, textOf } from '../lib/a11y.js';
+import { norm, isNotExposed, toTopCoords, allDocuments, textOf } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 import { nameOf, visibleText, clean, styleOf } from '../lib/name.js';
+import { visuallyHidden, visibleOnScreen, pageMutation, createRevealer } from '../lib/live.js';
 
 const ID = 'rgaa-9-titres';
 const OWN = '[data-rgaa-bookmarklet]';
@@ -49,23 +50,6 @@ const GENERIC = new Set(
   ].map(norm),
 );
 const LONG = 120;
-
-/* ---------- Visibilité ---------- */
-
-/** Titre restitué mais caché visuellement (sr-only, clip, hors écran), ou ''. */
-const visuallyHidden = (el) => {
-  const r = el.getBoundingClientRect();
-  if (r.width <= 1 || r.height <= 1) return 'taille de 1px';
-  const win = el.ownerDocument.defaultView;
-  if (r.right + win.scrollX <= 0 || r.bottom + win.scrollY <= 0) return 'hors écran';
-  for (let e = el; e && e.nodeType === 1; e = e.parentElement || (e.getRootNode().host || null)) {
-    const cs = styleOf(e);
-    if (/rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(cs.clip) || cs.clipPath === 'inset(50%)') return 'clip';
-    if (Number(cs.opacity) === 0) return 'opacity:0';
-    if (e === el.ownerDocument.body) break;
-  }
-  return '';
-};
 
 /* ---------- Parcours : titres et passages candidats, dans l'ordre ---------- */
 
@@ -343,68 +327,11 @@ const findEntry = (target) => {
 
 /* ---------- Afficher les titres cachés ou masqués ---------- */
 
-/** Élément → attribut style d'origine (null : pas d'attribut), pour tout rétablir. */
-const touched = new Map();
 /** Titres affichés par le bookmarklet → raison d'origine (« display:none », « clip »…). */
-const revealed = new Map();
-const INLINE = /^(A|ABBR|B|BDI|BDO|CITE|CODE|DFN|EM|I|KBD|MARK|Q|S|SAMP|SMALL|SPAN|STRONG|SUB|SUP|TIME|U|VAR|LABEL)$/;
-const DISPLAY = { LI: 'list-item', TABLE: 'table', TR: 'table-row', TD: 'table-cell', TH: 'table-cell', THEAD: 'table-header-group', TBODY: 'table-row-group', TFOOT: 'table-footer-group', CAPTION: 'table-caption', SUMMARY: 'list-item' };
-
-const force = (el, props) => {
-  if (!touched.has(el)) touched.set(el, el.getAttribute('style'));
-  Object.entries(props).forEach(([k, v]) => el.style.setProperty(k, v, 'important'));
-};
-
-/** Ancêtres de l'élément (Shadow DOM compris), du plus proche au <body>. */
-const chain = (el) => {
-  const out = [];
-  for (let e = el; e && e.nodeType === 1; e = e.parentElement || (e.getRootNode().host || null)) {
-    out.push(e);
-    if (e === el.ownerDocument.body) break;
-  }
-  return out;
-};
-
-const SR_RESET = {
-  position: 'static', clip: 'auto', 'clip-path': 'none', width: 'auto', height: 'auto', overflow: 'visible',
-  margin: '0', 'white-space': 'normal', transform: 'none', left: 'auto', top: 'auto', 'text-indent': '0',
-};
-
-/** Force l'affichage d'un titre : lui et, si besoin, ses parents (display, visibility, opacity, sr-only, zone repliée). */
-const reveal = (h) => {
-  if (revealed.has(h.el) || isOwn(h.el)) return;
-  const why = h.hidden || h.sr || 'masqué';
-  const el = h.el;
-  // De haut en bas : un parent masqué empêche de mesurer ses enfants.
-  chain(el)
-    .reverse()
-    .forEach((e) => {
-      const cs = styleOf(e);
-      if (cs.display === 'none') force(e, { display: DISPLAY[e.tagName] || (INLINE.test(e.tagName) ? 'inline' : 'block') });
-      if (Number(cs.opacity) === 0) force(e, { opacity: '1' });
-      if (/rect\(0(px)?,? 0(px)?,? 0(px)?,? 0(px)?\)/.test(cs.clip) || cs.clipPath === 'inset(50%)') force(e, SR_RESET);
-      else if (e !== el && /hidden|clip/.test(cs.overflow) && e.getBoundingClientRect().height < 2) force(e, { height: 'auto', 'max-height': 'none', overflow: 'visible' });
-    });
-  if (styleOf(el).visibility !== 'visible') force(el, { visibility: 'visible' });
-  const r = el.getBoundingClientRect();
-  const win = el.ownerDocument.defaultView;
-  if (r.width <= 1 || r.height <= 1 || r.right + win.scrollX <= 0 || r.bottom + win.scrollY <= 0) force(el, SR_RESET);
-  revealed.set(el, why);
-};
-
-/** Rétablit un titre (ou tous) : styles d'origine des éléments modifiés. */
-const unreveal = (el) => {
-  const els = el ? [el] : [...revealed.keys()];
-  els.forEach((e) => revealed.delete(e));
-  // Un parent partagé n'est rétabli que si plus aucun titre affiché ne se trouve dedans.
-  [...touched.keys()].forEach((t) => {
-    if ([...revealed.keys()].some((x) => t === x || t.contains(x) || (x.getRootNode().host && t.contains(x.getRootNode().host)))) return;
-    const orig = touched.get(t);
-    if (orig === null) t.removeAttribute('style');
-    else t.setAttribute('style', orig);
-    touched.delete(t);
-  });
-};
+const rv = createRevealer();
+const revealed = rv.revealed;
+const reveal = (h) => rv.reveal(h.el, h.hidden || h.sr || 'masqué');
+const unreveal = rv.unreveal;
 
 /** Titres que l'on peut afficher : masqués par CSS, ou cachés visuellement. */
 const revealable = () =>
@@ -509,29 +436,6 @@ font:700 11px/1.3 ${THEME.font};color:#fff;padding:1px 4px;border-radius:2px}
 const MAX_TAGS = 2000;
 let overlay = null;
 
-/**
- * Le titre est-il visible à l'écran, et non recouvert par un autre élément
- * (menu ouvert, bandeau fixe, fenêtre) ? On teste quelques points du titre.
- */
-const visibleOnScreen = (el, r) => {
-  const win = el.ownerDocument.defaultView;
-  // Dans une iframe : le cadre lui-même doit être visible et non recouvert.
-  const frame = win.frameElement;
-  if (frame && !visibleOnScreen(frame, frame.getBoundingClientRect())) return false;
-  const root = el.getRootNode();
-  const hitRoot = root.elementFromPoint ? root : el.ownerDocument;
-  const pts = [
-    [r.left + Math.min(8, r.width / 2), r.top + r.height / 2],
-    [r.left + r.width / 2, r.top + r.height / 2],
-    [r.left + Math.min(8, r.width / 2), r.top + Math.min(6, r.height / 2)],
-  ];
-  return pts.some(([x, y]) => {
-    if (x < 0 || y < 0 || x >= win.innerWidth || y >= win.innerHeight) return false;
-    const hit = hitRoot.elementFromPoint(x, y);
-    return !!hit && (hit === el || el.contains(hit) || hit.contains(el));
-  });
-};
-
 let refreshTimer = null;
 /** Recalcule la liste et le plan (titres apparus ou disparus : menu ouvert…). */
 const scheduleRefresh = () => {
@@ -540,19 +444,6 @@ const scheduleRefresh = () => {
     refreshTimer = null;
     if (overlay && ui) ui.refresh();
   }, 250);
-};
-
-/** Mutation due à la page elle-même (et non aux contours et panneaux des bookmarklets). */
-const pageMutation = (m) => {
-  const own = (n) => n && n.nodeType === 1 && (n.matches(OWN) || isOwn(n));
-  if (own(m.target)) return false;
-  if (m.type === 'childList') return [...m.addedNodes, ...m.removedNodes].some((n) => !own(n));
-  if (m.attributeName === 'style') {
-    // Contours posés par les bookmarklets : seule la déclaration outline change.
-    const strip = (v) => String(v || '').replace(/outline(-offset)?\s*:[^;]*;?/g, '').replace(/\s+/g, '');
-    return strip(m.oldValue) !== strip(m.target.getAttribute('style'));
-  }
-  return true;
 };
 
 const setPlan = (on) => {
