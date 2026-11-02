@@ -1,18 +1,24 @@
 /**
  * RGAA 2 – Cadres : liste les iframes et frames de la page (iframes de même
- * origine et Shadow DOM ouverts compris) avec leur titre et leur domaine.
- *  - 2.1 : titre manquant = erreur, sauf cadre non restitué (non concerné) ;
- *  - 2.2 : titre générique ou identique pour plusieurs cadres = à vérifier.
- * Un clic sur une ligne fait défiler jusqu'au cadre et le met en évidence.
+ * origine et Shadow DOM ouverts compris), une pastille par critère :
+ *  - 2.1 titre présent : title absent ou vide (×) ;
+ *  - 2.2 pertinence du titre : toujours à juger (!), constats si titre
+ *    générique ou identique à un autre cadre.
+ * Cadre masqué ou en aria-hidden : non concerné (∅).
+ * Détail au survol (cadre de même origine) ou épinglé au clic sur une ligne :
+ * titre, domaine, src, aria-label (non pris en compte par le RGAA), imbrication.
  */
-import { dialog } from '../lib/dialog-panel.js';
-import { icon, esc, src, flag } from '../lib/dom.js';
-import { isNotExposed, deepAll, norm } from '../lib/a11y.js';
-import { createHighlighter } from '../lib/highlight.js';
+import { inspector } from '../lib/floating-panel.js';
+import { row, esc, src, flag, icon } from '../lib/dom.js';
+import { isNotExposed, deepAll, norm, isOwn } from '../lib/a11y.js';
+import { pills, critBlocks, lineStatus, fromChecks, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
 
+const ID = 'rgaa-2-cadres';
+const CRIT = ['2.1', '2.2'];
 const GENERIC = ['iframe', 'frame', 'cadre', 'sans titre', 'untitled', 'title', 'titre', 'contenu', 'content', 'embed', 'widget'];
 
-const frames = deepAll('iframe,frame');
+const plural = (n, s, p = `${s}s`) => `${n} ${n > 1 ? p : s}`;
+const cut = (t, n = 120) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
 
 /** Domaine du src, ou description du contenu inline. */
 const origin = (f) => {
@@ -33,106 +39,138 @@ const depth = (f) => {
   return d;
 };
 
-const data = frames.map((f) => {
-  const title = (f.getAttribute('title') || '').trim();
+let entries = [];
+let byEl = new Map();
+
+const collect = () => {
+  const frames = deepAll('iframe,frame').filter((f) => !isOwn(f));
+  entries = frames.map((f, i) => {
+    const title = (f.getAttribute('title') || '').trim();
+    return {
+      el: f,
+      n: i + 1,
+      kind: f.tagName === 'FRAME' ? 'Frame' : 'Iframe',
+      title,
+      hidden: isNotExposed(f),
+      host: origin(f),
+      src: f.getAttribute('src') || '',
+      depth: depth(f),
+      aria: (f.getAttribute('aria-label') || '').trim(),
+      labelledby: f.hasAttribute('aria-labelledby'),
+    };
+  });
+  // Titres identiques entre cadres restitués (2.2).
+  const count = {};
+  entries.forEach((d) => {
+    if (d.title && !d.hidden) count[norm(d.title)] = (count[norm(d.title)] || 0) + 1;
+  });
+  entries.forEach((d) => {
+    d.crit = {};
+    if (d.hidden) {
+      d.status = 'hidden';
+      return;
+    }
+    d.crit['2.1'] = fromChecks(d.title ? [] : [['error', 'Attribut title absent ou vide']], { ok: 'Titre présent (title)' });
+    if (d.title) {
+      const x = [];
+      if (GENERIC.includes(norm(d.title))) x.push(['warning', `Titre générique (« ${d.title} »)`]);
+      if (count[norm(d.title)] > 1) x.push(['warning', `Titre identique à ${plural(count[norm(d.title)] - 1, 'autre cadre')}`]);
+      d.crit['2.2'] = fromChecks(x, { judge: 'Pertinence du titre à juger' });
+    }
+    d.status = lineStatus(d.crit);
+  });
+  byEl = new Map(entries.map((d) => [d.el, d]));
+
+  const concerned = entries.filter((d) => !d.hidden);
+  const err = concerned.filter((d) => d.status === 'error').length;
+  const warn = concerned.filter((d) => d.status === 'warning').length;
+  const hidden = entries.length - concerned.length;
   return {
-    f,
-    title,
-    hidden: isNotExposed(f),
-    host: origin(f),
-    depth: depth(f),
-    aria: f.getAttribute('aria-label') || (f.getAttribute('aria-labelledby') ? 'aria-labelledby' : ''),
+    items: entries.map((d) => ({
+      el: d.el,
+      status: d.status,
+      indent: d.depth,
+      label: `${d.kind} ${d.n} : ${d.title || 'sans titre'}`,
+      meta: [d.host, d.hidden ? `masqué : ${d.hidden}` : '', d.depth ? `imbriqué niveau ${d.depth}` : ''].filter(Boolean).join(' · '),
+      prefix: d.hidden ? '' : pills(d.crit, CRIT),
+      filter: [...(d.status === 'error' ? ['erreurs'] : []), ...(['error', 'warning'].includes(d.status) ? ['verifier'] : [])],
+    })),
+    summary:
+      `${plural(concerned.length, 'cadre restitué', 'cadres restitués')} · ${err ? icon('error') + ' ' : ''}${err} non conforme${err > 1 ? 's' : ''} · ` +
+      `${warn ? icon('warning') + ' ' : ''}${warn} à vérifier` +
+      (hidden ? ` · ${plural(hidden, 'non concerné')}` : ''),
   };
-});
+};
 
-// Titres identiques entre cadres restitués (2.2).
-const count = {};
-data.forEach((d) => {
-  if (d.title && !d.hidden) count[norm(d.title)] = (count[norm(d.title)] || 0) + 1;
-});
-
-const concerned = data.filter((d) => !d.hidden);
-const missing = concerned.filter((d) => !d.title).length;
-const dlg = dialog({
-  id: 'rgaa-2-cadres',
-  title: `Cadres trouvés : ${frames.length}`,
-  css: `.item{align-items:flex-start}.item .icon{margin-top:2px}.meta{display:block;margin-top:2px}
-.nested{padding-left:16px}.summary{margin:0 0 8px}`,
-});
-
-if (dlg) {
-  if (!frames.length) {
-    dlg.body.innerHTML = '<p class="muted" style="margin:0;font-style:italic">Aucun cadre détecté.</p>';
-  } else {
-    const items = data
-      .map((d, i) => {
-        const warn = [];
-        if (!d.hidden && d.title) {
-          if (GENERIC.includes(norm(d.title))) warn.push('titre générique');
-          if (count[norm(d.title)] > 1) warn.push('titre identique à un autre cadre');
-        }
-        const status = d.hidden
-          ? icon('hidden', 'Non restitué')
-          : !d.title
-            ? icon('error', 'Titre manquant')
-            : warn.length
-              ? icon('warning', 'À vérifier')
-              : icon('ok', 'Titre présent');
-        const label = d.title
-          ? `${esc(d.title)} ${src('title')}`
-          : d.hidden
-            ? '<span class="muted">Sans titre (non concerné)</span>'
-            : '<span class="text-error">Sans titre</span>';
-        return (
-          `<li${d.depth ? ` class="nested" style="padding-left:${16 * d.depth}px"` : ''}>` +
-          `<button type="button" class="item" data-idx="${i}">${status}<span>` +
-          `<strong>${d.f.tagName === 'FRAME' ? 'Frame' : 'Iframe'} ${i + 1} :</strong> ${label}` +
-          `<span class="meta small muted">${esc(d.host)}${d.hidden ? ` · masqué (${esc(d.hidden)})` : ''}` +
-          `${d.aria ? ` · ${esc(d.aria === 'aria-labelledby' ? 'aria-labelledby' : `aria-label « ${d.aria} »`)} (non pris en compte par le RGAA)` : ''}` +
-          `${d.depth ? ` · imbriqué niveau ${d.depth}` : ''}</span>` +
-          (warn.length ? `<span class="meta">${flag('warning', `${warn.join(', ')} (2.2)`)}</span>` : '') +
-          `</span></button></li>`
-        );
-      })
-      .join('');
-
-    dlg.body.innerHTML =
-      `<p class="summary small">${concerned.length} restitué${concerned.length > 1 ? 's' : ''} · ` +
-      `${missing ? icon('error') + ' ' : ''}${missing} sans titre (2.1) · ${data.length - concerned.length} non concerné${data.length - concerned.length > 1 ? 's' : ''}</p>` +
-      `<ul class="items">${items}</ul>` +
-      `<div class="footer small"><strong>Légende :</strong>` +
-      `<ul class="legend muted" aria-hidden="true" style="margin:4px 0 8px">` +
-      `<li><span class="icon icon--ok">✓</span> Titre présent</li>` +
-      `<li><span class="icon icon--warning">!</span> À vérifier</li>` +
-      `<li><span class="icon icon--error">×</span> Titre manquant</li>` +
-      `<li><span class="icon icon--hidden">∅</span> Non restitué</li></ul>` +
-      `<p class="muted" style="margin:0;font-style:italic">Les cadres masqués ou en aria-hidden ne sont pas concernés par le critère 2.1. ` +
-      `Cliquer sur une ligne pour accéder au cadre.</p></div>`;
-
-    const hl = createHighlighter();
-    let timer;
-    let restore = null;
-    dlg.body.addEventListener('click', (e) => {
-      const btn = e.target.closest('.item');
-      if (!btn) return;
-      const f = frames[btn.dataset.idx];
-      clearTimeout(timer);
-      if (restore) restore();
-      const css = f.style.cssText;
-      if (isNotExposed(f) && isNotExposed(f) !== 'aria-hidden') {
-        f.style.setProperty('display', 'block', 'important');
-        f.style.setProperty('visibility', 'visible', 'important');
-        f.style.setProperty('min-width', '100px', 'important');
-        f.style.setProperty('min-height', '50px', 'important');
-      }
-      f.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      hl.set([[f, 'locate']]);
-      restore = () => {
-        hl.clear();
-        f.style.cssText = css;
-        restore = null;
-      };
-      timer = setTimeout(restore, 3000);
-    });
+/** Cadre concerné par l'élément survolé (le cadre lui-même, ou son contenu de même origine). */
+const findEntry = (target) => {
+  for (let el = target; el; ) {
+    const d = byEl.get(el);
+    if (d) return d;
+    if (el.parentElement) el = el.parentElement;
+    else if (el.getRootNode && el.getRootNode().host) el = el.getRootNode().host;
+    else el = (el.ownerDocument && el.ownerDocument.defaultView && el.ownerDocument.defaultView.frameElement) || null;
   }
-}
+  return null;
+};
+
+const detail = (d) => {
+  let html = row('Élément', `${esc(d.kind)} ${d.n}`);
+  const none = d.hidden ? '<span class="muted">aucun</span>' : `${icon('error', 'Absent')} <span class="text-error">aucun</span>`;
+  html += row('Titre', d.title ? `${esc(cut(d.title, 200))} ${src('title')}` : none);
+  if (d.aria) html += row('aria-label', `${esc(cut(d.aria))} <span class="muted small">(non pris en compte par le RGAA)</span>`);
+  if (d.labelledby) html += row('aria-labelledby', '<span class="muted small">présent (non pris en compte par le RGAA)</span>');
+  html += row('Domaine', esc(d.host));
+  if (d.src) html += row('src', `<span class="muted">${esc(cut(d.src, 150))}</span>`);
+  if (d.depth) html += row('Imbrication', `niveau ${d.depth}`);
+  if (d.hidden) return html + `<p class="note">${flag('hidden', `Masqué (${d.hidden}) : non restitué, non concerné`)}</p>`;
+  return html + critBlocks(d.crit, CRIT);
+};
+
+/* Un cadre masqué est affiché un instant quand on clique sa ligne. */
+let restore = null;
+let restoreTimer;
+const reveal = (f) => {
+  clearTimeout(restoreTimer);
+  if (restore) restore();
+  const why = isNotExposed(f);
+  if (!why || why === 'aria-hidden') return;
+  const css = f.style.cssText;
+  f.style.setProperty('display', 'block', 'important');
+  f.style.setProperty('visibility', 'visible', 'important');
+  f.style.setProperty('min-width', '100px', 'important');
+  f.style.setProperty('min-height', '50px', 'important');
+  restore = () => {
+    f.style.cssText = css;
+    restore = null;
+  };
+  restoreTimer = setTimeout(() => restore && restore(), 3000);
+};
+
+inspector({
+  id: ID,
+  css: CRIT_CSS,
+  pinOnLocate: true,
+  list: {
+    title: 'Cadres',
+    collect,
+    css: PILL_CSS,
+    beforeLocate: reveal,
+    filters: [
+      { id: 'erreurs', label: 'Non conformes' },
+      { id: 'verifier', label: 'À vérifier' },
+    ],
+    footer:
+      'Seul l’attribut title compte pour le RGAA (aria-label est signalé mais ignoré). La pertinence du titre reste à juger (pastille 2.2 « ! »). ' +
+      'Un cadre masqué est affiché un instant au clic sur sa ligne.',
+  },
+  onStop: () => {
+    clearTimeout(restoreTimer);
+    if (restore) restore();
+  },
+  inspect(target) {
+    const d = findEntry(target);
+    if (!d) return null;
+    return { html: detail(d), highlight: [[d.el, 'primary']] };
+  },
+});

@@ -31,12 +31,12 @@
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>img avec alt</h3>
     <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80" alt="L’équipe projet réunie : trois personnes"></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ nom accessible « L’équipe projet… » (alt).</p>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom accessible « L’équipe projet… » (alt), pastilles 1.1 ✓ et 1.3 ! (pertinence à juger).</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>img sans attribut alt</h3>
     <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80"></div>
-    <p class="attendu"><strong>Attendu :</strong> × « Sans alternative » dans la liste, nom accessible absent.</p>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans alternative » dans la liste, pastille 1.1 ×, nom accessible absent.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>svg avec role="img" et aria-label</h3>
@@ -46,12 +46,12 @@
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>svg avec &lt;title&gt; mais sans role="img"</h3>
     <div class="demo"><svg width="120" height="60" viewBox="0 0 120 60"><title>Logo de l’association</title><circle cx="30" cy="30" r="22" fill="#005a9c"/><rect x="60" y="20" width="50" height="20" fill="#005a9c"/></svg></div>
-    <p class="attendu"><strong>Attendu :</strong> ! nom « Logo de l’association » (&lt;title&gt;) et constat « svg porteur d’information sans role="img" (1.1.5) ».</p>
+    <p class="attendu"><strong>Attendu :</strong> ! nom « Logo de l’association » (&lt;title&gt;) et pastille 1.1 ! « svg porteur d’information sans role="img" (1.1.5) ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>svg sans aucune alternative</h3>
     <div class="demo"><svg width="120" height="60" viewBox="0 0 120 60"><polygon points="10,55 60,5 110,55" fill="#b36b00"/></svg></div>
-    <p class="attendu"><strong>Attendu :</strong> × « Sans alternative », plus le constat ! sur le role="img" manquant (1.1.5).</p>
+    <p class="attendu"><strong>Attendu :</strong> × « Sans alternative » : pastille 1.1 ×, avec le constat ! sur le role="img" manquant (1.1.5).</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Élément avec role="img"</h3>
@@ -99,32 +99,32 @@
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>img avec alt=""</h3>
     <div class="demo"><img src="img/separateur.svg" width="200" height="12" alt=""></div>
-    <p class="attendu"><strong>Attendu :</strong> ∅ « Décorative » (alt="").</p>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Décorative », pastille 1.2 ✓ (alt="").</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>svg avec aria-hidden="true"</h3>
     <div class="demo"><svg aria-hidden="true" width="200" height="12" viewBox="0 0 200 12"><path d="M0 6 H200" stroke="#b36b00" stroke-width="3" stroke-dasharray="6 4"/></svg></div>
-    <p class="attendu"><strong>Attendu :</strong> ∅ « Décorative » (aria-hidden="true").</p>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Décorative », pastille 1.2 ✓ (aria-hidden="true").</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>img avec role="presentation"</h3>
     <div class="demo"><img src="img/separateur.svg" width="200" height="12" role="presentation" alt=""></div>
-    <p class="attendu"><strong>Attendu :</strong> ∅ « Décorative » (role="presentation").</p>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Décorative », pastille 1.2 ✓ (role="presentation").</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>alt="" mais avec un title</h3>
     <div class="demo"><img src="img/separateur.svg" width="200" height="12" alt="" title="Séparateur"></div>
-    <p class="attendu"><strong>Attendu :</strong> ∅ décorative, avec le constat × « Image décorative avec title : à retirer (1.2) ».</p>
+    <p class="attendu"><strong>Attendu :</strong> × décorative, pastille 1.2 × « Image décorative avec title : à retirer ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>aria-hidden mais avec un aria-label</h3>
     <div class="demo"><svg aria-hidden="true" aria-label="Vague" width="200" height="12" viewBox="0 0 200 12"><path d="M0 6 Q50 0 100 6 T200 6" fill="none" stroke="#b36b00" stroke-width="2"/></svg></div>
-    <p class="attendu"><strong>Attendu :</strong> ∅ décorative, avec le constat × « Image décorative avec aria-label ».</p>
+    <p class="attendu"><strong>Attendu :</strong> × décorative, pastille 1.2 × « Image décorative avec aria-label : à retirer ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>Image de fond CSS</h3>
     <div class="demo"><div class="css-motif"></div></div>
-    <p class="attendu"><strong>Attendu (survol uniquement) :</strong> « Image CSS : Oui (background-image) », nom ! « Aucun : vérifier que l’image CSS est décorative ».</p>
+    <p class="attendu"><strong>Attendu (survol uniquement) :</strong> « Image CSS : Oui (background-image) », 1.1 ! « Image CSS sans alternative : vérifier qu’elle est décorative ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>Icône insérée par ::before</h3>
@@ -139,22 +139,22 @@
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>Alternative = nom du fichier</h3>
     <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80" alt="photo-equipe.svg"></div>
-    <p class="attendu"><strong>Attendu :</strong> ! « Alternative = nom de fichier (1.3) ».</p>
+    <p class="attendu"><strong>Attendu :</strong> pastille 1.3 ! « Alternative = nom de fichier », ligne !.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>Alternative générique</h3>
     <div class="demo"><img src="img/logo-rgaa.svg" width="120" height="80" alt="Logo"></div>
-    <p class="attendu"><strong>Attendu :</strong> ! « Alternative générique (« Logo ») (1.3) ».</p>
+    <p class="attendu"><strong>Attendu :</strong> pastille 1.3 ! « Alternative générique (« Logo ») », ligne !.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>Alternative très longue</h3>
     <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Graphique en barres montrant les ventes trimestrielles de l’année : 30 unités au premier trimestre, 45 au deuxième, 60 au troisième et 75 au quatrième"></div>
-    <p class="attendu"><strong>Attendu :</strong> ! « Alternative longue (… caractères) : une description détaillée serait-elle plus adaptée ? ».</p>
+    <p class="attendu"><strong>Attendu :</strong> pastille 1.3 ! « Alternative longue (… caractères) : une description détaillée serait-elle plus adaptée ? ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>Alternative non pertinente</h3>
     <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Cliquez ici"></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ dans le panneau : le bookmarklet ne peut pas juger le sens, comparez l’alternative au fichier « graphique-ventes.svg ».</p>
+    <p class="attendu"><strong>Attendu :</strong> ligne ✓ et pastille 1.3 ! « Pertinence de l’alternative à juger » : le bookmarklet ne peut pas juger le sens, comparez l’alternative au fichier « graphique-ventes.svg ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Image dans un lien</h3>
@@ -169,12 +169,12 @@
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Lien icône + texte, icône décorative</h3>
     <div class="demo"><a href="#aide"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#005a9c"/></svg> Aide en ligne</a></div>
-    <p class="attendu"><strong>Attendu :</strong> ∅ décorative, nom du lien « Aide en ligne » (texte du lien).</p>
+    <p class="attendu"><strong>Attendu :</strong> ✓ décorative (1.2 ✓), nom du lien « Aide en ligne » (texte du lien).</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>aria-labelledby vers un id absent</h3>
     <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80" aria-labelledby="legende-inexistante"></div>
-    <p class="attendu"><strong>Attendu :</strong> × sans alternative, constat « aria-labelledby : id introuvable ».</p>
+    <p class="attendu"><strong>Attendu :</strong> × sans alternative, pastille 1.1 × avec « aria-labelledby : id introuvable ».</p>
   </div>
 </div>
 
@@ -187,22 +187,22 @@
       <img src="img/graphique-ventes.svg" width="160" height="100" alt="Ventes 2025" aria-describedby="desc-ventes">
       <p id="desc-ventes">Les ventes progressent chaque trimestre : 30, 45, 60 puis 75 unités.</p>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> description « Les ventes progressent… » (aria-describedby), paragraphe entouré en orange.</p>
+    <p class="attendu"><strong>Attendu :</strong> description « Les ventes progressent… » (aria-describedby), pastille 1.6 ! (pertinence à juger, 1.7), paragraphe entouré en orange.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Lien adjacent</h3>
     <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Ventes 2025"><a href="#desc-ventes">Description détaillée du graphique</a></div>
-    <p class="attendu"><strong>Attendu :</strong> description « Description détaillée du graphique » (lien adjacent).</p>
+    <p class="attendu"><strong>Attendu :</strong> description « Description détaillée du graphique » (lien adjacent), pastille 1.6 !.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>longdesc (obsolète)</h3>
     <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Ventes 2025" longdesc="ventes-2025.html"></div>
-    <p class="attendu"><strong>Attendu :</strong> description « ventes-2025.html » (longdesc) et ! « longdesc est obsolète ».</p>
+    <p class="attendu"><strong>Attendu :</strong> description « ventes-2025.html » (longdesc) et pastille 1.6 ! « longdesc est obsolète ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>Graphique sans description</h3>
     <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Ventes 2025"></div>
-    <p class="attendu"><strong>Attendu :</strong> « Description : aucune ». À l’auditeur de juger si l’image en nécessite une.</p>
+    <p class="attendu"><strong>Attendu :</strong> « Description : aucune », pas de pastille 1.6. À l’auditeur de juger si l’image en nécessite une.</p>
   </div>
 </div>
 
@@ -233,7 +233,7 @@ Utilisez le bouton « Estomper les images » ou <kbd>Maj+I</kbd> : ce qui dispar
         <figcaption>Le siège de l’association, à Lyon</figcaption>
       </figure>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> légende « Le siège… » (figcaption), aucun constat.</p>
+    <p class="attendu"><strong>Attendu :</strong> légende « Le siège… » (figcaption), pastille 1.9 ✓.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>figure sans role ni aria-label</h3>
@@ -243,7 +243,7 @@ Utilisez le bouton « Estomper les images » ou <kbd>Maj+I</kbd> : ce qui dispar
         <figcaption>Le siège de l’association, à Lyon</figcaption>
       </figure>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> ! « figure sans role="figure"… » et ! « figure sans aria-label… (1.9.1) ».</p>
+    <p class="attendu"><strong>Attendu :</strong> pastille 1.9 ! « figure sans role="figure"… » et « figure sans aria-label… (1.9.1) ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>aria-label différent de la légende</h3>
@@ -253,7 +253,7 @@ Utilisez le bouton « Estomper les images » ou <kbd>Maj+I</kbd> : ce qui dispar
         <figcaption>Le siège de l’association, à Lyon</figcaption>
       </figure>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> ! « aria-label de figure différent de la légende (1.9.1) ».</p>
+    <p class="attendu"><strong>Attendu :</strong> pastille 1.9 ! « aria-label de figure différent de la légende (1.9.1) ».</p>
   </div>
 </div>
 
