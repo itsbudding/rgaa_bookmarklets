@@ -55,7 +55,7 @@ const walk = (node, acc) => {
     if (SKIP.includes(tag) || notRendered(c)) return;
     const kind = tag === 'svg' ? 'svg' : isImg ? 'img' : 'text';
     const pres = role === 'presentation' || role === 'none';
-    const lb = idrefs(c, 'aria-labelledby');
+    const lb = idrefs(c, 'aria-labelledby', (t) => labelText(t, c));
     const al = clean(c.getAttribute('aria-label'));
     if (!pres && ((lb && lb.v.length) || al)) {
       acc.parts.push(lb && lb.v.length ? { t: lb.v.join(' '), s: `aria-labelledby (${tag})` } : { t: al, s: `aria-label (${tag})` });
@@ -92,9 +92,9 @@ const walk = (node, acc) => {
 };
 
 /**
- * Texte d'une étiquette <label> : tout son contenu, alternatives des images
- * (alt, aria-label, title des SVG…) comprises. Le champ étiqueté, s'il est
- * dans le label, est ignoré.
+ * Texte d'une étiquette (<label>, <legend>, cible d'aria-labelledby) : tout
+ * son contenu, alternatives des images (alt, aria-label, title des SVG…)
+ * comprises. Le champ étiqueté, s'il est dans l'étiquette, est ignoré.
  */
 export const labelText = (label, field) => {
   const acc = { parts: [], unnamed: [], skip: field };
@@ -124,7 +124,7 @@ export const nameOf = (el, { fromContent = true } = {}) => {
     if (before || after) acc.text = true;
   }
   const content = clean(acc.parts.map((p) => p.t).join(' '));
-  const lb = idrefs(el, 'aria-labelledby');
+  const lb = idrefs(el, 'aria-labelledby', (t) => labelText(t, el));
   const al = clean(el.getAttribute('aria-label'));
   const ti = clean(el.getAttribute('title'));
   const alt = tag === 'area' ? clean(el.getAttribute('alt')) : '';

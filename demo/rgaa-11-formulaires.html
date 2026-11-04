@@ -48,6 +48,11 @@
     <p class="attendu"><strong>Attendu :</strong> ✓ nom « Code postal » (label) : l’image décorative (alt vide) est ignorée.</p>
   </div>
   <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>aria-labelledby vers un texte avec image</h3>
+    <form class="demo" onsubmit="return false"><p id="c-drapeau-intitule" style="margin:0 0 .2rem;font-weight:600">Nationalité <img src="img/france.svg" alt="(drapeau français)" width="24" height="16"></p><input aria-labelledby="c-drapeau-intitule" autocomplete="off"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Nationalité (drapeau français) » (aria-labelledby) : l’alternative de l’image est prise en compte.</p>
+  </div>
+  <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>aria-labelledby</h3>
     <form class="demo" onsubmit="return false"><p id="c-tel-intitule" style="margin:0 0 .2rem;font-weight:600">Téléphone</p><input type="tel" aria-labelledby="c-tel-intitule" autocomplete="tel"></form>
     <p class="attendu"><strong>Attendu :</strong> ✓ nom « Téléphone » (aria-labelledby).</p>
@@ -150,6 +155,13 @@
 
 <h2>11.5 Les champs de même nature sont-ils regroupés ?</h2>
 <div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>legend avec image</h3>
+    <form class="demo" onsubmit="return false"><fieldset><legend><img src="img/france.svg" alt="Drapeau" width="24" height="16"> Pays de résidence</legend>
+      <input type="radio" id="c-res-1" name="residence"><label class="inline" for="c-res-1">France</label>
+      <input type="radio" id="c-res-2" name="residence"><label class="inline" for="c-res-2">Autre</label></fieldset></form>
+    <p class="attendu"><strong>Attendu :</strong> sur la legend, « Drapeau Pays de résidence » (legend) : l’alternative de l’image fait partie de la légende.</p>
+  </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>fieldset et legend</h3>
     <form class="demo" onsubmit="return false"><fieldset><legend>Mode de livraison</legend>
