@@ -15,6 +15,7 @@
 import { inspector } from '../lib/floating-panel.js';
 import { row, value, icon, esc, src, list, checks, flag, roleValue } from '../lib/dom.js';
 import { idrefs, textOf, norm, deepAll, isOwn, isNotExposed, roleInfo } from '../lib/a11y.js';
+import { labelText } from '../lib/name.js';
 import { pills, critBlocks, lineStatus, fromChecks, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
 
 const ID = 'rgaa-11-formulaires';
@@ -61,7 +62,7 @@ const visibleLabel = (e) => {
   if (nameFromContent(e) && !labelsOf(e).length) return textOf(e);
   return labelsOf(e)
     .filter((l) => !isNotExposed(l))
-    .map(textOf)
+    .map((l) => labelText(l, e))
     .join(' ');
 };
 
@@ -85,7 +86,7 @@ const accName = (e) => {
   }
   const labels = labelsOf(e);
   if (labels.length) {
-    const t = labels.map(textOf).filter(Boolean);
+    const t = labels.map((l) => labelText(l, e)).filter(Boolean);
     if (t.length) return { v: t, s: labels.length > 1 ? `${labels.length} labels` : 'label' };
   }
   if (nameFromContent(e)) {

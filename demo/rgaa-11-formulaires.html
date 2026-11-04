@@ -33,6 +33,21 @@
     <p class="attendu"><strong>Attendu :</strong> ✓ nom « Ville » (label).</p>
   </div>
   <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>label avec image (alt)</h3>
+    <form class="demo" onsubmit="return false"><label for="c-pays-img">Langue <img src="img/france.svg" alt="français" width="24" height="16"></label><input id="c-pays-img" autocomplete="language"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Langue français » (label) : l’alternative de l’image fait partie de l’étiquette.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>label avec SVG (role="img")</h3>
+    <form class="demo" onsubmit="return false"><label for="c-mail-svg"><svg role="img" aria-label="Courriel" width="18" height="18" viewBox="0 0 24 24"><path d="M2 5h20v14H2z M2 5l10 8 10-8" fill="none" stroke="currentColor" stroke-width="2"/></svg></label><input id="c-mail-svg" type="email" autocomplete="email"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Courriel » (label) : le label ne contient qu’une icône SVG nommée.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>label avec image décorative</h3>
+    <form class="demo" onsubmit="return false"><label for="c-cp-deco"><img src="img/separateur.svg" alt="" width="16" height="16"> Code postal</label><input id="c-cp-deco" autocomplete="postal-code"></form>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Code postal » (label) : l’image décorative (alt vide) est ignorée.</p>
+  </div>
+  <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>aria-labelledby</h3>
     <form class="demo" onsubmit="return false"><p id="c-tel-intitule" style="margin:0 0 .2rem;font-weight:600">Téléphone</p><input type="tel" aria-labelledby="c-tel-intitule" autocomplete="tel"></form>
     <p class="attendu"><strong>Attendu :</strong> ✓ nom « Téléphone » (aria-labelledby).</p>
