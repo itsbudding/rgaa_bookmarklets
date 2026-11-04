@@ -71,13 +71,13 @@ const visibleLabel = (e) => {
  * @returns {{v, s, insufficient?: boolean}}
  */
 const accName = (e) => {
-  const lb = idrefs(e, 'aria-labelledby');
+  const lb = idrefs(e, 'aria-labelledby', (t) => labelText(t, e));
   if (lb && lb.v.length) return lb;
   const al = (e.getAttribute('aria-label') || '').trim();
   if (al) return { v: al, s: 'aria-label' };
   if (e.tagName === 'FIELDSET') {
     const l = e.querySelector(':scope > legend');
-    if (l) return { v: textOf(l), s: 'legend' };
+    if (l) return { v: labelText(l, e), s: 'legend' };
   }
   if (tagOf(e) === 'input' && e.type === 'image') return { v: e.getAttribute('alt'), s: 'alt' };
   if (isButton(e)) {

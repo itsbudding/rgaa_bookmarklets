@@ -25,10 +25,11 @@ export const byId = (el, id) => {
 
 /**
  * Textes des éléments référencés par un attribut IDREFS
- * (aria-labelledby, aria-describedby...).
+ * (aria-labelledby, aria-describedby...). `text` calcule le texte de
+ * chaque élément (texte visible par défaut).
  * @returns {{v: string[], s: string, els: Element[], missing: string[]} | null}
  */
-export const idrefs = (el, attr) => {
+export const idrefs = (el, attr, text = textOf) => {
   const ids = (el.getAttribute(attr) || '').trim();
   if (!ids) return null;
   const els = [];
@@ -38,7 +39,7 @@ export const idrefs = (el, attr) => {
     if (t) els.push(t);
     else missing.push(id);
   });
-  const v = els.map(textOf).filter(Boolean);
+  const v = els.map((t) => text(t)).filter(Boolean);
   return { v, s: attr, els, missing };
 };
 
