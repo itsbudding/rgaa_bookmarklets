@@ -2,7 +2,7 @@
  * Nom accessible et texte visible d'un élément (cas courants du calcul
  * accname), partagés par RGAA 6 – Liens et RGAA 7 – Composants ARIA.
  */
-import { idrefs, textOf } from './a11y.js';
+import { idrefs } from './a11y.js';
 
 export const clean = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
 const tagOf = (e) => e.tagName.toLowerCase();
@@ -44,7 +44,7 @@ const walk = (node, acc) => {
       }
       return;
     }
-    if (c.nodeType !== 1) return;
+    if (c.nodeType !== 1 || c === acc.skip) return;
     const tag = tagOf(c);
     const role = roleOf(c);
     const isImg = tag === 'img' || (tag === 'input' && c.type === 'image') || tag === 'svg' || role === 'img';
@@ -92,6 +92,21 @@ const walk = (node, acc) => {
 };
 
 /**
+ * Texte d'une étiquette <label> : tout son contenu, alternatives des images
+ * (alt, aria-label, title des SVG…) comprises. Le champ étiqueté, s'il est
+ * dans le label, est ignoré.
+ */
+export const labelText = (label, field) => {
+  const acc = { parts: [], unnamed: [], skip: field };
+  const before = pseudoText(label, '::before');
+  if (before) acc.parts.push({ t: before });
+  walk(label, acc);
+  const after = pseudoText(label, '::after');
+  if (after) acc.parts.push({ t: after });
+  return clean(acc.parts.map((p) => p.t).join(' '));
+};
+
+/**
  * Nom accessible : aria-labelledby, aria-label, (alt pour area), étiquette
  * <label> des champs, contenu, title. Avec fromContent: false, le contenu
  * n'est pas lu (rôles dont le nom ne vient que de l'auteur : dialog,
@@ -113,7 +128,7 @@ export const nameOf = (el, { fromContent = true } = {}) => {
   const al = clean(el.getAttribute('aria-label'));
   const ti = clean(el.getAttribute('title'));
   const alt = tag === 'area' ? clean(el.getAttribute('alt')) : '';
-  const lab = el.labels && el.labels.length ? clean([...el.labels].map(textOf).join(' ')) : '';
+  const lab = el.labels && el.labels.length ? clean([...el.labels].map((l) => labelText(l, el)).join(' ')) : '';
   let name = '';
   let s = '';
   if (lb && lb.v.length) [name, s] = [clean(lb.v.join(' ')), 'aria-labelledby'];
