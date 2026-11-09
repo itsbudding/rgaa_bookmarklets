@@ -6,7 +6,8 @@
  * et le panneau se place à côté de lui. Les éléments situés dans un Shadow DOM
  * ouvert ou dans une iframe de même origine sont inspectés aussi.
  *
- *  - 2e clic sur le bookmarklet ou touche Échap : arrêt complet ;
+ *  - 2e clic sur le bookmarklet, touche Échap ou fermeture du panneau liste :
+ *    arrêt complet (même résultat dans les trois cas) ;
  *  - styles isolés (Shadow DOM) et base commune (theme.js) ;
  *  - mise en évidence des éléments avec restauration des styles d'origine.
  *
@@ -161,7 +162,11 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, pinOnLoc
     update(t, 0, 0, { left, top, bottom: top + r.height });
   };
   const onKeyDown = (e) => {
-    if (e.key === 'Escape') return pinned ? unpin() : stop();
+    if (e.key === 'Escape') {
+      // Échap est consommée ici : le panneau liste ne la traite pas une 2e fois.
+      e.stopPropagation();
+      return pinned ? unpin() : stop();
+    }
     if (onKey && onKey(e)) {
       e.preventDefault();
       // Réaffiche l'élément courant avec le nouvel état.
@@ -195,7 +200,16 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, pinOnLoc
   let listPanel = null;
   if (list) {
     try {
-      listPanel = createListPanel({ id, ...list, onClose: () => (listPanel = null), onLocate: pinOnLocate ? pin : undefined });
+      // Fermer le panneau liste désactive le bookmarklet, comme un 2e clic.
+      listPanel = createListPanel({
+        id,
+        ...list,
+        onClose: () => {
+          listPanel = null;
+          stop();
+        },
+        onLocate: pinOnLocate ? pin : undefined,
+      });
     } catch (err) {
       console.error(`[${id}]`, err);
     }
@@ -220,7 +234,9 @@ export const inspector = ({ id, css = '', inspect, list, onKey, onStop, pinOnLoc
     });
     hl.clear();
     host.remove();
-    if (listPanel) listPanel.close();
+    const lp = listPanel;
+    listPanel = null;
+    if (lp) lp.close();
     if (onStop) onStop();
   });
 

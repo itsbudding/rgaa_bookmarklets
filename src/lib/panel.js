@@ -19,10 +19,16 @@ export const toggleOff = (id) => {
 
 /** Enregistre la fonction d'arrêt d'un bookmarklet. */
 export const register = (id, destroy) => {
+  let done = false;
+  // Idempotente : peut être appelée par plusieurs voies (2e clic, Échap,
+  // fermeture du panneau liste) sans nettoyer deux fois.
   REGISTRY[id] = () => {
-    delete REGISTRY[id];
+    if (done) return;
+    done = true;
+    if (REGISTRY[id] === stop) delete REGISTRY[id];
     destroy();
   };
+  const stop = REGISTRY[id];
   return REGISTRY[id];
 };
 

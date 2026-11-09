@@ -82,12 +82,29 @@ const short = (s) => {
 };
 
 export const createListPanel = ({ id, title, collect, footer = '', tools = [], filters = [], toolsOnTop = false, css = '', beforeLocate, onClose, onLocate }) => {
-  const dlg = dialog({ id: `${id}-liste`, title, css: CSS + css, managed: true, focus: false, onClose });
+  const dlg = dialog({
+    id: `${id}-liste`,
+    title,
+    css: CSS + css,
+    managed: true,
+    focus: false,
+    closeLabel: 'Fermer et désactiver le bookmarklet',
+    // Fermé par son bouton ou par Échap : on nettoie ses propres contours
+    // avant de prévenir le bookmarklet (qui s'arrête alors entièrement).
+    onClose: () => {
+      cleanup();
+      if (onClose) onClose();
+    },
+  });
   const hl = createHighlighter();
   let res = { summary: '', items: [] };
   let items = [];
   let filter = 'all';
   let timer;
+  const cleanup = () => {
+    clearTimeout(timer);
+    hl.clear();
+  };
 
   /** Affiche la liste à partir du dernier résultat de collect(). */
   const draw = () => {
@@ -181,8 +198,7 @@ export const createListPanel = ({ id, title, collect, footer = '', tools = [], f
     refresh: render,
     redraw: draw,
     close: () => {
-      clearTimeout(timer);
-      hl.clear();
+      cleanup();
       dlg.close();
     },
   };
