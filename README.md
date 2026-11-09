@@ -46,7 +46,12 @@ bookmarklet sans l'installer.
 ## Utilisation
 
 - **Lancer** : ouvrez la page à auditer, puis cliquez sur le favori.
-- **Arrêter** : cliquez une seconde fois sur le favori, ou appuyez sur **Échap**.
+- **Arrêter** : cliquez une seconde fois sur le favori, appuyez sur **Échap**,
+  ou fermez le panneau liste (bouton ✕). Les trois donnent le même résultat :
+  panneaux, contours et affichages sur la page sont retirés.
+- **Réduire** : le bouton « − » du panneau liste le réduit à son en-tête
+  (« + » pour le déplier). Le bookmarklet continue de fonctionner (détail au
+  survol, raccourcis).
 - Les neuf bookmarklets sont indépendants et peuvent tourner en même temps.
 - Ils inspectent aussi le contenu des Shadow DOM ouverts et des iframes de
   même origine. Une iframe chargée après le lancement n'est prise en compte
@@ -87,7 +92,8 @@ Tous les bookmarklets ouvrent deux panneaux :
   ligne fait défiler jusqu'à l'élément et l'entoure ; un champ de formulaire
   reçoit aussi le focus, ce qui ouvre son détail. Le bouton « Actualiser »
   recalcule la liste après un changement de la page. Ce panneau se déplace
-  et se ferme indépendamment ;
+  et se réduit à son en-tête (bouton « − ») ; le fermer (✕) désactive le
+  bookmarklet ;
 - **le panneau de détail**, qui suit la souris : toutes les informations de
   l'élément survolé ou focalisé.
 
@@ -768,7 +774,8 @@ inspector({
 ```
 
 `list` (optionnel) ouvre le panneau liste (`list-panel.js`) : compteur,
-éléments cliquables, bouton « Actualiser ». Il se ferme avec le bookmarklet.
+éléments cliquables, bouton « Actualiser ». Il se ferme avec le bookmarklet,
+et sa fermeture (✕ ou Échap) arrête le bookmarklet entier.
 Il accepte aussi `tools` (boutons à bascule à côté d'« Actualiser », comme
 « Estomper les images » : `{ label, pressed(), toggle() }`) et `filters`
 (boutons de filtre, chaque élément portant alors `filter`). Un outil sans
@@ -796,5 +803,7 @@ if (dlg) dlg.body.innerHTML = '<ul class="items">…</ul>';
 ```
 
 Boîte de dialogue non modale, déplaçable à la souris ou au clavier (flèches
-sur l'en-tête), focus placé sur « Fermer » à l'ouverture et rendu à la
-fermeture, Échap pour fermer.
+sur l'en-tête), réductible à son en-tête (bouton « − » / « + » : nom
+accessible = titre du panneau, état donné par `aria-expanded`), focus placé
+sur « Fermer » à l'ouverture et rendu à la fermeture, Échap pour fermer.
+`closeLabel` change le nom accessible du bouton de fermeture.
