@@ -2,7 +2,7 @@
  * Nom accessible et texte visible d'un élément (cas courants du calcul
  * accname), partagés par RGAA 6 – Liens et RGAA 7 – Composants ARIA.
  */
-import { idrefs } from './a11y.js';
+import { idrefs, norm } from './a11y.js';
 
 export const clean = (t) => String(t ?? '').replace(/\s+/g, ' ').trim();
 const tagOf = (e) => e.tagName.toLowerCase();
@@ -147,7 +147,23 @@ export const nameOf = (el, { fromContent = true } = {}) => {
   else if (acc.img || acc.svg) nature = 'image';
   else if (acc.hiddenImg) nature = 'icône masquée';
   else if (acc.decoImg) nature = 'image décorative';
-  return { name, s, acc, content, lb, al, ti, nature };
+  // Morceaux du contenu répétés (texte masqué sr-only qui double le texte
+  // visible…) : le nom est restitué avec la répétition. `base` est le nom
+  // sans répétition, pour comparer les intitulés entre eux.
+  const repeats = [];
+  let base = name;
+  if (name && name === content) {
+    const seen = new Map();
+    acc.parts.forEach((p) => {
+      const k = norm(p.t);
+      if (!k) return;
+      if (seen.has(k)) seen.get(k).n += 1;
+      else seen.set(k, { t: p.t, n: 1 });
+    });
+    seen.forEach((v) => v.n > 1 && repeats.push(v));
+    if (repeats.length) base = clean([...seen.values()].map((v) => v.t).join(' '));
+  }
+  return { name, s, acc, content, lb, al, ti, nature, repeats, base };
 };
 
 /** Texte visible : sans le texte masqué visuellement (classe sr-only…), aria-hidden compris. */
