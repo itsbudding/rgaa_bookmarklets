@@ -272,6 +272,22 @@ adresse sont simplement signalés dans le détail.</p>
     <p class="attendu"><strong>Attendu :</strong> ! « Le title ne reprend pas l’intitulé du lien ».</p>
   </div>
   <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Intitulé doublé par du texte caché</h3>
+    <div class="demo">
+      <a href="https://example.org/connexion"><span class="sr-only">Se connecter</span><svg class="icone" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg> <span>Se connecter</span><span class="sr-only">Se connecter</span></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Se connecter Se connecter Se connecter », 6.1 ✓ et
+    ! « « Se connecter » répété 3 fois dans l’intitulé ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Intitulé générique doublé</h3>
+    <div class="demo">
+      <a href="https://example.org/actu/marche">Lire la suite<span class="sr-only">Lire la suite</span></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.1 ! « Peu explicite hors contexte (intitulé générique) » malgré la
+    répétition, compté comme doublon des autres « Lire la suite », et ! « « Lire la suite » répété 2 fois ».</p>
+  </div>
+  <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>href="#"</h3>
     <div class="demo">
       <a href="#" onclick="return false">Afficher le menu</a>

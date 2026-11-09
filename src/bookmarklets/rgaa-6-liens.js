@@ -12,8 +12,8 @@
  *    ce contexte (phrase, paragraphe, item de liste, cellule et en-têtes,
  *    titre qui précède) pour que l'auditeur juge. Le test 6.1.5 (nom
  *    accessible qui contient l'intitulé visible) est vérifié dans le code.
- * D'autres constats sont signalés sans verdict RGAA : title qui ne reprend
- * pas l'intitulé, nouvelle fenêtre non signalée, href="#" ou javascript:
+ * D'autres constats sont signalés sans verdict RGAA : intitulé répété
+ * (texte masqué qui double le texte visible), title qui ne reprend pas l'intitulé, nouvelle fenêtre non signalée, href="#" ou javascript:
  * (bouton déguisé), ancre introuvable, fichier sans format.
  *
  * Bouton « Intitulés » (Maj+N) : affiche l'intitulé de chaque lien sur la page.
@@ -81,6 +81,9 @@ const otherChecks = (e) => {
   const out = [];
   const { raw } = e.dest;
   const n = e.n;
+  n.repeats.forEach((r) =>
+    out.push(['warning', `« ${cut(r.t, 60)} » répété ${r.n} fois dans l’intitulé (texte masqué qui double le texte visible ?) : restitution redondante`]),
+  );
   if (raw !== null) {
     if (raw === '') out.push(['warning', 'href vide : le lien recharge la page']);
     else if (raw === '#') out.push(['warning', 'href="#" : pas de destination, bouton déguisé probable (rôle à vérifier, 7.1)']);
@@ -183,7 +186,7 @@ const analyse = (el, idx) => {
   e.trap = e.hidden === 'aria-hidden' && el.tabIndex >= 0 && el.getClientRects().length > 0;
   if (!e.hidden) {
     e.visible = visibleText(el);
-    e.vague = e.name ? vagueReason(e.name) : '';
+    e.vague = e.name ? vagueReason(e.n.base) : '';
   }
   return e;
 };
@@ -195,12 +198,13 @@ const collect = () => {
   // Doublons : même intitulé vers des destinations différentes, et inversement.
   const shown = entries.filter((e) => !e.hidden);
   const named = shown.filter((e) => e.name && e.dest.key);
+  // Comparaison sur le nom sans répétition (« Se connecter Se connecter » = « Se connecter »).
   named.forEach((e) => {
-    const k = norm(e.name);
+    const k = norm(e.n.base);
     named.forEach((o) => {
       if (o === e) return;
-      if (norm(o.name) === k && o.dest.key !== e.dest.key) e.dupName.push(o);
-      if (o.dest.key === e.dest.key && norm(o.name) !== k) e.dupDest.push(o);
+      if (norm(o.n.base) === k && o.dest.key !== e.dest.key) e.dupName.push(o);
+      if (o.dest.key === e.dest.key && norm(o.n.base) !== k) e.dupDest.push(o);
     });
   });
   entries.forEach((e) => {

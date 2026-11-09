@@ -389,10 +389,13 @@ orange. Un clic sur une ligne de la liste épingle le détail à côté du lien.
 C'est à l'auditeur de juger si l'intitulé est explicite dans ce contexte.
 
 **Doublons.** Le détail liste les autres destinations d'un même intitulé, et
-les autres intitulés d'une même destination (filtre « Doublons »).
+les autres intitulés d'une même destination (filtre « Doublons »). Les
+intitulés sont comparés sans leurs répétitions, comme le test des intitulés
+génériques : « Lire la suite Lire la suite » reste « à juger en contexte ».
 
 **Autres constats**, signalés « à vérifier » sans verdict sur la
-thématique 6 : `title` qui ne reprend pas l'intitulé, lien qui ouvre une
+thématique 6 : intitulé répété (texte masqué `sr-only` qui double le texte
+visible, « Se connecter Se connecter »), `title` qui ne reprend pas l'intitulé, lien qui ouvre une
 nouvelle fenêtre (`target`) sans le dire dans l'intitulé ou le `title`,
 `href="#"` ou `javascript:` (bouton déguisé probable, 7.1), ancre
 introuvable, lien vers un fichier (PDF, DOC…) sans format ni poids,
