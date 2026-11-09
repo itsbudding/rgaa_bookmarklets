@@ -48,7 +48,9 @@ ul:not(.demos) a{display:inline-block;padding:.4rem .8rem;margin:.25rem 0;border
 </head>
 <body>
 <h1>Bookmarklets RGAA</h1>
-<p>Glissez chaque lien dans votre barre de favoris. Cliquez une seconde fois sur un bookmarklet (ou appuyez sur Échap) pour le désactiver.</p>
+<p>Glissez chaque lien dans votre barre de favoris. Cliquez sur un favori pour lancer le bookmarklet sur la page à auditer.</p>
+<p>Pour le désactiver : cliquez une seconde fois sur le favori, appuyez sur Échap, ou fermez le panneau liste avec son bouton ✕. Les trois retirent les panneaux et les contours ajoutés à la page.</p>
+<p>Pour libérer de la place sans l’arrêter : le bouton « − » de l’en-tête du panneau liste le réduit à son titre, « + » le déplie. Le détail au survol et les raccourcis continuent de fonctionner.</p>
 <ul>
 ${links.map((l) => `<li><a href="${esc(l.url)}">${esc(label(l.name))}</a></li>`).join('\n')}
 </ul>
