@@ -553,25 +553,52 @@ const swatches = (fg, bg) =>
   `<span class="pair" aria-hidden="true" style="color:${hex(fg)};background:${hex(bg)}">Aa</span> `;
 
 /**
- * Analyse un élément de la page principale situé hors de l'écran : la page
- * défile un instant jusqu'à lui pour mesurer la pile réelle sous l'élément.
- * La position d'origine est rétablie à la fin de la collecte, avant tout
- * affichage : l'auditeur ne voit pas le défilement.
+ * Analyse un élément situé hors de l'écran : sa page (principale ou iframe de
+ * même origine) défile un instant jusqu'à lui pour mesurer la pile réelle sous
+ * l'élément. Les positions d'origine sont rétablies à la fin de la collecte,
+ * avant tout affichage : l'auditeur ne voit pas le défilement.
  */
+let scrolled = new Map();
 const measure = (fn) => (el) => {
-  if (el.ownerDocument === document) {
-    const r = el.getBoundingClientRect();
-    const s = getComputedStyle(el);
-    if (s.position !== 'fixed' && (r.bottom < 0 || r.top > innerHeight || r.right < 0 || r.left > innerWidth)) {
-      scrollTo({ left: scrollX + r.left - 20, top: scrollY + r.top - innerHeight / 3, behavior: 'instant' });
-    }
+  const view = el.ownerDocument.defaultView;
+  const r = el.getBoundingClientRect();
+  if (cs(el).position !== 'fixed' && (r.bottom < 0 || r.top > view.innerHeight || r.right < 0 || r.left > view.innerWidth)) {
+    if (!scrolled.has(view)) scrolled.set(view, [view.scrollX, view.scrollY]);
+    view.scrollTo({ left: view.scrollX + r.left - 20, top: view.scrollY + r.top - view.innerHeight / 3, behavior: 'instant' });
   }
   return safe(fn, el);
 };
 
+/** Iframes visibles dont le contenu est inaccessible (autre origine, sandbox). */
+const closedFrames = () =>
+  deepAll('iframe,frame').filter((f) => {
+    if (isOwn(f) || invisible(f)) return false;
+    try {
+      return !f.contentDocument;
+    } catch (e) {
+      return true;
+    }
+  });
+
+/** Adresse absolue http(s) d'une iframe, ou '' (srcdoc, about:, javascript:...). */
+const frameUrl = (f) => {
+  try {
+    const u = new URL(f.getAttribute('src') || '', f.ownerDocument.baseURI);
+    return /^https?:$/.test(u.protocol) ? u.href : '';
+  } catch (e) {
+    return '';
+  }
+};
+const frameName = (f) => {
+  const t = (f.getAttribute('title') || '').trim();
+  if (t) return `« ${t} »`;
+  const u = frameUrl(f);
+  return u ? new URL(u).host : 'sans titre';
+};
+
 const collect = () => {
   styles = new WeakMap();
-  const [x0, y0] = [scrollX, scrollY];
+  scrolled = new Map();
   let texts;
   let uis;
   let graphics;
@@ -584,8 +611,9 @@ const collect = () => {
       .filter(Boolean);
     graphics = graphicCandidates().filter((e) => !invisible(e)).map(measure(analyzeGraphic)).filter(Boolean);
   } finally {
-    scrollTo({ left: x0, top: y0, behavior: 'instant' });
+    [...scrolled].forEach(([view, [x, y]]) => view.scrollTo({ left: x, top: y, behavior: 'instant' }));
   }
+  const closed = closedFrames();
 
   // Regroupe les éléments qui ont la même paire de couleurs et le même résultat.
   const groups = new Map();
@@ -629,6 +657,16 @@ const collect = () => {
   const items = [...groups.values()]
     .map((g) => ({ ...g, el: g.els[0], meta: `${g.ratioTxt}${g.els.length > 1 ? ` · ${g.els.length} éléments` : ''}` }))
     .sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.r - b.r);
+  // Iframes non analysées : en tête, quel que soit le filtre.
+  items.unshift(
+    ...closed.map((f) => ({
+      el: f,
+      filter: ['texte', 'ui'],
+      status: 'warning',
+      label: `Iframe non analysée : ${frameName(f)}`,
+      meta: 'autre origine',
+    })),
+  );
 
   const count = (list, st) => list.filter((x) => x.status === st).length;
   const part = (n, word, list) => {
@@ -639,8 +677,24 @@ const collect = () => {
   const ui = [...uis, ...graphics];
   return {
     items,
-    summary: `${part(texts.length, texts.length > 1 ? 'textes' : 'texte', texts)}<br>${part(ui.length, ui.length > 1 ? 'composants et graphiques' : 'composant ou graphique', ui)}`,
+    summary:
+      `${part(texts.length, texts.length > 1 ? 'textes' : 'texte', texts)}<br>${part(ui.length, ui.length > 1 ? 'composants et graphiques' : 'composant ou graphique', ui)}` +
+      (closed.length ? `<br>${closedSummary(closed)}` : ''),
   };
+};
+
+/** Avertissement du compteur : iframes inaccessibles, avec un lien pour ouvrir chacune dans un onglet. */
+const closedSummary = (closed) => {
+  const n = closed.length;
+  const links = closed
+    .map((f) => [frameName(f), frameUrl(f)])
+    .filter(([, u]) => u)
+    .map(([name, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">Ouvrir ${esc(name)} dans un onglet</a>`);
+  return (
+    `${icon('warning')} ${n} ${n > 1 ? 'iframes non analysées' : 'iframe non analysée'} (autre origine : contenu inaccessible au bookmarklet). ` +
+    `Ouvrir ${n > 1 ? 'leur' : 'son'} adresse dans un onglet et y relancer le bookmarklet.` +
+    (links.length ? `<br>${links.join('<br>')}` : '')
+  );
 };
 
 /* ---------- Niveaux de gris (3.1) ---------- */
@@ -828,7 +882,8 @@ api = inspector({
       { label: 'Pipette', pressed: () => !!picker, toggle: togglePicker },
     ],
     footer:
-      'Ratios tronqués au centième. Si un fond ne peut pas être mesuré (zone défilante, iframe hors de l’écran), il est déduit des éléments parents et le détail l’indique. ' +
+      'Ratios tronqués au centième. Si un fond ne peut pas être mesuré (zone défilante), il est déduit des éléments parents et le détail l’indique. ' +
+      'Les iframes de même origine sont analysées ; celles d’une autre origine sont signalées, à ouvrir dans un onglet. ' +
       'Niveaux de gris (Maj+G) : repérer l’information donnée par la couleur seule (3.1). Pipette (Maj+C) : texte sur image.',
   },
   onKey(e) {
@@ -846,6 +901,16 @@ api = inspector({
   },
   inspect(target) {
     styles = new WeakMap();
+    if (['iframe', 'frame'].includes(tagOf(target)) && closedFrames().includes(target)) {
+      const u = frameUrl(target);
+      return {
+        html:
+          `<p class="sec">Iframe ${esc(frameName(target))}</p>` +
+          checks([['warning', 'Contenu d’une autre origine, inaccessible au bookmarklet : ouvrir l’iframe dans un onglet et y relancer le bookmarklet.']]) +
+          (u ? row('Adresse', esc(u)) : ''),
+        highlight: [[target, 'primary']],
+      };
+    }
     let html = '';
     const hl = [];
     let main = null;
