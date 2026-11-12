@@ -76,6 +76,13 @@ juger sa pertinence, la pastille est « ! » mais la ligne reste ✓ si rien
 d'autre n'est signalé. Dans le détail, chaque critère a son bloc avec son
 verdict et ses constats.
 
+**× seulement quand le code le prouve.** Un résultat qui repose sur une
+supposition (lecteur personnalisé repéré par heuristique, type de tableau
+deviné, fond approché, ombre portée non mesurée, contenu d'un plugin…) est
+« ! », avec le point à vérifier. Un `aria-labelledby` vers un id introuvable
+est « ! » si l'élément a quand même un nom, × s'il n'en a plus. Toutes les
+listes proposent les filtres « Non conformes » et « À vérifier ».
+
 Chaque valeur est suivie de sa source en italique, par exemple `(alt)`,
 `(aria-label)` ou `(label)`, pour savoir d'où vient le nom accessible.
 
@@ -145,7 +152,7 @@ même origine affiche aussi le détail.
 
 ### RGAA 3 – Couleurs
 
-La liste donne le compteur (textes, puis composants et graphiques, en erreur
+La liste donne le compteur (textes, puis composants et graphiques, non conformes
 et à vérifier) et les paires de couleurs de la page, du pire ratio au
 meilleur. Les éléments qui ont les mêmes couleurs et le même résultat sont
 regroupés (« 23 éléments ») : chaque clic sur la ligne passe au suivant. Deux
@@ -245,10 +252,13 @@ Ce qui est vérifié :
 - **4.8** : alternative d'une carte ou d'un objet (contenu de repli, adresse
   ou texte proche) ;
 - **4.10** : `autoplay` sans `muted`, média qui joue avec le son au lancement,
-  iframe avec `autoplay=1` sans `mute=1` : erreur s'il n'y a aucun contrôle ;
+  iframe avec `autoplay=1` sans `mute=1` : à vérifier (le code ne repère pas
+  toujours les contrôles d'un lecteur personnalisé) ;
 - **4.11 et 4.12** : attribut `controls` (conforme), contrôles d'un lecteur
   personnalisé (au moins lecture/pause et son, tous atteignables au clavier),
-  `controls=0` ou `disablekb=1` dans l'URL d'un lecteur tiers (erreur) ;
+  `controls=0` ou `disablekb=1` dans l'URL d'un lecteur tiers (à vérifier :
+  la page peut proposer ses propres boutons, `disablekb` ne coupe que les
+  raccourcis) ;
 - **4.13** : rôle, nom et état de chaque contrôle personnalisé (tableau dans
   le détail) ; un `<div>` cliquable sans rôle ni nom est une erreur.
 
@@ -295,8 +305,11 @@ constater. Les tableaux masqués sont marqués non concernés.
 case **Tableau complexe**. Ils sont pré-remplis par une supposition, dont la
 raison est affichée (« contient 2 th, 1 caption », « role="presentation" »,
 « une seule ligne »…). Tant que l'auditeur n'a pas confirmé, la liste affiche
-« Données ? » et le compteur « types à confirmer ». Le choix met les verdicts
-à jour aussitôt ; il est gardé tant que le bookmarklet tourne (« Actualiser »
+« Données ? » et le compteur « types à confirmer ». Si la supposition ne
+repose sur aucun indice lisible dans le code (ni `th`, ni rôle, ni
+`role="presentation"`), ce qui en dépend (5.3 sans `role="presentation"`,
+5.6 et 5.7 sans en-tête) reste « ! » jusqu'à la confirmation, puis devient ×.
+Le choix met les verdicts à jour aussitôt ; il est gardé tant que le bookmarklet tourne (« Actualiser »
 compris) et perdu à l'arrêt.
 
 Un tableau est supposé complexe quand des en-têtes ne sont pas sur la première
@@ -505,7 +518,7 @@ Ce bookmarklet couvre le **critère 9.1** (titres). La liste montre le
 **plan des titres** (`h1`–`h6` et `role="heading"`) dans l'ordre du
 document, en retrait selon le niveau, comme la liste des titres d'un lecteur
 d'écran. Les erreurs ne remontent pas en tête : l'ordre du plan compte. Le
-filtre « Erreurs » les isole. Chaque iframe de même origine a son propre
+filtre « Non conformes » les isole. Chaque iframe de même origine a son propre
 plan, sous une ligne « Iframe « titre du cadre » » ; un titre dans un Shadow
 DOM ouvert est à sa place dans le plan.
 

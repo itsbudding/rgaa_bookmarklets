@@ -215,12 +215,12 @@ const analyse = (t, css = null) => {
     const x = [];
     if (!e.name) {
       if (css) x.push(['warning', 'Image CSS sans alternative : vérifier qu’elle est décorative']);
-      else if (tag === 'embed') x.push(['error', 'embed sans alternative : ajouter aria-label ou un texte adjacent (1.1.7)']);
+      else if (tag === 'embed') x.push(['warning', 'embed sans aria-label : vérifier qu’un texte adjacent sert d’alternative (1.1.7)']);
       else x.push(['error', 'Aucune alternative']);
     }
     if (tag === 'svg' && t.getAttribute('role') !== 'img') x.push(['warning', 'svg porteur d’information sans role="img" (1.1.5)']);
     const lb = idrefs(t, 'aria-labelledby');
-    if (lb && lb.missing.length) x.push(['error', `aria-labelledby : id introuvable (${lb.missing.join(', ')})`]);
+    if (lb && lb.missing.length) x.push([e.name ? 'warning' : 'error', `aria-labelledby : id introuvable (${lb.missing.join(', ')})`]);
     c['1.1'] = fromChecks(x, { ok: 'Alternative présente' });
     if (e.name) {
       const sus = e.name.s === 'alt' && suspiciousAlt(e.name.v[0], e.file);

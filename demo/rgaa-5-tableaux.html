@@ -73,7 +73,8 @@ Le type est supposé (« Données ? ») jusqu’à ce que l’auditeur le confir
     </div>
     <p class="attendu"><strong>Attendu :</strong> « Données ? », supposition « aucun indice, supposition prudente ».
     5.4 ! aucun titre (le paragraphe qui précède n’est pas associé),
-    5.6 × aucun en-tête, 5.7 ×. Si l’auditeur choisit Présentation : 5.3 × (role="presentation" absent).</p>
+    5.6 ! et 5.7 ! « Si c’est un tableau de données : aucun en-tête » tant que le type n’est pas confirmé, × une fois « Données » confirmé.
+    Si l’auditeur choisit Présentation : 5.3 × (role="presentation" absent).</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>Une seule ligne, sans rôle</h3>
@@ -81,7 +82,7 @@ Le type est supposé (« Données ? ») jusqu’à ce que l’auditeur le confir
       <table class="mef"><tr><td><img src="img/logo-rgaa.svg" alt="" width="40" height="40"></td><td>Bienvenue sur le site de la médiathèque.</td></tr></table>
     </div>
     <p class="attendu"><strong>Attendu :</strong> « Présentation ? », supposition « une seule ligne ».
-    5.3 × role="presentation" absent, 5.8 ✓.</p>
+    5.3 ! « Si c’est un tableau de mise en forme : role="presentation" absent » tant que le type n’est pas confirmé, × une fois confirmé ; 5.8 ✓.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Tableau ARIA (role="table")</h3>
@@ -123,7 +124,7 @@ Le type est supposé (« Données ? ») jusqu’à ce que l’auditeur le confir
             <td><h4>Nous suivre</h4><a href="#">Réseaux sociaux</a></td></tr>
       </table>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> « Présentation ? », supposition « contient h4, input ». 5.3 ×, 5.8 ✓.</p>
+    <p class="attendu"><strong>Attendu :</strong> « Présentation ? », supposition « contient h4, input ». 5.3 ! tant que le type n’est pas confirmé, × une fois confirmé ; 5.8 ✓.</p>
   </div>
 </div>
 
@@ -313,7 +314,7 @@ ou quand un en-tête est fusionné. La case « Complexe » est alors pré-coché
         <tr><td>Accueil</td><td>01 23 45 67 89</td></tr>
       </table>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> 5.6 × aucun en-tête, ! « Première ligne en td et en gras : en-têtes probables ».
+    <p class="attendu"><strong>Attendu :</strong> 5.6 × aucun en-tête (le caption montre un tableau de données), ! « Première ligne en td et en gras : en-têtes probables ».
     Le bouton « Structure » montre des td partout.</p>
   </div>
   <div class="case">

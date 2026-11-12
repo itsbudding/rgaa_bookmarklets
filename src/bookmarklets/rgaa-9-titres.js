@@ -19,7 +19,8 @@
  * Outils : Plan sur la page (Maj+H), Copier le plan.
  */
 import { inspector } from '../lib/floating-panel.js';
-import { row, esc, src, icon, list } from '../lib/dom.js';
+import { row, esc, src, icon, list, flag } from '../lib/dom.js';
+import { pills, critBlock, worst, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
 import { norm, isNotExposed, toTopCoords, allDocuments, textOf } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 import { nameOf, visibleText, clean, styleOf } from '../lib/name.js';
@@ -29,11 +30,7 @@ const ID = 'rgaa-9-titres';
 const OWN = '[data-rgaa-bookmarklet]';
 
 /** Constat avec icône ; ∅ se lit « Non concerné » (et non « Masqué »). */
-const flag = (type, text) =>
-  `<span class="flag flag--${type}">${icon(type, type === 'hidden' ? 'Non concerné' : undefined)}<span>${esc(text)}</span></span>`;
 
-const RANK = { error: 3, warning: 2, ok: 1, hidden: 0 };
-const worst = (l) => l.reduce((w, s) => (RANK[s] > RANK[w] ? s : w), 'ok');
 const tagOf = (e) => e.tagName.toLowerCase();
 const roleOf = (e) => (e.getAttribute('role') || '').trim().split(/\s+/)[0].toLowerCase();
 const plural = (n, s, p = `${s}s`) => `${n} ${n > 1 ? p : s}`;
@@ -235,7 +232,7 @@ const analyseDoc = (doc, label) => {
     if (h.prev && h.prev.level === h.level && h.name && norm(h.prev.name) === norm(h.name)) h.dup = h.prev;
     const status = worst(['ok', ...x.map((a) => a[0])]);
     h.crit = {
-      '9.1.1': { status, text: x.length ? (status === 'error' ? 'Erreur dans le code' : 'À vérifier') : 'Niveau cohérent avec le titre précédent', extra: x },
+      '9.1.1': { status, text: x.length ? (status === 'error' ? 'Non conforme' : 'À vérifier') : 'Niveau cohérent avec le titre précédent', extra: x },
     };
     h.crit['9.1.2'] = contentCheck(h);
     h.status = worst([status, h.crit['9.1.2'].base ? 'ok' : h.crit['9.1.2'].status]);
@@ -251,11 +248,7 @@ const docLabel = (doc) => {
   return t ? `Iframe « ${cut(t, 50)} »` : `Iframe sans titre (${cut(clean(f.getAttribute('src') || 'srcdoc'), 40)})`;
 };
 
-const PILL_LABEL = { error: 'non conforme', warning: 'à vérifier', ok: 'conforme', hidden: 'non concerné' };
-const GLYPH = { error: '×', warning: '!', ok: '✓', hidden: '∅' };
-const pill = (k, s) =>
-  `<span class="pill pill--${s}"><span aria-hidden="true">${k} ${GLYPH[s]}</span><span class="sr-only">${k} ${PILL_LABEL[s]},</span></span>`;
-const pills = (h) => `<span class="pills">${['9.1.1', '9.1.2'].map((k) => pill(k, h.crit[k].status)).join('')}</span>`;
+const pillsOf = (h) => pills(h.crit, ['9.1.1', '9.1.2']);
 const lvlTag = (h) => `<span class="lvl">h${h.level}${h.isHx && !h.lv.src.startsWith('aria-level') ? '' : '*'}</span>`;
 
 const docSummary = (d) => {
@@ -277,12 +270,12 @@ const collect = () => {
         el: h.el,
         status: h.status,
         indent: h.indent,
-        prefix: lvlTag(h) + pills(h),
+        prefix: lvlTag(h) + pillsOf(h),
         label: h.name || '(titre vide)',
         meta: [h.jump ? `saut ${h.jump}` : '', h.sr ? 'caché visuellement' : '', revealed.has(h.el) ? `affiché par le bookmarklet (${revealed.get(h.el)})` : '']
           .filter(Boolean)
           .join(' · '),
-        filter: [...(h.status === 'error' ? ['erreurs'] : []), ...(h.status !== 'ok' ? ['verifier'] : [])],
+        filter: [...(h.status === 'error' ? ['erreurs'] : []), ...(['error', 'warning'].includes(h.status) ? ['verifier'] : [])],
       }),
     );
   });
@@ -307,7 +300,7 @@ const collect = () => {
     items,
     summary:
       (main.plan.length ? `${plural(main.plan.length, 'titre')}` : `${icon('error')} aucun titre dans la page`) +
-      ` · ${err ? icon('error') + ' ' : ''}${plural(err, 'erreur')} · ${jumps ? icon('warning') + ' ' : ''}${plural(jumps, 'saut')} de niveau · ${docSummary(main)}` +
+      ` · ${err ? icon('error') + ' ' : ''}${err} non conforme${err > 1 ? 's' : ''} · ${jumps ? icon('warning') + ' ' : ''}${plural(jumps, 'saut')} de niveau · ${docSummary(main)}` +
       (hidden ? ` · ${plural(hidden, 'non restitué')}` : '') +
       (docs.length > 1 && plan.length > main.plan.length ? ` · ${plan.length - main.plan.length} dans des iframes` : ''),
   };
@@ -346,10 +339,6 @@ const toggleRevealAll = () => {
 };
 
 /* ---------- Détail ---------- */
-
-const critBlock = (num, r) =>
-  `<div class="crit"><span class="crit-num">${num}</span><div class="crit-body">${flag(r.status, r.text)}` +
-  `${(r.extra || []).map(([t, txt]) => `<div>${flag(t, txt)}</div>`).join('')}</div></div>`;
 
 const crumb = (h) => `h${h.level} ${esc(cut(h.name || '(vide)', 50))}`;
 
@@ -573,23 +562,13 @@ const copyPlan = () => {
 
 /* ---------- Lancement ---------- */
 
-const DETAIL_CSS = `
-.crits{margin-top:8px;border-top:1px solid var(--rgaa-sep)}
-.crit{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--rgaa-sep)}
-.crit-num{flex:0 0 2.8em;font-weight:700}
-.crit-body{min-width:0;display:flex;flex-direction:column;gap:3px}
-.note{margin:8px 0 0}
+const DETAIL_CSS = `${CRIT_CSS}
 .act{cursor:pointer;background:none;border:1px solid var(--rgaa-border);border-radius:3px;padding:2px 8px}
 `;
-const LIST_CSS = `
-.item > span:last-child{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px}
+const LIST_CSS = `${PILL_CSS}
+.item > span:last-child{display:flex;flex-direction:row;flex-wrap:wrap;align-items:baseline;gap:2px 6px}
 .lvl{font-weight:700;color:var(--rgaa-focus);min-width:2em}
 .pills{order:3;flex-basis:100%;display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
-.pill{font-size:var(--rgaa-fs-sm);border:1px solid currentColor;border-radius:3px;padding:0 3px;white-space:nowrap}
-.pill--error{color:var(--rgaa-error)}
-.pill--warning{color:var(--rgaa-warning)}
-.pill--ok{color:var(--rgaa-ok)}
-.pill--hidden{color:var(--rgaa-muted)}
 `;
 
 const keyOk = (e) => {
@@ -613,7 +592,7 @@ const ui = inspector({
       return r;
     },
     filters: [
-      { id: 'erreurs', label: 'Erreurs' },
+      { id: 'erreurs', label: 'Non conformes' },
       { id: 'verifier', label: 'À vérifier' },
     ],
     tools: [
