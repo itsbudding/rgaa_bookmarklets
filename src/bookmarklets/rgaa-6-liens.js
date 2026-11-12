@@ -19,7 +19,8 @@
  * Bouton « Intitulés » (Maj+N) : affiche l'intitulé de chaque lien sur la page.
  */
 import { inspector } from '../lib/floating-panel.js';
-import { row, esc, src, icon, list } from '../lib/dom.js';
+import { row, esc, src, icon, list, flag } from '../lib/dom.js';
+import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, isOwn, byId, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 import { nameOf, visibleText, clean } from '../lib/name.js';
@@ -27,11 +28,8 @@ import { nameOf, visibleText, clean } from '../lib/name.js';
 const ID = 'rgaa-6-liens';
 
 /** Constat avec icône ; ∅ se lit « Non concerné » (et non « Masqué »). */
-const flag = (type, text) =>
-  `<span class="flag flag--${type}">${icon(type, type === 'hidden' ? 'Non concerné' : undefined)}<span>${esc(text)}</span></span>`;
 
-const RANK = { error: 3, warning: 2, ok: 1, hidden: 0 };
-const worst = (l) => l.reduce((w, s) => (RANK[s] > RANK[w] ? s : w), 'hidden');
+const worst = (l) => worstOf(l, 'hidden');
 const tagOf = (e) => e.tagName.toLowerCase();
 const roleOf = (e) => (e.getAttribute('role') || '').trim().split(/\s+/)[0].toLowerCase();
 const plural = (n, s, p = `${s}s`) => `${n} ${n > 1 ? p : s}`;
@@ -229,7 +227,7 @@ const collect = () => {
       status: e.status,
       label: e.hidden ? `${e.name || '(sans intitulé)'} (masqué : ${e.hidden})` : e.name || '(sans intitulé)',
       meta: e.hidden ? (e.trap ? 'focalisable malgré aria-hidden' : 'non concerné') : `${e.n.nature}${e.name ? ` · ${e.n.s}` : ''}`,
-      prefix: pills(e),
+      prefix: pillsOf(e),
       filter: e.hidden
         ? []
         : [
@@ -247,19 +245,8 @@ const collect = () => {
   };
 };
 
-const PILL_LABEL = { error: 'non conforme', warning: 'à vérifier', ok: 'conforme', hidden: 'non concerné' };
-const GLYPH = { error: '×', warning: '!', ok: '✓', hidden: '∅' };
 
-function pills(e) {
-  if (e.hidden) return '';
-  const keys = CRIT.filter((k) => e.crit[k] && !e.crit[k].na);
-  return `<span class="pills">${keys
-    .map((k) => {
-      const s = e.crit[k].status;
-      return `<span class="pill pill--${s}"><span aria-hidden="true">${k} ${GLYPH[s]}</span><span class="sr-only">${k} ${PILL_LABEL[s]},</span></span>`;
-    })
-    .join('')}</span>`;
-}
+const pillsOf = (e) => (e.hidden ? '' : pills(e.crit, CRIT));
 
 /** Lien qui contient l'élément survolé (iframes de même origine et Shadow DOM compris). */
 const findEntry = (target) => {
@@ -345,11 +332,6 @@ const contextOf = (e) => {
 };
 
 /* ---------- Détail ---------- */
-
-const critBlock = (num, r) =>
-  `<div class="crit"><span class="crit-num">${num}</span><div class="crit-body">${flag(r.status, r.text)}` +
-  `${r.quote ? `<div class="quote">« ${esc(cut(r.quote, 200))} » ${src(r.s)}</div>` : ''}` +
-  `${(r.extra || []).map(([t, txt]) => `<div>${flag(t, txt)}</div>`).join('')}</div></div>`;
 
 const elementLabel = (e) => `&lt;${esc(tagOf(e.el))}&gt;${e.role ? ` ${src(`role="${e.role}"`)}` : ''}`;
 
@@ -454,23 +436,11 @@ const setNames = (on) => {
 
 /* ---------- Lancement ---------- */
 
-const DETAIL_CSS = `
-.crits{margin-top:8px;border-top:1px solid var(--rgaa-sep)}
-.crit{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--rgaa-sep)}
+const DETAIL_CSS = `${CRIT_CSS}
 .crit-num{flex:0 0 2.6em;font-weight:700}
-.crit-body{min-width:0;display:flex;flex-direction:column;gap:3px}
-.quote{font-style:italic}
-.note{margin:8px 0 0}
 .crits + .row{margin-top:8px}
 `;
-const LIST_CSS = `
-.item > span:last-child{display:flex;flex-direction:column;gap:2px}
-.pills{order:2;display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
-.pill{font-size:var(--rgaa-fs-sm);border:1px solid currentColor;border-radius:3px;padding:0 3px;white-space:nowrap}
-.pill--error{color:var(--rgaa-error)}
-.pill--warning{color:var(--rgaa-warning)}
-.pill--ok{color:var(--rgaa-ok)}
-.pill--hidden{color:var(--rgaa-muted)}
+const LIST_CSS = `${PILL_CSS}
 `;
 
 const keyOk = (e) => {

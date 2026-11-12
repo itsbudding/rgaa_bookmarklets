@@ -24,18 +24,16 @@
  * de lecture.
  */
 import { inspector } from '../lib/floating-panel.js';
-import { row, esc, src, icon, list } from '../lib/dom.js';
+import { row, esc, src, icon, list, flag } from '../lib/dom.js';
+import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, presentational, byId, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 
 const ID = 'rgaa-5-tableaux';
 
 /** Constat avec icône ; ∅ se lit « Non concerné » (et non « Masqué »). */
-const flag = (type, text) =>
-  `<span class="flag flag--${type}">${icon(type, type === 'hidden' ? 'Non concerné' : undefined)}<span>${esc(text)}</span></span>`;
 
-const RANK = { error: 3, warning: 2, ok: 1, hidden: 0 };
-const worst = (l) => l.reduce((w, s) => (RANK[s] > RANK[w] ? s : w), 'hidden');
+const worst = (l) => worstOf(l, 'hidden');
 const tagOf = (e) => e.tagName.toLowerCase();
 const roleOf = (e) => (e.getAttribute('role') || '').trim().split(/\s+/)[0].toLowerCase();
 const plural = (n, s, p = `${s}s`) => `${n} ${n > 1 ? p : s}`;
@@ -411,18 +409,10 @@ const analyse = (t, i) => {
   return e;
 };
 
-const PILL_LABEL = { error: 'non conforme', warning: 'à vérifier', ok: 'conforme', hidden: 'non concerné' };
-const GLYPH = { error: '×', warning: '!', ok: '✓', hidden: '∅' };
 
-const pills = (e) => {
+const pillsOf = (e) => {
   if (e.status === 'hidden') return '';
-  const keys = (e.type === 'data' ? DATA_CRIT : LAYOUT_CRIT).filter((k) => e.crit[k] && !e.crit[k].na);
-  return `<span class="pills">${keys
-    .map((k) => {
-      const s = e.crit[k].status;
-      return `<span class="pill pill--${s}"><span aria-hidden="true">${k} ${GLYPH[s]}</span><span class="sr-only">${k} ${PILL_LABEL[s]},</span></span>`;
-    })
-    .join('')}</span>`;
+  return pills(e.crit, e.type === 'data' ? DATA_CRIT : LAYOUT_CRIT);
 };
 
 const typeLabel = (e) => `${e.type === 'data' ? 'Données' : 'Présentation'}${e.type === 'data' && e.complex ? ' complexe' : ''}${e.confirmed ? '' : ' ?'}`;
@@ -451,7 +441,7 @@ const collect = () => {
       status: e.status,
       label: e.hidden ? `${labelOf(e)} (masqué : ${e.hidden})` : labelOf(e),
       meta: e.hidden ? 'non concerné' : `${typeLabel(e)} · ${e.g.height} × ${e.g.width}`,
-      prefix: pills(e),
+      prefix: pillsOf(e),
       filter: e.hidden ? [] : [e.type, ...(e.confirmed ? [] : ['confirmer'])],
     })),
     summary:
@@ -494,11 +484,6 @@ const findCell = (target) =>
   });
 
 /* ---------- Détail ---------- */
-
-const critBlock = (num, r) =>
-  `<div class="crit"><span class="crit-num">${num}</span><div class="crit-body">${flag(r.status, r.text)}` +
-  `${r.quote ? `<div class="quote">« ${esc(cut(r.quote, 300))} » ${src(r.s)}</div>` : ''}` +
-  `${(r.extra || []).map(([t, txt]) => `<div>${flag(t, txt)}</div>`).join('')}</div></div>`;
 
 const choiceHtml = (e) => {
   const n = `t${e.idx}`;
@@ -675,28 +660,16 @@ const setLin = (on, only) => {
 
 /* ---------- Lancement ---------- */
 
-const DETAIL_CSS = `
+const DETAIL_CSS = `${CRIT_CSS}
 .choice{border:1px solid var(--rgaa-border);border-radius:3px;margin:0 0 8px;padding:4px 8px 6px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
 .choice legend{font-weight:700;padding:0 4px}
 .choice label{display:inline-flex;align-items:center;gap:4px;cursor:pointer}
 .choice .cx{flex-basis:100%}
 .choice > div{flex-basis:100%}
-.crits{margin-top:8px;border-top:1px solid var(--rgaa-sep)}
-.crit{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--rgaa-sep)}
 .crit-num{flex:0 0 2.6em;font-weight:700}
-.crit-body{min-width:0;display:flex;flex-direction:column;gap:3px}
-.quote{font-style:italic}
 .act{cursor:pointer;background:none;border:1px solid var(--rgaa-border);border-radius:3px;padding:2px 8px}
-.note{margin:8px 0 0}
 `;
-const LIST_CSS = `
-.item > span:last-child{display:flex;flex-direction:column;gap:2px}
-.pills{order:2;display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
-.pill{font-size:var(--rgaa-fs-sm);border:1px solid currentColor;border-radius:3px;padding:0 3px;white-space:nowrap}
-.pill--error{color:var(--rgaa-error)}
-.pill--warning{color:var(--rgaa-warning)}
-.pill--ok{color:var(--rgaa-ok)}
-.pill--hidden{color:var(--rgaa-muted)}
+const LIST_CSS = `${PILL_CSS}
 `;
 
 const keyOk = (e) => {

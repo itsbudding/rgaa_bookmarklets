@@ -22,15 +22,14 @@
  * (Maj+T) ; dans le détail épinglé : « Charger les sous-titres ».
  */
 import { inspector } from '../lib/floating-panel.js';
-import { row, esc, src, icon, list } from '../lib/dom.js';
+import { row, esc, src, icon, list, flag } from '../lib/dom.js';
+import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isOwn, isNotExposed, roleInfo, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 
 const ID = 'rgaa-4-multimedia';
 
 /** Constat avec icône ; ∅ se lit « Non concerné » (et non « Masqué »). */
-const flag = (type, text) =>
-  `<span class="flag flag--${type}">${icon(type, type === 'hidden' ? 'Non concerné' : undefined)}<span>${esc(text)}</span></span>`;
 
 /* ---------- Repérage des médias ---------- */
 
@@ -322,8 +321,7 @@ const identify = (e) => {
 
 /* ---------- Critères ---------- */
 
-const RANK = { error: 3, warning: 2, ok: 1, hidden: 0 };
-const worst = (list) => list.reduce((w, s) => (RANK[s] > RANK[w] ? s : w), 'hidden');
+const worst = (l) => worstOf(l, 'hidden');
 
 /** État d'origine (avant « Couper tous les médias ») et lecture constatée au lancement. */
 const muteState = new Map();
@@ -526,18 +524,10 @@ const controlCriteria = (e, native, ctrls, p) => {
 
 const TEMPORAL_CRIT = ['4.1', '4.3', '4.5', '4.7', '4.10', '4.11', '4.13'];
 const NT_CRIT = ['4.8', '4.12', '4.13'];
-const PILL_LABEL = { error: 'non conforme', warning: 'à vérifier', ok: 'conforme', hidden: 'non concerné' };
-const GLYPH = { error: '×', warning: '!', ok: '✓', hidden: '∅' };
 
-const pills = (e) => {
+const pillsOf = (e) => {
   if (!e.crit || e.status === 'hidden') return '';
-  return `<span class="pills">${(e.temporal ? TEMPORAL_CRIT : NT_CRIT)
-    .filter((k) => e.crit[k])
-    .map((k) => {
-      const s = e.crit[k].status;
-      return `<span class="pill pill--${s}"><span aria-hidden="true">${k} ${GLYPH[s]}</span><span class="sr-only">${k} ${PILL_LABEL[s]},</span></span>`;
-    })
-    .join('')}</span>`;
+  return pills(e.crit, e.temporal ? TEMPORAL_CRIT : NT_CRIT);
 };
 
 /** Libellé court d'un média pour la liste. */
@@ -571,7 +561,7 @@ const collect = () => {
       status: e.status,
       label: e.hidden ? `${labelOf(e)} (masqué : ${e.hidden})` : labelOf(e),
       meta: e.type,
-      prefix: pills(e),
+      prefix: pillsOf(e),
       filter: e.kind === 'link' ? 'lien' : e.temporal ? 'temporel' : 'nontemporel',
     })),
     summary:
@@ -601,10 +591,6 @@ const findEntry = (target) => {
   }
   return null;
 };
-
-const critBlock = (num, r, more = '') =>
-  `<div class="crit"><span class="crit-num">${num}</span><div class="crit-body">${flag(r.status, r.text)}` +
-  `${(r.extra || []).map(([t, txt]) => `<div>${flag(t, txt)}</div>`).join('')}${more}</div></div>`;
 
 const controlsTable = (ctrls) =>
   ctrls.length
@@ -788,25 +774,14 @@ const loadCues = (t) =>
 
 /* ---------- Lancement ---------- */
 
-const DETAIL_CSS = `
-.crits{margin-top:8px;border-top:1px solid var(--rgaa-sep)}
-.crit{display:flex;gap:8px;padding:6px 0;border-bottom:1px solid var(--rgaa-sep)}
+const DETAIL_CSS = `${CRIT_CSS}
 .crit-num{flex:0 0 2.6em;font-weight:700}
-.crit-body{min-width:0;display:flex;flex-direction:column;gap:3px}
 .more .list{margin-top:2px}
 .act{align-self:flex-start;cursor:pointer;background:none;border:1px solid var(--rgaa-border);border-radius:3px;padding:2px 8px;margin-top:4px}
 .ctrls{border-collapse:collapse;margin-top:4px;font-size:var(--rgaa-fs-sm);width:100%}
 .ctrls th,.ctrls td{border:1px solid var(--rgaa-sep);padding:2px 4px;text-align:left;vertical-align:top}
-.note{margin:8px 0 0}
 `;
-const LIST_CSS = `
-.item > span:last-child{display:flex;flex-direction:column;gap:2px}
-.pills{order:2;display:flex;flex-wrap:wrap;gap:3px;margin-top:2px}
-.pill{font-size:var(--rgaa-fs-sm);border:1px solid currentColor;border-radius:3px;padding:0 3px;white-space:nowrap}
-.pill--error{color:var(--rgaa-error)}
-.pill--warning{color:var(--rgaa-warning)}
-.pill--ok{color:var(--rgaa-ok)}
-.pill--hidden{color:var(--rgaa-muted)}
+const LIST_CSS = `${PILL_CSS}
 `;
 
 const keyOk = (e) => {

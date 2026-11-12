@@ -8,14 +8,16 @@
  * pastille est « ! », mais la ligne de la liste reste ✓ (voir lineStatus).
  * na: true : critère non applicable, ni pastille ni bloc.
  */
-import { flag } from './dom.js';
+import { flag, esc, src } from './dom.js';
+
+const cut = (t, n) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
 
 export const STATUS_WORD = { error: 'non conforme', warning: 'à vérifier', ok: 'conforme', hidden: 'non concerné' };
 const GLYPH = { error: '×', warning: '!', ok: '✓', hidden: '∅' };
-const RANK = { error: 3, warning: 2, ok: 1, hidden: 0 };
+export const RANK = { error: 3, warning: 2, ok: 1, hidden: 0 };
 
-/** Pire statut d'une liste (ok si vide). */
-export const worst = (l) => l.reduce((w, s) => (RANK[s] > RANK[w] ? s : w), 'ok');
+/** Pire statut d'une liste (from si vide : ok par défaut). */
+export const worst = (l, from = 'ok') => l.reduce((w, s) => (RANK[s] > RANK[w] ? s : w), from);
 
 /** Pastille d'un critère. */
 export const pill = (k, s) =>
@@ -47,10 +49,14 @@ export const fromChecks = (x, { ok = 'Conforme', judge } = {}) => {
   return { status: sorted[0][0], text: sorted[0][1], extra: sorted.slice(1) };
 };
 
-/** Bloc d'un critère dans le détail. */
-export const critBlock = (num, r) =>
+/**
+ * Bloc d'un critère dans le détail. r.quote (et sa source r.s) : texte cité
+ * sous le verdict ; more : HTML ajouté à la fin du bloc.
+ */
+export const critBlock = (num, r, more = '') =>
   `<div class="crit"><span class="crit-num">${num}</span><div class="crit-body">${flag(r.status, r.text)}` +
-  `${(r.extra || []).map(([t, txt]) => `<div>${flag(t, txt)}</div>`).join('')}</div></div>`;
+  `${r.quote ? `<div class="quote">« ${esc(cut(r.quote, 300))} » ${src(r.s)}</div>` : ''}` +
+  `${(r.extra || []).map(([t, txt]) => `<div>${flag(t, txt)}</div>`).join('')}${more}</div></div>`;
 
 /** Blocs des critères applicables. */
 export const critBlocks = (crit, keys) =>
@@ -66,6 +72,7 @@ export const CRIT_CSS = `
 .crit-num{flex:0 0 2.8em;font-weight:700}
 .crit-body{min-width:0;display:flex;flex-direction:column;gap:3px}
 .note{margin:8px 0 0}
+.quote{font-style:italic}
 `;
 
 /** Styles de la liste (pastilles sous le libellé). */
