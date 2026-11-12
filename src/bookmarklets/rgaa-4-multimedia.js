@@ -23,7 +23,7 @@
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list, flag } from '../lib/dom.js';
-import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
+import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isOwn, isNotExposed, roleInfo, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 
@@ -417,11 +417,11 @@ const analyze = (e) => {
       else if (!sound) c['4.10'] = { status: 'ok', text: 'Lecture automatique sans le son (muted)' };
       else if (Number.isFinite(m.duration) && m.duration <= 3) c['4.10'] = { status: 'ok', text: 'Lecture automatique, mais son de 3 secondes ou moins' };
       else if (canStop) c['4.10'] = { status: 'warning', text: 'Lecture automatique avec le son : vérifier qu’on peut l’arrêter ou couper le son dès le début de la page' };
-      else c['4.10'] = { status: 'error', text: 'Lecture automatique avec le son, sans contrôle pour l’arrêter' };
+      else c['4.10'] = { status: 'warning', text: 'Lecture automatique avec le son et aucun contrôle repéré : vérifier qu’on peut arrêter le son dès le début de la page' };
     } else if (p) {
       if (!p.autoplay) c['4.10'] = { status: 'ok', text: 'Pas de lecture automatique dans l’URL' };
       else if (p.muted) c['4.10'] = { status: 'ok', text: 'Lecture automatique sans le son (paramètre d’URL)' };
-      else if (p.noControls) c['4.10'] = { status: 'error', text: 'Lecture automatique avec le son et lecteur sans contrôles' };
+      else if (p.noControls) c['4.10'] = { status: 'warning', text: 'Lecture automatique avec le son et lecteur sans contrôles : vérifier que la page propose de quoi arrêter le son' };
       else c['4.10'] = { status: 'warning', text: 'Lecture automatique avec le son (paramètre d’URL) : vérifier qu’on peut l’arrêter dès le début de la page' };
     } else c['4.10'] = { status: 'ok', text: 'Pas de lecture automatique' };
 
@@ -450,6 +450,7 @@ const analyze = (e) => {
     const focusIn = deepAll('a[href],button,input,select,textarea,[tabindex]', m).some((x) => x.tabIndex >= 0 && !isNotExposed(x));
     if (e.kind === 'map' && tagOf(m) === 'iframe') c['4.12'] = { status: 'warning', text: 'Carte tierce : tester au clavier (déplacement, zoom) et à la souris' };
     else if (m.tabIndex >= 0 || focusIn) c['4.12'] = { status: 'warning', text: 'Atteignable au clavier : tester les fonctions (déplacement, zoom, activation)' };
+    else if (e.kind === 'object') c['4.12'] = { status: 'warning', text: 'Contenu d’un plugin, illisible par le bookmarklet : tester au clavier' };
     else c['4.12'] = { status: 'error', text: 'Aucun élément atteignable au clavier dans le média' };
     const named = nameOf(m).v;
     c['4.13'] = { status: 'warning', text: named ? 'À tester avec un lecteur d’écran' : 'Pas de nom accessible : à tester avec un lecteur d’écran' };
@@ -469,8 +470,8 @@ const controlCriteria = (e, native, ctrls, p) => {
     return c;
   }
   if (e.kind === 'iframe') {
-    if (p.noControls) c['4.11'] = { status: 'error', text: 'Lecteur sans contrôles (paramètre controls=0 ou background=1)' };
-    else if (p.noKeyboard) c['4.11'] = { status: 'error', text: 'Raccourcis clavier désactivés (paramètre disablekb=1)' };
+    if (p.noControls) c['4.11'] = { status: 'warning', text: 'Lecteur sans contrôles (paramètre controls=0 ou background=1) : vérifier que la page propose ses propres boutons' };
+    else if (p.noKeyboard) c['4.11'] = { status: 'warning', text: 'Raccourcis clavier désactivés (paramètre disablekb=1) : tester les boutons du lecteur au clavier (Tab, Entrée, Espace)' };
     else c['4.11'] = { status: 'warning', text: 'Lecteur tiers : tester au clavier (Tab, Entrée, Espace) et à la souris' };
     c['4.13'] = { status: 'warning', text: 'Lecteur tiers : tester avec un lecteur d’écran' };
     return c;
@@ -496,8 +497,8 @@ const controlCriteria = (e, native, ctrls, p) => {
       c['4.11'] = { status: 'warning', text: 'Vidéo d’arrière-plan probable (autoplay muted loop) : si elle est décorative, la thématique 4 ne s’applique pas, mais un moyen de la mettre en pause est requis au-delà de 5 s (13.8)' };
       c['4.13'] = { status: 'hidden', text: 'Non concerné si la vidéo est décorative' };
     } else {
-      c['4.11'] = { status: 'error', text: 'Aucun contrôle : ni attribut controls, ni lecteur personnalisé repéré' };
-      c['4.13'] = { status: 'error', text: 'Aucun contrôle restitué aux technologies d’assistance' };
+      c['4.11'] = { status: 'warning', text: 'Aucun contrôle repéré (ni attribut controls, ni lecteur personnalisé) : vérifier comment lancer et arrêter le média' };
+      c['4.13'] = { status: 'warning', text: 'Aucun contrôle repéré : vérifier les contrôles avec un lecteur d’écran' };
     }
     return c;
   }
@@ -562,7 +563,7 @@ const collect = () => {
       label: e.hidden ? `${labelOf(e)} (masqué : ${e.hidden})` : labelOf(e),
       meta: e.type,
       prefix: pillsOf(e),
-      filter: e.kind === 'link' ? 'lien' : e.temporal ? 'temporel' : 'nontemporel',
+      filter: [e.kind === 'link' ? 'lien' : e.temporal ? 'temporel' : 'nontemporel', ...statusFilter(e.status)],
     })),
     summary:
       `${media.length} média${media.length > 1 ? 's' : ''} · ` +
@@ -799,6 +800,7 @@ const ui = inspector({
     title: 'Médias',
     collect,
     filters: [
+      ...STATUS_FILTERS,
       { id: 'temporel', label: 'Temporels' },
       { id: 'nontemporel', label: 'Non temporels' },
       { id: 'lien', label: 'Liens' },

@@ -163,7 +163,7 @@ const analyse = (f) => {
   const labels = labelsOf(f);
   const c = {};
   const other = [];
-  const lbMissing = lb && lb.missing.length ? [['error', `aria-labelledby : id introuvable (${lb.missing.join(', ')})`]] : [];
+  const lbMissing = lb && lb.missing.length ? [[named ? 'warning' : 'error', `aria-labelledby : id introuvable (${lb.missing.join(', ')})`]] : [];
   if (d && d.missing.length) other.push(['error', `aria-describedby : id introuvable (${d.missing.join(', ')})`]);
 
   // Intitulé visible contenu dans le nom (11.2.5, 11.2.6, 11.9.2).

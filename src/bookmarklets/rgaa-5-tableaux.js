@@ -25,7 +25,7 @@
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list, flag } from '../lib/dom.js';
-import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
+import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, presentational, byId, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 
@@ -198,11 +198,11 @@ const dataMarkers = (t, g) => {
 
 const guessType = (t, g) => {
   const pres = presentational(t);
-  if (pres) return { type: 'layout', reason: pres };
+  if (pres) return { type: 'layout', reason: pres, sure: true };
   const r = roleOf(t);
-  if (ARIA_TABLE.includes(r)) return { type: 'data', reason: `role="${r}"` };
+  if (ARIA_TABLE.includes(r)) return { type: 'data', reason: `role="${r}"`, sure: true };
   const marks = dataMarkers(t, g);
-  if (marks.length) return { type: 'data', reason: `contient ${marks.join(', ')}` };
+  if (marks.length) return { type: 'data', reason: `contient ${marks.join(', ')}`, sure: true };
   const inner = [...t.querySelectorAll('table,h1,h2,h3,h4,h5,h6,form,nav,input,select,textarea')].filter((e) => (e.tagName === 'TABLE' ? e.parentElement.closest('table') : e.closest('table')) === t);
   if (inner.some((e) => e.tagName === 'TABLE')) return { type: 'layout', reason: 'contient un autre tableau' };
   if (inner.length) return { type: 'layout', reason: `contient ${[...new Set(inner.map(tagOf))].join(', ')}` };
@@ -267,7 +267,12 @@ const summaryOf = (t) => {
 
 /* ---------- Critères ---------- */
 
-const dataCriteria = (t, g, complex) => {
+/**
+ * sure : type confirmé par l'utilisateur ou lisible dans le code (th, rôle,
+ * role="presentation"). Sinon le type est deviné et ce qui en dépend reste
+ * « à vérifier » (décision du 12/11/2026).
+ */
+const dataCriteria = (t, g, complex, sure) => {
   const c = {};
   const title = titleOf(t);
   // 5.1 / 5.2 : résumé d'un tableau complexe.
@@ -288,12 +293,8 @@ const dataCriteria = (t, g, complex) => {
   }
   // 5.4 / 5.5 : titre.
   if (title) {
-    c['5.4'] = {
-      status: 'ok',
-      text: `Titre associé (${title.s})`,
-      el: title.el,
-      extra: title.missing && title.missing.length ? [['error', `aria-labelledby : id introuvable (${title.missing.join(', ')})`]] : [],
-    };
+    const lbMissing = title.missing && title.missing.length ? [['warning', `aria-labelledby : id introuvable (${title.missing.join(', ')})`]] : [];
+    c['5.4'] = { status: lbMissing.length ? 'warning' : 'ok', text: `Titre associé (${title.s})`, el: title.el, extra: lbMissing };
     c['5.5'] = GENERIC_TITLE.test(norm(title.v))
       ? { status: 'warning', text: `Titre générique « ${title.v} »`, quote: title.v, s: title.s }
       : { status: 'warning', text: 'Pertinence du titre à vérifier', quote: title.v, s: title.s };
@@ -328,7 +329,9 @@ const dataCriteria = (t, g, complex) => {
   const nRow = hs.length - nCol;
   c['5.6'] = hs.length
     ? { status: worst(['ok', ...extra6.map((e) => e[0])]), text: `${plural(nCol, 'en-tête')} de colonne, ${plural(nRow, 'en-tête')} de ligne`, extra: extra6 }
-    : { status: 'error', text: 'Aucun en-tête déclaré (th, columnheader, rowheader)', extra: extra6 };
+    : sure
+      ? { status: 'error', text: 'Aucun en-tête déclaré (th, columnheader, rowheader)', extra: extra6 }
+      : { status: 'warning', text: 'Si c’est un tableau de données : aucun en-tête déclaré (th, columnheader, rowheader). Confirmer le type', extra: extra6 };
   // 5.7 : association cellules / en-têtes.
   const extra7 = [];
   const badScope = g.cells.filter((x) => x.header && x.scopeAttr !== null && !SCOPES.includes(x.scopeAttr) && !x.role);
@@ -351,7 +354,7 @@ const dataCriteria = (t, g, complex) => {
   if (hs.length && orphans) extra7.push(['warning', `${plural(orphans, 'cellule')} sans en-tête associé`]);
   const usesHeaders = g.cells.some((x) => x.el.hasAttribute('headers'));
   if (complex && g.html && !usesHeaders) extra7.push(['warning', 'Tableau complexe sans attribut headers : vérifier l’association de chaque cellule']);
-  if (!hs.length) c['5.7'] = { status: 'error', text: 'Aucun en-tête : aucune association possible', extra: extra7 };
+  if (!hs.length) c['5.7'] = { status: sure ? 'error' : 'warning', text: 'Aucun en-tête : aucune association possible', extra: extra7 };
   else {
     const how = usesHeaders ? 'headers / id' : g.cells.some((x) => x.dirFrom === 'scope') ? 'scope' : g.html ? 'position des th (portée déduite)' : 'rôles ARIA';
     c['5.7'] = { status: worst(['ok', ...extra7.map((e) => e[0])]), text: `Association par ${how}`, extra: extra7 };
@@ -359,7 +362,7 @@ const dataCriteria = (t, g, complex) => {
   return c;
 };
 
-const layoutCriteria = (t, g) => {
+const layoutCriteria = (t, g, sure) => {
   const c = {};
   const lin = ['warning', 'Contenu linéarisé à vérifier (bouton « Linéariser »)'];
   if (!g.html) c['5.3'] = { status: 'warning', text: lin[1] };
@@ -367,7 +370,8 @@ const layoutCriteria = (t, g) => {
     const pres = presentational(t);
     const cancel = GLOBAL_ARIA.filter((a) => t.hasAttribute(a));
     if (t.hasAttribute('tabindex')) cancel.push('tabindex');
-    if (!pres) c['5.3'] = { status: 'error', text: 'role="presentation" absent (test 5.3.1)', extra: [lin] };
+    if (!pres && !sure) c['5.3'] = { status: 'warning', text: 'Si c’est un tableau de mise en forme : role="presentation" absent (test 5.3.1). Confirmer le type', extra: [lin] };
+    else if (!pres) c['5.3'] = { status: 'error', text: 'role="presentation" absent (test 5.3.1)', extra: [lin] };
     else if (cancel.length) c['5.3'] = { status: 'error', text: `${pres} annulé par ${cancel.join(', ')}`, extra: [lin] };
     else c['5.3'] = { status: 'warning', text: lin[1], extra: [['ok', `${pres} présent`]] };
   }
@@ -404,7 +408,8 @@ const analyse = (t, i) => {
     e.crit = {};
     return e;
   }
-  e.crit = type === 'data' ? dataCriteria(t, g, complex) : layoutCriteria(t, g);
+  const sure = e.confirmed || (type === guess.type && !!guess.sure);
+  e.crit = type === 'data' ? dataCriteria(t, g, complex, sure) : layoutCriteria(t, g, sure);
   e.status = worst(Object.values(e.crit).filter((x) => !x.na).map((x) => x.status));
   return e;
 };
@@ -442,12 +447,12 @@ const collect = () => {
       label: e.hidden ? `${labelOf(e)} (masqué : ${e.hidden})` : labelOf(e),
       meta: e.hidden ? 'non concerné' : `${typeLabel(e)} · ${e.g.height} × ${e.g.width}`,
       prefix: pillsOf(e),
-      filter: e.hidden ? [] : [e.type, ...(e.confirmed ? [] : ['confirmer'])],
+      filter: e.hidden ? [] : [e.type, ...(e.confirmed ? [] : ['confirmer']), ...statusFilter(e.status)],
     })),
     summary:
       `${plural(shown.length, 'tableau', 'tableaux')} · ${data.length} données${cplx ? ` (${cplx} complexe${cplx > 1 ? 's' : ''})` : ''} · ${layout} présentation · ` +
       `${toConfirm ? icon('warning') + ' ' : ''}${plural(toConfirm, 'type')} à confirmer · ` +
-      `${err ? icon('error') + ' ' : ''}${err} en erreur` +
+      `${err ? icon('error') + ' ' : ''}${err} non conforme${err > 1 ? 's' : ''}` +
       (hidden ? ` · ${hidden} masqué${hidden > 1 ? 's' : ''}` : ''),
   };
 };
@@ -696,6 +701,7 @@ const ui = inspector({
     title: 'Tableaux',
     collect,
     filters: [
+      ...STATUS_FILTERS,
       { id: 'data', label: 'Données' },
       { id: 'layout', label: 'Présentation' },
       { id: 'confirmer', label: 'À confirmer' },

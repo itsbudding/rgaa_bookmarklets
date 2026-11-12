@@ -85,3 +85,12 @@ export const PILL_CSS = `
 .pill--ok{color:var(--rgaa-ok)}
 .pill--hidden{color:var(--rgaa-muted)}
 `;
+
+/** Filtres communs par statut, en tête des filtres de chaque liste. */
+export const STATUS_FILTERS = [
+  { id: 'erreurs', label: 'Non conformes' },
+  { id: 'verifier', label: 'À vérifier' },
+];
+
+/** Identifiants des filtres communs pour un statut de ligne. */
+export const statusFilter = (s) => [...(s === 'error' ? ['erreurs'] : []), ...(s === 'error' || s === 'warning' ? ['verifier'] : [])];

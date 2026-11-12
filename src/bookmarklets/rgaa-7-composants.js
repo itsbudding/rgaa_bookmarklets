@@ -24,7 +24,7 @@
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list, flag } from '../lib/dom.js';
-import { pill, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
+import { pill, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, toTopCoords, allDocuments, implicitRole, isOwn } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 import { nameOf, visibleText, clean } from '../lib/name.js';
@@ -268,7 +268,9 @@ const ariaChecks = (e) => {
       x.push(
         later
           ? ['warning', `${a} : id introuvable (${r.missing.join(', ')}), peut-être créé à l’ouverture : vérifier une fois ouvert`]
-          : ['error', `${a} : id introuvable (${r.missing.join(', ')})`],
+          : a === 'aria-labelledby' && e.n && e.n.name
+            ? ['warning', `${a} : id introuvable (${r.missing.join(', ')}), le nom vient des autres références : à corriger`]
+            : ['error', `${a} : id introuvable (${r.missing.join(', ')})`],
       );
     }
     r.els.forEach((t) => {
@@ -504,10 +506,10 @@ const collect = () => {
       label: e.status === 'hidden' ? `${labelOf(e)} (masqué : ${e.hidden})` : labelOf(e),
       meta: e.status === 'hidden' ? 'non concerné' : e.rd.raw ? `role="${e.rd.raw}"` : `<${tagOf(e.el)}>`,
       prefix: pills(e),
-      filter: e.status === 'hidden' ? [] : [e.kind],
+      filter: e.status === 'hidden' ? [] : [e.kind, ...statusFilter(e.status)],
     })),
     summary:
-      `${plural(comps.length, 'composant')} · ${err ? icon('error') + ' ' : ''}${err} en erreur · ` +
+      `${plural(comps.length, 'composant')} · ${err ? icon('error') + ' ' : ''}${err} non conforme${err > 1 ? 's' : ''} · ` +
       `${toTest ? icon('warning') + ' ' : ''}${toTest} à tester à la main · ${plural(msgs.length, 'zone')} de messages` +
       (hidden ? ` · ${hidden} masqué${hidden > 1 ? 's' : ''}` : ''),
   };
@@ -634,7 +636,7 @@ const setRoles = (on) => {
       const tag = document.createElement('span');
       tag.className = `tag${e.status === 'error' ? ' tag--error' : ''}`;
       const states = STATE_SHORT.filter((a) => e.el.hasAttribute(a)).map((a) => `${a.slice(5)}=${e.el.getAttribute(a)}`);
-      tag.textContent = `${e.role || (e.rd.raw ? `role="${e.rd.raw}"` : `<${tagOf(e.el)}>`)}${e.role && WIDGET.has(e.role) ? ` « ${e.name ? cut(e.name, 40) : '∅ sans nom'} »` : ''}${states.length ? ` ${states.join(' ')}` : ''}`;
+      tag.textContent = `${e.status === 'error' ? '× ' : ''}${e.role || (e.rd.raw ? `role="${e.rd.raw}"` : `<${tagOf(e.el)}>`)}${e.role && WIDGET.has(e.role) ? ` « ${e.name ? cut(e.name, 40) : 'sans nom'} »` : ''}${states.length ? ` ${states.join(' ')}` : ''}`;
       root.appendChild(tag);
       rolesItems.push({ el: e.el, tag });
     });
@@ -767,6 +769,7 @@ const ui = inspector({
     title: 'Composants ARIA',
     collect,
     filters: [
+      ...STATUS_FILTERS,
       { id: 'composant', label: 'Composants' },
       { id: 'message', label: 'Messages' },
     ],

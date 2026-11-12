@@ -88,6 +88,11 @@
     <p class="attendu"><strong>Attendu :</strong> × l’opacité de 0,45 du parent éclaircit le texte : 2,88:1.</p>
   </div>
   <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Texte clair avec une ombre portée</h3>
+    <div class="demo"><p style="margin:0;padding:4px;background:#fff;color:#bbbbbb;text-shadow:0 0 2px #000,0 0 2px #000">Texte détouré par une ombre.</p></div>
+    <p class="attendu"><strong>Attendu :</strong> ! et non × : 1,92:1 sans l’ombre, mais l’ombre portée (non mesurée) peut assurer le contraste.</p>
+  </div>
+  <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Fond posé par un calque positionné</h3>
     <div class="demo"><div class="bandeau"><span class="bandeau-fond"></span><p class="bandeau-texte">Texte blanc sur un calque bleu</p></div></div>
     <p class="attendu"><strong>Attendu :</strong> ✓ blanc sur #1a3d6e (fond donné par &lt;span.bandeau-fond&gt;, entouré en orange), 10,84:1. Un calcul par les seuls parents trouverait « blanc sur blanc ».</p>

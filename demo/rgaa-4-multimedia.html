@@ -136,13 +136,14 @@
 <h2>4.10 Son déclenché automatiquement</h2>
 <div class="cases">
   <div class="case">
-    <h3><span class="badge badge--ko">Non conforme</span> Lecture automatique avec le son, sans contrôles</h3>
+    <h3><span class="badge badge--check">À vérifier</span> Lecture automatique avec le son, sans contrôles</h3>
     <div class="demo">
       <p style="margin:0 0 .3rem">Bande-annonce</p>
       <video autoplay preload="auto" src="media/presentation.webm"></video>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> en tête de liste : 4.10 × son sans contrôle pour l’arrêter, 4.11 × et 4.13 × aucun contrôle.
-    Le navigateur bloque souvent ce son tant qu’on n’a pas cliqué dans la page : l’erreur est signalée quand même.</p>
+    <p class="attendu"><strong>Attendu :</strong> 4.10 ! « aucun contrôle repéré : vérifier qu’on peut arrêter le son », 4.11 ! et 4.13 ! aucun contrôle repéré.
+    Le code ne voit pas toujours un lecteur personnalisé : à l’auditeur de constater l’absence de contrôle.
+    Le navigateur bloque souvent ce son tant qu’on n’a pas cliqué dans la page : le cas est signalé quand même.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span> Vidéo d’arrière-plan</h3>
@@ -193,11 +194,11 @@
     <p class="attendu"><strong>Attendu :</strong> 4.11 ! à tester au clavier, 4.13 ! à tester au lecteur d’écran ; tableau : 3 contrôles nommés et focalisables.</p>
   </div>
   <div class="case">
-    <h3><span class="badge badge--ko">Non conforme</span> YouTube sans contrôles</h3>
+    <h3><span class="badge badge--check">À vérifier</span> YouTube sans contrôles</h3>
     <div class="demo">
       <iframe title="Webinaire RGAA, partie 1" src="https://www.youtube.com/embed/ghi789?controls=0&amp;disablekb=1" srcdoc="<body style='margin:0;height:100vh;display:grid;place-items:center;background:#111;color:#fff;font:14px system-ui'>Lecteur YouTube simulé</body>"></iframe>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> paramètres « controls=0 · disablekb=1 », 4.11 × lecteur sans contrôles.</p>
+    <p class="attendu"><strong>Attendu :</strong> paramètres « controls=0 · disablekb=1 », 4.11 ! lecteur sans contrôles : vérifier que la page propose ses propres boutons.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span> Façade de lecteur</h3>

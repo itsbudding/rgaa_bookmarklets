@@ -74,9 +74,9 @@
     <p class="attendu"><strong>Attendu :</strong> ✓ dans la liste, nom « Ventes trimestrielles… » (contenu alternatif). Le survol d’un object peut ne pas réagir : utilisez la liste.</p>
   </div>
   <div class="case">
-    <h3><span class="badge badge--ko">Non conforme</span>embed sans alternative</h3>
+    <h3><span class="badge badge--check">À vérifier</span>embed sans alternative</h3>
     <div class="demo"><embed type="image/svg+xml" src="img/graphique-ventes.svg" width="160" height="100"></div>
-    <p class="attendu"><strong>Attendu :</strong> × « Sans alternative » dans la liste. Comme pour object, le survol peut ne pas réagir.</p>
+    <p class="attendu"><strong>Attendu :</strong> 1.1 ! « embed sans aria-label : vérifier qu’un texte adjacent sert d’alternative ». Comme pour object, le survol peut ne pas réagir.</p>
   </div>
   <div class="case wide">
     <h3>Zones cliquables (area)</h3>
@@ -175,6 +175,11 @@
     <h3><span class="badge badge--ko">Non conforme</span>aria-labelledby vers un id absent</h3>
     <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80" aria-labelledby="legende-inexistante"></div>
     <p class="attendu"><strong>Attendu :</strong> × sans alternative, pastille 1.1 × avec « aria-labelledby : id introuvable ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>aria-labelledby cassé, mais alt présent</h3>
+    <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80" alt="L’équipe au complet" aria-labelledby="legende-absente"></div>
+    <p class="attendu"><strong>Attendu :</strong> pastille 1.1 ! « aria-labelledby : id introuvable » : l’image a un nom (alt), le code est à corriger.</p>
   </div>
 </div>
 

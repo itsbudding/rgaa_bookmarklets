@@ -232,7 +232,7 @@ const analyseDoc = (doc, label) => {
     if (h.prev && h.prev.level === h.level && h.name && norm(h.prev.name) === norm(h.name)) h.dup = h.prev;
     const status = worst(['ok', ...x.map((a) => a[0])]);
     h.crit = {
-      '9.1.1': { status, text: x.length ? (status === 'error' ? 'Erreur dans le code' : 'À vérifier') : 'Niveau cohérent avec le titre précédent', extra: x },
+      '9.1.1': { status, text: x.length ? (status === 'error' ? 'Non conforme' : 'À vérifier') : 'Niveau cohérent avec le titre précédent', extra: x },
     };
     h.crit['9.1.2'] = contentCheck(h);
     h.status = worst([status, h.crit['9.1.2'].base ? 'ok' : h.crit['9.1.2'].status]);
@@ -275,7 +275,7 @@ const collect = () => {
         meta: [h.jump ? `saut ${h.jump}` : '', h.sr ? 'caché visuellement' : '', revealed.has(h.el) ? `affiché par le bookmarklet (${revealed.get(h.el)})` : '']
           .filter(Boolean)
           .join(' · '),
-        filter: [...(h.status === 'error' ? ['erreurs'] : []), ...(h.status !== 'ok' ? ['verifier'] : [])],
+        filter: [...(h.status === 'error' ? ['erreurs'] : []), ...(['error', 'warning'].includes(h.status) ? ['verifier'] : [])],
       }),
     );
   });
@@ -300,7 +300,7 @@ const collect = () => {
     items,
     summary:
       (main.plan.length ? `${plural(main.plan.length, 'titre')}` : `${icon('error')} aucun titre dans la page`) +
-      ` · ${err ? icon('error') + ' ' : ''}${plural(err, 'erreur')} · ${jumps ? icon('warning') + ' ' : ''}${plural(jumps, 'saut')} de niveau · ${docSummary(main)}` +
+      ` · ${err ? icon('error') + ' ' : ''}${err} non conforme${err > 1 ? 's' : ''} · ${jumps ? icon('warning') + ' ' : ''}${plural(jumps, 'saut')} de niveau · ${docSummary(main)}` +
       (hidden ? ` · ${plural(hidden, 'non restitué')}` : '') +
       (docs.length > 1 && plan.length > main.plan.length ? ` · ${plan.length - main.plan.length} dans des iframes` : ''),
   };
@@ -592,7 +592,7 @@ const ui = inspector({
       return r;
     },
     filters: [
-      { id: 'erreurs', label: 'Erreurs' },
+      { id: 'erreurs', label: 'Non conformes' },
       { id: 'verifier', label: 'À vérifier' },
     ],
     tools: [

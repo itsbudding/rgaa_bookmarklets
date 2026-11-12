@@ -558,7 +558,7 @@ const listLabel = (e) => {
   return t ? `« ${cut(t, 50)} »` : '(sans texte)';
 };
 
-const filterOf = (s) => [...(s === 'error' ? ['erreurs'] : []), ...(s !== 'ok' ? ['verifier'] : [])];
+const filterOf = (s) => [...(s === 'error' ? ['erreurs'] : []), ...(['error', 'warning'].includes(s) ? ['verifier'] : [])];
 
 const collect = () => {
   docs = allDocuments().map((doc, i) => analyseDoc(doc, i ? docLabel(doc) : ''));
@@ -637,7 +637,7 @@ const collect = () => {
     count: lists.length,
     items,
     summary:
-      `${plural(lists.length, 'liste')} · ${err ? icon('error') + ' ' : ''}${plural(err, 'erreur')} · ${warn ? icon('warning') + ' ' : ''}${warn} à vérifier` +
+      `${plural(lists.length, 'liste')} · ${err ? icon('error') + ' ' : ''}${err} non conforme${err > 1 ? 's' : ''} · ${warn ? icon('warning') + ' ' : ''}${warn} à vérifier` +
       (hand ? ` · ${plural(hand, 'série')} de lignes à puces hors liste` : '') +
       (navs ? ` · ${plural(navs, 'navigation')} hors liste` : '') +
       (out ? ` · ${out} non restituée${out > 1 ? 's' : ''} ou composant${out > 1 ? 's' : ''}` : ''),
@@ -958,7 +958,7 @@ const ui = inspector({
       return r;
     },
     filters: [
-      { id: 'erreurs', label: 'Erreurs' },
+      { id: 'erreurs', label: 'Non conformes' },
       { id: 'verifier', label: 'À vérifier' },
     ],
     tools: [

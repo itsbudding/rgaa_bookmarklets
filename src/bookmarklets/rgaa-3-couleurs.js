@@ -17,6 +17,7 @@
 import { inspector } from '../lib/floating-panel.js';
 import { dialog } from '../lib/dialog-panel.js';
 import { row, esc, flag, checks, icon, src } from '../lib/dom.js';
+import { STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { deepAll, isOwn } from '../lib/a11y.js';
 import { withoutHighlight } from '../lib/highlight.js';
 import { parseColor, colorsIn, fade, over, ratio, fmtRatio, hex, label, TRANSPARENT, WHITE } from '../lib/color.js';
@@ -372,11 +373,14 @@ const analyzeText = (el) => {
   if (fg.a === 0 && clipText) notes.push('texte rempli par un fond (background-clip: text)');
   if (s.textShadow && s.textShadow !== 'none') notes.push('ombre portée (text-shadow) non prise en compte');
   if (num(s.webkitTextStrokeWidth) > 0) notes.push('contour du texte (-webkit-text-stroke) non pris en compte');
+  // Fond déduit des parents, ombre ou contour non mesurés : un contraste
+  // insuffisant n'est pas prouvé, il devient « à vérifier ».
+  const unmeasured = sol.approx || (s.textShadow && s.textShadow !== 'none') || num(s.webkitTextStrokeWidth) > 0;
   const uncertain = sol.images.length > 0 || sol.notes.some((n) => /blend|filter/.test(n)) || (fg.a === 0 && clipText);
   let status;
   if (disabled(el)) status = 'hidden';
   else if (min.r >= thr) status = uncertain ? 'warning' : 'ok';
-  else if (max.r >= thr || uncertain) status = 'warning';
+  else if (max.r >= thr || uncertain || unmeasured) status = 'warning';
   else status = 'error';
   const isLogo = status !== 'ok' && status !== 'hidden' && logo(el);
   if (isLogo) status = 'warning';
@@ -443,7 +447,7 @@ const analyzeComponent = (el) => {
   else if (isButton(el)) {
     status = 'hidden';
     reason = 'Bouton sans limite visible : identifié par son texte ou son icône (voir 3.2 et graphiques)';
-  } else status = uncertain ? 'warning' : 'error';
+  } else status = uncertain || sol.approx ? 'warning' : 'error';
   return { ...base, status, reason, best, sol, bg: sol.bgMin };
 };
 
@@ -520,7 +524,7 @@ const analyzeGraphic = (el) => {
   const best = Math.max(...parts.map((p) => p.r));
   let status;
   if (disabled(el)) status = 'hidden';
-  else if (best < 3) status = uncertain ? 'warning' : 'error';
+  else if (best < 3) status = uncertain || sol.approx ? 'warning' : 'error';
   else status = parts.length > 1 || uncertain ? 'warning' : 'ok';
   return { ...base, what, parts, best, sol, bg: sol.bgMin, status };
 };
@@ -624,7 +628,7 @@ const collect = () => {
   texts.forEach((t) => {
     const key = `t|${t.status}|${hex(t.min.fg)}|${hex(t.min.bg)}|${t.max.r}|${t.thr}`;
     add(key, {
-      filter: 'texte',
+      filter: ['texte', ...statusFilter(t.status)],
       status: t.status,
       r: t.min.r,
       label: `« ${t.text} »`,
@@ -635,7 +639,7 @@ const collect = () => {
   uis.forEach((u) => {
     const key = `u|${u.status}|${u.reason}|${u.best ? `${hex(u.best.final)}|${u.best.r}` : tagOf(u.el)}|${u.bg ? hex(u.bg) : ''}`;
     add(key, {
-      filter: 'ui',
+      filter: ['ui', ...statusFilter(u.status)],
       status: u.status,
       r: u.best ? u.best.r : 99,
       label: u.reason && u.status === 'hidden' ? u.reason.replace(/ \(.*$/, '') : `Limite : ${u.best.part}`,
@@ -646,7 +650,7 @@ const collect = () => {
   graphics.forEach((g) => {
     const key = `g|${g.status}|${g.parts.map((p) => hex(p.color)).join(',')}|${hex(g.bg)}`;
     add(key, {
-      filter: 'ui',
+      filter: ['ui', ...statusFilter(g.status)],
       status: g.status,
       r: g.best,
       label: g.parts.length > 1 ? `${g.what} : ${g.parts.length} couleurs` : g.what,
@@ -661,7 +665,7 @@ const collect = () => {
   items.unshift(
     ...closed.map((f) => ({
       el: f,
-      filter: ['texte', 'ui'],
+      filter: ['texte', 'ui', ...statusFilter('warning')],
       status: 'warning',
       label: `Iframe non analysée : ${frameName(f)}`,
       meta: 'autre origine',
@@ -672,7 +676,7 @@ const collect = () => {
   const part = (n, word, list) => {
     const e = count(list, 'error');
     const w = count(list, 'warning');
-    return `${n} ${word} : ${e ? icon('error') + ' ' : ''}${e} en erreur · ${w ? icon('warning') + ' ' : ''}${w} à vérifier`;
+    return `${n} ${word} : ${e ? icon('error') + ' ' : ''}${e} non conforme${e > 1 ? 's' : ''} · ${w ? icon('warning') + ' ' : ''}${w} à vérifier`;
   };
   const ui = [...uis, ...graphics];
   return {
@@ -874,6 +878,7 @@ api = inspector({
     title: 'Couleurs',
     collect,
     filters: [
+      ...STATUS_FILTERS,
       { id: 'texte', label: 'Textes (3.2)' },
       { id: 'ui', label: 'Composants et graphiques (3.3)' },
     ],

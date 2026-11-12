@@ -20,7 +20,7 @@
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list, flag } from '../lib/dom.js';
-import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
+import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, isOwn, byId, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 import { nameOf, visibleText, clean } from '../lib/name.js';
@@ -231,6 +231,7 @@ const collect = () => {
       filter: e.hidden
         ? []
         : [
+            ...statusFilter(e.status),
             ...(e.name ? [] : ['sans']),
             ...(e.name && (e.vague || e.dupName.length) ? ['juger'] : []),
             ...(e.dupName.length || e.dupDest.length ? ['doublon'] : []),
@@ -240,7 +241,7 @@ const collect = () => {
     summary:
       `${plural(shown.length, 'lien')} · ${noName ? icon('error') + ' ' : ''}${noName} sans intitulé · ` +
       `${toJudge ? icon('warning') + ' ' : ''}${toJudge} à juger en contexte · ` +
-      `${plural(dups, 'intitulé')} en double · ${err ? icon('error') + ' ' : ''}${err} en erreur` +
+      `${plural(dups, 'intitulé')} en double · ${err ? icon('error') + ' ' : ''}${err} non conforme${err > 1 ? 's' : ''}` +
       (hidden ? ` · ${hidden} masqué${hidden > 1 ? 's' : ''}` : ''),
   };
 };
@@ -424,7 +425,7 @@ const setNames = (on) => {
       const tag = document.createElement('span');
       const s = e.crit['6.2'].status === 'error' || e.crit['6.1'].status === 'error' ? 'error' : e.crit['6.1'].status === 'warning' ? 'warning' : 'ok';
       tag.className = `tag tag--${s}`;
-      tag.textContent = e.name ? cut(e.name, 50) : '∅ sans intitulé';
+      tag.textContent = `${s === 'error' ? '× ' : s === 'warning' ? '! ' : ''}${e.name ? cut(e.name, 50) : 'sans intitulé'}`;
       root.appendChild(tag);
       namesItems.push({ el: e.el, tag });
     });
@@ -458,6 +459,7 @@ const ui = inspector({
     title: 'Liens',
     collect,
     filters: [
+      ...STATUS_FILTERS,
       { id: 'sans', label: 'Sans intitulé' },
       { id: 'juger', label: 'À juger' },
       { id: 'doublon', label: 'Doublons' },
