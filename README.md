@@ -434,6 +434,12 @@ nouvelle fenêtre (`target`) sans le dire dans l'intitulé ou le `title`,
 introuvable, lien vers un fichier (PDF, DOC…) sans format ni poids,
 `role="link"` sans `tabindex` (erreur, 7.3).
 
+Au lancement, chaque lien détecté est **encadré** dans la page, un cadre par
+type : `a href` (bleu, trait plein), `role="link"` (magenta, tirets),
+`area href` (bleu-vert, double ; une zone n'ayant pas de boîte, le cadre est
+posé sur l'image réactive `img usemap`). La légende est en bas de la liste ;
+le bouton **« Encadrer les liens »** retire ou remet les cadres.
+
 **Outil** : **Intitulés** (Maj+N) affiche l'intitulé de chaque lien au-dessus
 de lui sur la page, en rouge s'il manque ou est en erreur, en brun s'il est à
 juger.
