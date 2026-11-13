@@ -32,6 +32,7 @@
  *
  * Un élément peut aussi porter :
  *   els: [el1, el2...]  plusieurs éléments regroupés (chaque clic passe au suivant) ;
+ *   strong: true        libellé en gras (ex. alternative d'une image) ;
  *   prefix: '<span>'    HTML déjà échappé affiché avant le libellé (pastilles...) ;
  *   indent: 2           retrait (niveaux), pour une liste arborescente ;
  *   section: true       ligne de titre non cliquable (label seul), affichée
@@ -123,7 +124,7 @@ export const createListPanel = ({ id, title, collect, footer = '', tools = [], f
       return (
         `<li${pad}><button type="button" class="item" data-idx="${i}">` +
         `<span class="num" aria-hidden="true">${++n}.</span>${icon(it.status, STATUS_LABEL[it.status])}` +
-        `<span>${it.prefix || ''}${esc(short(it.label))}${it.meta ? ` <span class="meta">${esc(it.meta)}</span>` : ''}</span>` +
+        `<span>${it.prefix || ''}${it.strong ? `<strong>${esc(short(it.label))}</strong>` : esc(short(it.label))}${it.meta ? ` <span class="meta">${esc(it.meta)}</span>` : ''}</span>` +
         `</button></li>`
       );
     };
