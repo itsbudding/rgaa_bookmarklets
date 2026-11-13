@@ -23,8 +23,8 @@
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list, flag } from '../lib/dom.js';
-import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
-import { idrefs, textOf, norm, deepAll, isOwn, isNotExposed, roleInfo, toTopCoords, allDocuments } from '../lib/a11y.js';
+import { pills, critBlock, worst as worstOf, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
+import { idrefs, textOf, norm, deepAll, isOwn, isNotExposed, roleInfo, toTopCoords, allDocuments, sortByDom } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 
 const ID = 'rgaa-4-multimedia';
@@ -160,7 +160,7 @@ const findMedia = () => {
     if (u && MEDIA_EXT.test(u.pathname)) add({ el: a, media: a, kind: 'link', type: `Lien vers un fichier ${AUDIO_EXT.test(u.pathname) ? 'audio' : 'vidéo'}`, temporal: true, url: u });
   });
   // Ordre du document.
-  return out.sort((a, b) => (a.el.ownerDocument !== b.el.ownerDocument ? 0 : a.el.compareDocumentPosition(b.el) & 2 ? 1 : -1));
+  return sortByDom(out, (e) => e.el);
 };
 
 /** Vrai si el contient un autre média que m (ou en est un). */
@@ -548,8 +548,6 @@ const collect = () => {
   entries.forEach((e) => {
     if (e.kind === 'native' && !e.media.paused && !isMuted(e.media) && e.media.volume > 0) playedWithSound.add(e.media);
   });
-  const order = (e) => -RANK[e.status];
-  const sorted = [...entries].sort((a, b) => order(a) - order(b));
   const media = entries.filter((e) => e.kind !== 'link' && !e.hidden);
   const sound = media.filter((e) => e.crit['4.10'] && e.crit['4.10'].status !== 'ok').length;
   const noCtrl = media.filter((e) => ['4.11', '4.12', '4.13'].some((k) => e.crit[k] && e.crit[k].status === 'error')).length;
@@ -557,7 +555,7 @@ const collect = () => {
   const links = entries.filter((e) => e.kind === 'link').length;
   const errSound = media.some((e) => e.crit['4.10'] && e.crit['4.10'].status === 'error');
   return {
-    items: sorted.map((e) => ({
+    items: entries.map((e) => ({
       el: e.el,
       status: e.status,
       label: e.hidden ? `${labelOf(e)} (masqué : ${e.hidden})` : labelOf(e),

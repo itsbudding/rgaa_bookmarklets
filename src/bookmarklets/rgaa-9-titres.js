@@ -265,31 +265,35 @@ const collect = () => {
   docs.forEach((d, i) => {
     if (i && !d.plan.length && !d.out.length) return;
     if (i) items.push({ section: true, label: `${d.label} : ${plural(d.plan.length, 'titre')}, ${docSummary(d)}` });
-    d.plan.forEach((h) =>
-      items.push({
-        el: h.el,
-        status: h.status,
-        indent: h.indent,
-        prefix: lvlTag(h) + pillsOf(h),
-        label: h.name || '(titre vide)',
-        meta: [h.jump ? `saut ${h.jump}` : '', h.sr ? 'caché visuellement' : '', revealed.has(h.el) ? `affiché par le bookmarklet (${revealed.get(h.el)})` : '']
-          .filter(Boolean)
-          .join(' · '),
-        filter: [...(h.status === 'error' ? ['erreurs'] : []), ...(['error', 'warning'].includes(h.status) ? ['verifier'] : [])],
-      }),
-    );
+    // Ordre du document : titres masqués ou à rôle retiré à leur place, au niveau du titre précédent.
+    let indent = 0;
+    [...d.plan, ...d.out]
+      .sort((x, y) => x.order - y.order)
+      .forEach((h) => {
+        if (d.out.includes(h)) {
+          items.push({
+            el: h.el,
+            status: 'hidden',
+            indent,
+            label: `${h.tag} ${h.name || '(vide)'}`,
+            meta: h.removed ? `rôle titre retiré (${h.removed})` : `masqué : ${h.hidden}`,
+          });
+          return;
+        }
+        indent = h.indent;
+        items.push({
+          el: h.el,
+          status: h.status,
+          indent: h.indent,
+          prefix: lvlTag(h) + pillsOf(h),
+          label: h.name || '(titre vide)',
+          meta: [h.jump ? `saut ${h.jump}` : '', h.sr ? 'caché visuellement' : '', revealed.has(h.el) ? `affiché par le bookmarklet (${revealed.get(h.el)})` : '']
+            .filter(Boolean)
+            .join(' · '),
+          filter: [...(h.status === 'error' ? ['erreurs'] : []), ...(['error', 'warning'].includes(h.status) ? ['verifier'] : [])],
+        });
+      });
   });
-  // Masqués et rôles retirés : en fin de liste, hors du plan.
-  docs.forEach((d) =>
-    d.out.forEach((h) =>
-      items.push({
-        el: h.el,
-        status: 'hidden',
-        label: `${h.tag} ${h.name || '(vide)'}`,
-        meta: h.removed ? `rôle titre retiré (${h.removed})` : `masqué : ${h.hidden}`,
-      }),
-    ),
-  );
   const main = docs[0];
   const plan = docs.flatMap((d) => d.plan);
   const err = plan.filter((h) => h.status === 'error').length;

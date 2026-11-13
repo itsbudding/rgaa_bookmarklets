@@ -84,21 +84,74 @@ export const isOwn = (el) => {
 /**
  * Comme querySelectorAll, mais descend aussi dans les Shadow DOM ouverts et
  * les iframes de même origine. Ignore les panneaux des bookmarklets.
+ * Résultats dans l'ordre du document : le contenu d'un Shadow DOM ou d'une
+ * iframe vient juste après son hôte, avant les éléments qui le suivent.
  */
 export const deepAll = (selector, root = document, out = []) => {
-  root.querySelectorAll(selector).forEach((e) => out.push(e));
+  const found = root.querySelectorAll(selector);
+  let i = 0;
   root.querySelectorAll('*').forEach((el) => {
     if (el.matches(OWN)) return;
-    if (el.shadowRoot) deepAll(selector, el.shadowRoot, out);
+    let doc = null;
     if (el.tagName === 'IFRAME' || el.tagName === 'FRAME') {
       try {
-        if (el.contentDocument) deepAll(selector, el.contentDocument, out);
+        doc = el.contentDocument;
       } catch (e) {
         /* origine différente : inaccessible */
       }
     }
+    if (!el.shadowRoot && !doc) return;
+    // Éléments trouvés avant l'hôte (ou l'hôte lui-même) : 4 = DOCUMENT_POSITION_FOLLOWING.
+    while (i < found.length && (found[i] === el || found[i].compareDocumentPosition(el) & 4)) out.push(found[i++]);
+    if (el.shadowRoot) deepAll(selector, el.shadowRoot, out);
+    if (doc) deepAll(selector, doc, out);
   });
+  while (i < found.length) out.push(found[i++]);
   return out;
+};
+
+/**
+ * Chaîne d'ancrage d'un nœud, de la page principale jusqu'à lui : hôtes de
+ * Shadow DOM et iframes traversés, puis le nœud. Deux nœuds se comparent au
+ * premier ancrage qui diffère, qui est alors dans le même arbre.
+ */
+const anchors = (node) => {
+  const chain = [node];
+  for (let n = node; n; ) {
+    const r = n.getRootNode();
+    let up = r.host || null;
+    if (!up && r.nodeType === 9) {
+      try {
+        up = r.defaultView && r.defaultView.frameElement;
+      } catch (e) {
+        up = null;
+      }
+    }
+    if (up) chain.unshift(up);
+    n = up;
+  }
+  return chain;
+};
+
+/** Comparateur pour sort() : ordre du document, Shadow DOM et iframes compris. */
+export const domOrder = (a, b) => {
+  if (a === b) return 0;
+  const x = anchors(a);
+  const y = anchors(b);
+  for (let i = 0; i < Math.min(x.length, y.length); i++) {
+    if (x[i] === y[i]) continue;
+    const p = x[i].compareDocumentPosition(y[i]);
+    // 4 = y suit x, 2 = y précède x ; 1 = arbres sans lien : ordre conservé.
+    return p & 4 ? -1 : p & 2 ? 1 : 0;
+  }
+  // L'un contient l'autre (hôte ou iframe et son contenu) : l'hôte d'abord.
+  return x.length - y.length;
+};
+
+/** Trie une liste dans l'ordre du document, d'après l'élément que donne key. */
+export const sortByDom = (list, key = (x) => x) => {
+  const k = new Map(list.map((x) => [x, key(x)]));
+  return [...list].sort((a, b) => domOrder(k.get(a), k.get(b)));
 };
 
 /** Documents de la page : principal + iframes de même origine (récursif). */

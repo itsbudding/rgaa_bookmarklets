@@ -23,7 +23,7 @@
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, flag } from '../lib/dom.js';
-import { isNotExposed, toTopCoords, allDocuments, textOf } from '../lib/a11y.js';
+import { isNotExposed, toTopCoords, allDocuments, textOf, sortByDom } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 import { nameOf, clean, styleOf, pseudoText } from '../lib/name.js';
 import { pills, critBlocks, lineStatus, fromChecks, CRIT_CSS } from '../lib/criteria.js';
@@ -574,7 +574,30 @@ const collect = () => {
   docs.forEach((d, i) => {
     if (i && !d.shown.length && !d.outside.length && !d.out.length) return;
     if (i) items.push({ section: true, label: `${d.label} : ${plural(d.shown.filter((e) => e.kind === 'list').length, 'liste')}` });
-    d.shown.forEach((e) => {
+    // Ordre du document : listes, passages hors liste et listes non restituées à leur place.
+    sortByDom([...d.shown, ...d.outside, ...d.out], (e) => e.el).forEach((e) => {
+      if (d.out.includes(e)) {
+        items.push({
+          el: e.el,
+          status: 'hidden',
+          indent: e.depth,
+          prefix: typeTag(e),
+          label: listLabel(e),
+          meta: e.component ? `rôle remplacé (${e.component}) : composant, voir RGAA 7` : e.hidden ? `masquée : ${e.hidden}` : 'liste vide',
+        });
+        return;
+      }
+      if (d.outside.includes(e)) {
+        items.push({
+          el: e.el,
+          status: 'warning',
+          prefix: `<span class="lvl">${e.kind === 'nav' ? 'nav' : '¶'}</span>${pillsOf(e)}`,
+          label: e.kind === 'nav' ? `${e.name ? `« ${e.name} » : ` : ''}« ${e.texts.slice(0, 2).join(', ')}… »` : `« ${e.texts[0] || ''} »`,
+          meta: e.kind === 'nav' ? plural(e.els.length, 'lien') + ' hors liste' : `${e.texts.length} lignes ${e.how} hors liste`,
+          filter: filterOf('warning'),
+        });
+        return;
+      }
       if (e.kind === 'orphan') {
         items.push({
           el: e.el,
@@ -600,32 +623,7 @@ const collect = () => {
         filter: filterOf(e.status),
       });
     });
-    if (d.outside.length) {
-      items.push({ section: true, label: `Hors liste : ${plural(d.outside.length, 'passage')} à vérifier` });
-      d.outside.forEach((e) =>
-        items.push({
-          el: e.el,
-          status: 'warning',
-          prefix: `<span class="lvl">${e.kind === 'nav' ? 'nav' : '¶'}</span>${pillsOf(e)}`,
-          label: e.kind === 'nav' ? `${e.name ? `« ${e.name} » : ` : ''}« ${e.texts.slice(0, 2).join(', ')}… »` : `« ${e.texts[0] || ''} »`,
-          meta: e.kind === 'nav' ? plural(e.els.length, 'lien') + ' hors liste' : `${e.texts.length} lignes ${e.how}`,
-          filter: filterOf('warning'),
-        }),
-      );
-    }
   });
-  // Masquées, vides, composants : en fin de liste.
-  docs.forEach((d) =>
-    d.out.forEach((e) =>
-      items.push({
-        el: e.el,
-        status: 'hidden',
-        prefix: typeTag(e),
-        label: listLabel(e),
-        meta: e.component ? `rôle remplacé (${e.component}) : composant, voir RGAA 7` : e.hidden ? `masquée : ${e.hidden}` : 'liste vide',
-      }),
-    ),
-  );
   const shown = docs.flatMap((d) => d.shown);
   const lists = shown.filter((e) => e.kind === 'list');
   const err = shown.filter((e) => e.status === 'error').length;

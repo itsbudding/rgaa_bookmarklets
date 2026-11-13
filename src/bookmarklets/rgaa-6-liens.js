@@ -22,7 +22,7 @@
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list, flag } from '../lib/dom.js';
-import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
+import { pills, critBlock, worst as worstOf, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, isOwn, byId, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 import { nameOf, visibleText, clean } from '../lib/name.js';
@@ -232,14 +232,13 @@ const collect = () => {
     e.other = otherChecks(e);
     e.status = worst([...Object.values(e.crit).filter((x) => !x.na).map((x) => x.status), ...e.other.map((o) => o[0])]);
   });
-  const sorted = [...entries].sort((a, b) => RANK[b.status] - RANK[a.status] || a.idx - b.idx);
   const noName = shown.filter((e) => !e.name).length;
   const toJudge = shown.filter((e) => e.name && (e.vague || e.dupName.length)).length;
   const dups = shown.filter((e) => e.dupName.length).length;
   const err = shown.filter((e) => e.status === 'error').length;
   const hidden = entries.length - shown.length;
   return {
-    items: sorted.map((e) => ({
+    items: entries.map((e) => ({
       el: e.el,
       status: e.status,
       label: e.hidden ? `${e.name || '(sans intitulé)'} (masqué : ${e.hidden})` : e.name || '(sans intitulé)',
