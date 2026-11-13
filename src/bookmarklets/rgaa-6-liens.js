@@ -17,6 +17,8 @@
  * (bouton déguisé), ancre introuvable, fichier sans format.
  *
  * Bouton « Intitulés » (Maj+N) : affiche l'intitulé de chaque lien sur la page.
+ * Outil « Encadrer les liens » (actif au lancement) : un cadre par type de
+ * lien (a href, role="link", area href) dans la page.
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list, flag } from '../lib/dom.js';
@@ -174,14 +176,29 @@ const isLink = (el) => {
   return !r || r === 'link' || r === 'none' || r === 'presentation';
 };
 
+/** Image réactive (img usemap) d'une zone area, ou null. */
+const mapImage = (area) => {
+  const map = area.closest('map');
+  const name = map && (map.getAttribute('name') || map.id);
+  if (!name) return null;
+  return [...area.ownerDocument.querySelectorAll('img[usemap]')].find((i) => i.getAttribute('usemap').replace(/^#/, '') === name) || null;
+};
+
+/** Comme isNotExposed ; une zone area n'a pas de boîte : on regarde son image réactive. */
+const notExposed = (el) => {
+  if (tagOf(el) !== 'area') return isNotExposed(el);
+  const img = mapImage(el);
+  return isNotExposed(el) === 'aria-hidden' ? 'aria-hidden' : img ? isNotExposed(img) : 'display:none';
+};
+
 const analyse = (el, idx) => {
   const e = { el, idx, role: roleOf(el), dupName: [], dupDest: [] };
   e.n = nameOf(el);
   e.name = e.n.name;
   e.dest = destOf(el);
-  e.hidden = isNotExposed(el);
+  e.hidden = notExposed(el);
   // Lien focalisable et visible, mais masqué par aria-hidden : atteint au clavier sans intitulé.
-  e.trap = e.hidden === 'aria-hidden' && el.tabIndex >= 0 && el.getClientRects().length > 0;
+  e.trap = e.hidden === 'aria-hidden' && el.tabIndex >= 0 && (tagOf(el) === 'area' ? !!mapImage(el) : el.getClientRects().length > 0);
   if (!e.hidden) {
     e.visible = visibleText(el);
     e.vague = e.name ? vagueReason(e.n.base) : '';
@@ -397,7 +414,8 @@ const MAX_TAGS = 2000;
 
 const placeNames = () => {
   namesItems.forEach(({ el, tag }) => {
-    const r = el.getBoundingClientRect();
+    // Zone area : l'intitulé est placé sur son image réactive.
+    const r = ((tagOf(el) === 'area' && mapImage(el)) || el).getBoundingClientRect();
     const [x, y] = toTopCoords(el.ownerDocument.defaultView, r.left, r.top);
     tag.hidden = !el.isConnected || r.width === 0;
     tag.style.left = `${Math.max(0, x)}px`;
@@ -435,6 +453,41 @@ const setNames = (on) => {
   window.addEventListener('resize', placeNames);
 };
 
+/* ---------- Outil « Encadrer les liens » : un cadre par type de lien ---------- */
+
+const FRAME_ID = 'rgaa-6-liens-cadres';
+/** Rôle qui ne fait pas du lien autre chose qu'un lien (cf. isLink). */
+const LINK_ROLE = '[role="link"],[role="none"],[role="presentation"],[role=""]';
+const FRAME_TYPES = [
+  { sel: `a[href]:not([role]),a[href]:is(${LINK_ROLE})`, label: 'a href', color: '#0057d9', style: 'solid' },
+  { sel: '[role="link"]:not(a[href],area[href])', label: 'role="link"', color: '#b0009c', style: 'dashed' },
+  // Une zone area n'a pas de boîte : le cadre est posé sur l'image réactive.
+  { sel: 'img[usemap]', label: 'area href (sur l’image réactive)', color: '#00808a', style: 'double' },
+];
+const FRAME_CSS = FRAME_TYPES.map(
+  (t) => `:is(${t.sel}){outline:${t.style === 'double' ? 4 : 3}px ${t.style} ${t.color}!important;outline-offset:1px!important}`,
+).join('\n');
+let framed = false;
+const setFrames = (on) => {
+  framed = on;
+  // Documents (iframes de même origine) et Shadow DOM qui contiennent des liens.
+  const roots = new Set(allDocuments());
+  deepAll(LINK_SEL).forEach((e) => roots.add(e.getRootNode()));
+  roots.forEach((r) => {
+    (r.getElementById ? r.getElementById(FRAME_ID) : r.querySelector(`#${FRAME_ID}`))?.remove();
+    if (on) {
+      const d = r.ownerDocument || r;
+      const st = d.createElement('style');
+      st.id = FRAME_ID;
+      st.textContent = FRAME_CSS;
+      (r.head || r.documentElement || r).appendChild(st);
+    }
+  });
+};
+const FRAME_LEGEND = `Cadres : ${FRAME_TYPES.map(
+  (t) => `<span style="display:inline-block;width:1.4em;height:.8em;vertical-align:middle;border:3px ${t.style} ${t.color};margin-right:3px"></span>${esc(t.label)}`,
+).join(' · ')}.`;
+
 /* ---------- Lancement ---------- */
 
 const DETAIL_CSS = `${CRIT_CSS}
@@ -457,7 +510,11 @@ const ui = inspector({
   pinOnLocate: true,
   list: {
     title: 'Liens',
-    collect,
+    collect() {
+      // Après « Actualiser », les cadres atteignent aussi les nouveaux Shadow DOM.
+      if (framed) setFrames(true);
+      return collect();
+    },
     filters: [
       ...STATUS_FILTERS,
       { id: 'sans', label: 'Sans intitulé' },
@@ -465,8 +522,12 @@ const ui = inspector({
       { id: 'doublon', label: 'Doublons' },
       { id: 'image', label: 'Liens image' },
     ],
-    tools: [{ label: 'Intitulés', pressed: () => !!namesHost, toggle: toggleNames }],
+    tools: [
+      { label: 'Encadrer les liens', pressed: () => framed, toggle: () => setFrames(!framed) },
+      { label: 'Intitulés', pressed: () => !!namesHost, toggle: toggleNames },
+    ],
     footer:
+      `${FRAME_LEGEND}<br>` +
       'La liste montre les intitulés hors contexte, comme la liste des liens d’un lecteur d’écran. ' +
       'Intitulés (Maj+N) : affiche l’intitulé de chaque lien sur la page.',
   },
@@ -475,7 +536,10 @@ const ui = inspector({
     toggleNames();
     return true;
   },
-  onStop: () => setNames(false),
+  onStop: () => {
+    setNames(false);
+    setFrames(false);
+  },
   inspect(target) {
     const e = findEntry(target);
     if (!e) return null;
@@ -493,4 +557,10 @@ if (ui && listHost && listHost.shadowRoot) {
   const st = document.createElement('style');
   st.textContent = LIST_CSS;
   listHost.shadowRoot.appendChild(st);
+}
+
+// Les liens sont encadrés dès le lancement.
+if (ui) {
+  setFrames(true);
+  ui.redraw();
 }
