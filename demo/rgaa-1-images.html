@@ -22,7 +22,7 @@
   Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
   <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 1 – Images</a>
   (ou utilisez votre favori). Survolez ensuite les images, ou parcourez la liste en haut à droite.
-  Le bouton « Estomper les images » (<kbd>Maj+I</kbd>) estompe les images, <kbd>Échap</kbd> arrête le bookmarklet. Dans l’en-tête du panneau liste, « − » le réduit (« + » le déplie) et ✕ le ferme, ce qui arrête le bookmarklet.</p>
+  Au lancement, chaque image détectée est encadrée dans la page, avec un cadre par type (img, svg, canvas, object / embed, role="img") : le bouton « Encadrer les images » retire ou remet ces cadres. Dans la liste, les alternatives sont en gras. Le bouton « Estomper les images » (<kbd>Maj+I</kbd>) estompe les images, <kbd>Échap</kbd> arrête le bookmarklet. Dans l’en-tête du panneau liste, « − » le réduit (« + » le déplie) et ✕ le ferme, ce qui arrête le bookmarklet.</p>
 </div>
 
 <h2>1.1 Images porteuses d’information : présence d’une alternative</h2>
@@ -31,7 +31,7 @@
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>img avec alt</h3>
     <div class="demo"><img src="img/photo-equipe.svg" width="120" height="80" alt="L’équipe projet réunie : trois personnes"></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ nom accessible « L’équipe projet… » (alt), pastilles 1.1 ✓ et 1.3 ! (pertinence à juger).</p>
+    <p class="attendu"><strong>Attendu :</strong> ! nom accessible « L’équipe projet… » (alt, en gras dans la liste), pastilles 1.1 ✓, 1.2 ! (vérifier que l’image n’est pas décorative) et 1.3 ! (pertinence à juger).</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>img sans attribut alt</h3>
@@ -41,7 +41,7 @@
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>svg avec role="img" et aria-label</h3>
     <div class="demo"><svg role="img" aria-label="Graphique : ventes en hausse" width="120" height="60" viewBox="0 0 120 60"><rect x="10" y="35" width="20" height="20" fill="#1b7f3b"/><rect x="45" y="20" width="20" height="35" fill="#1b7f3b"/><rect x="80" y="5" width="20" height="50" fill="#1b7f3b"/></svg></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Graphique : ventes en hausse » (aria-label), rôle img (attribut role).</p>
+    <p class="attendu"><strong>Attendu :</strong> ! nom « Graphique : ventes en hausse » (aria-label), rôle img (attribut role), 1.1 ✓ et 1.2 !.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>svg avec &lt;title&gt; mais sans role="img"</h3>
@@ -56,22 +56,22 @@
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Élément avec role="img"</h3>
     <div class="demo"><span role="img" aria-label="Note : 4 étoiles sur 5" style="font-size:1.5rem">★★★★☆</span></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Note : 4 étoiles sur 5 » (aria-label).</p>
+    <p class="attendu"><strong>Attendu :</strong> ! nom « Note : 4 étoiles sur 5 » (aria-label), 1.1 ✓ et 1.2 !.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>canvas avec contenu alternatif</h3>
     <div class="demo"><canvas id="canvas-courbe" width="160" height="60">Courbe des températures : de 12 °C à 21 °C sur la semaine</canvas></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Courbe des températures… » (contenu alternatif).</p>
+    <p class="attendu"><strong>Attendu :</strong> ! nom « Courbe des températures… » (contenu alternatif), 1.1 ✓ et 1.2 !.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>input type="image" avec alt</h3>
     <div class="demo"><input type="image" src="img/logo-rgaa.svg" width="60" height="40" alt="Rechercher"></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Rechercher » (alt).</p>
+    <p class="attendu"><strong>Attendu :</strong> ✓ nom « Rechercher » (alt) : bouton image, jamais décoratif, donc pas de pastille 1.2.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>object avec contenu alternatif</h3>
     <div class="demo"><object type="image/svg+xml" data="img/graphique-ventes.svg" width="160" height="100">Ventes trimestrielles : 30, 45, 60 et 75 unités</object></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ dans la liste, nom « Ventes trimestrielles… » (contenu alternatif). Le survol d’un object peut ne pas réagir : utilisez la liste.</p>
+    <p class="attendu"><strong>Attendu :</strong> ! dans la liste, nom « Ventes trimestrielles… » (contenu alternatif), 1.1 ✓ et 1.2 !. Le survol d’un object peut ne pas réagir : utilisez la liste.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>embed sans alternative</h3>
@@ -87,8 +87,8 @@
         <area shape="rect" coords="20,70,100,110" href="#sud">
       </map>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> image ✓ « Carte des agences » ; zone autour du point rouge
-    <span class="badge badge--ok">Conforme</span>✓ « Agence de Paris » ; zone du bas
+    <p class="attendu"><strong>Attendu :</strong> image ! « Carte des agences » (1.2 !) ; zone autour du point rouge
+    <span class="badge badge--ok">Conforme</span>✓ « Agence de Paris » (zone cliquable : pas de 1.2) ; zone du bas
     <span class="badge badge--ko">Non conforme</span>× sans alternative.</p>
   </div>
 </div>
@@ -120,6 +120,11 @@
     <h3><span class="badge badge--ko">Non conforme</span>aria-hidden mais avec un aria-label</h3>
     <div class="demo"><svg aria-hidden="true" aria-label="Vague" width="200" height="12" viewBox="0 0 200 12"><path d="M0 6 Q50 0 100 6 T200 6" fill="none" stroke="#b36b00" stroke-width="2"/></svg></div>
     <p class="attendu"><strong>Attendu :</strong> × décorative, pastille 1.2 × « Image décorative avec aria-label : à retirer ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Image décorative avec une alternative</h3>
+    <div class="demo"><img src="img/separateur.svg" width="200" height="12" alt="Séparateur orange"></div>
+    <p class="attendu"><strong>Attendu :</strong> ! « Séparateur orange » en gras, pastille 1.2 ! « Alternative présente : vérifier que l’image n’est pas décorative » : le bookmarklet ne peut pas savoir que ce trait est décoratif, à l’auditeur de le constater (alt="" attendu).</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--check">À vérifier</span>Image de fond CSS</h3>
@@ -154,12 +159,12 @@
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>Alternative non pertinente</h3>
     <div class="demo"><img src="img/graphique-ventes.svg" width="160" height="100" alt="Cliquez ici"></div>
-    <p class="attendu"><strong>Attendu :</strong> ligne ✓ et pastille 1.3 ! « Pertinence de l’alternative à juger » : le bookmarklet ne peut pas juger le sens, comparez l’alternative au fichier « graphique-ventes.svg ».</p>
+    <p class="attendu"><strong>Attendu :</strong> ligne ! (1.2 !) et pastille 1.3 ! « Pertinence de l’alternative à juger » : le bookmarklet ne peut pas juger le sens, comparez l’alternative au fichier « graphique-ventes.svg ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Image dans un lien</h3>
     <div class="demo"><a href="#accueil"><img src="img/logo-rgaa.svg" width="60" height="40" alt="Accueil"></a></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ « Accueil » (alt), « Image dans un lien : Oui », nom du lien « Accueil ».</p>
+    <p class="attendu"><strong>Attendu :</strong> ! « Accueil » (alt, 1.2 !), « Image dans un lien : Oui », nom du lien « Accueil ».</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>Lien image sans alternative</h3>
@@ -273,7 +278,7 @@ Utilisez le bouton « Estomper les images » ou <kbd>Maj+I</kbd> : ce qui dispar
   <div class="case">
     <h3><span class="badge badge--ok">Conforme</span>Image dans une iframe</h3>
     <div class="demo"><iframe title="Encart partenaire" style="width:100%;height:110px;border:1px solid #999" srcdoc="<p style='margin:4px;font:14px system-ui'>Partenaire :</p><svg role='img' aria-label='Logo du partenaire' width='120' height='50'><rect width='120' height='50' rx='6' fill='#1b7f3b'/></svg>"></iframe></div>
-    <p class="attendu"><strong>Attendu :</strong> ✓ « Logo du partenaire » dans la liste et au survol.</p>
+    <p class="attendu"><strong>Attendu :</strong> ! « Logo du partenaire » (1.2 !) dans la liste et au survol.</p>
   </div>
 </div>
 </div>

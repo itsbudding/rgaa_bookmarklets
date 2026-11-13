@@ -2,6 +2,8 @@
  * RGAA 1 – Images : liste des images de la page, une pastille par critère :
  *  - 1.1 alternative présente (×), svg sans role="img" (!) ;
  *  - 1.2 image décorative correctement ignorée, sans aria-label ni title (×) ;
+ *    image avec alternative : à vérifier (!), elle devrait peut-être être
+ *    décorative ;
  *  - 1.3 pertinence de l'alternative : toujours à juger (!), constats si nom
  *    de fichier, alternative générique ou longue ;
  *  - 1.6 description détaillée (si présente) : pertinence à juger (1.7) ;
@@ -10,6 +12,8 @@
  * accessible, fichier, description, légende, image CSS, lien parent.
  * Outil « Estomper les images » ou Maj+I : estompe toutes les images pour
  * repérer les images texte (1.8).
+ * Outil « Encadrer les images » (actif au lancement) : un cadre par type
+ * d'image (img, svg, canvas, object/embed, role="img") dans la page.
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, value, src, esc, flag, icon, roleValue } from '../lib/dom.js';
@@ -182,6 +186,39 @@ const setDim = (on) => {
   });
 };
 
+/* ---- Bouton : encadrer les images détectées, un cadre par type ---- */
+const FRAME_ID = 'rgaa-1-images-cadres';
+const FRAME_TYPES = [
+  { sel: 'img,input[type="image"]', label: 'img', color: '#0057d9', style: 'solid' },
+  { sel: 'svg', label: 'svg', color: '#b0009c', style: 'dashed' },
+  { sel: 'canvas', label: 'canvas', color: '#d35400', style: 'dotted' },
+  { sel: 'object[type^="image/"],embed[type^="image/"]', label: 'object / embed', color: '#00808a', style: 'double' },
+  { sel: '[role="img"]:not(img,svg,canvas,object,embed)', label: 'role="img"', color: '#6a3cc8', style: 'solid' },
+];
+const FRAME_CSS = FRAME_TYPES.map(
+  (t) => `:is(${t.sel}){outline:${t.style === 'double' ? 4 : 3}px ${t.style} ${t.color}!important;outline-offset:1px!important}`,
+).join('\n');
+let framed = false;
+const setFrames = (on) => {
+  framed = on;
+  // Documents (iframes de même origine) et Shadow DOM qui contiennent des images.
+  const roots = new Set(allDocuments());
+  deepAll(IMG).forEach((e) => roots.add(e.getRootNode()));
+  roots.forEach((r) => {
+    (r.getElementById ? r.getElementById(FRAME_ID) : r.querySelector(`#${FRAME_ID}`))?.remove();
+    if (on) {
+      const d = r.ownerDocument || r;
+      const st = d.createElement('style');
+      st.id = FRAME_ID;
+      st.textContent = FRAME_CSS;
+      (r.head || r.documentElement || r).appendChild(st);
+    }
+  });
+};
+const FRAME_LEGEND = `Cadres : ${FRAME_TYPES.map(
+  (t) => `<span style="display:inline-block;width:1.4em;height:.8em;vertical-align:middle;border:3px ${t.style} ${t.color};margin-right:3px"></span>${esc(t.label)}`,
+).join(' · ')}.`;
+
 const plural = (n, s, p = `${s}s`) => `${n} ${n > 1 ? p : s}`;
 const nameText = (n) => (n ? n.v.map((x) => (typeof x === 'object' ? x.t : x)).join(' ') : '');
 
@@ -223,6 +260,11 @@ const analyse = (t, css = null) => {
     if (lb && lb.missing.length) x.push([e.name ? 'warning' : 'error', `aria-labelledby : id introuvable (${lb.missing.join(', ')})`]);
     c['1.1'] = fromChecks(x, { ok: 'Alternative présente' });
     if (e.name) {
+      // Le code ne sait pas si l'image porte une information : une image qui
+      // devrait être décorative mais a une alternative est non conforme (1.2).
+      // Sauf zone cliquable et bouton image : ce sont des commandes, jamais décoratives.
+      const control = (tag === 'area' && t.hasAttribute('href')) || tag === 'input';
+      if (!control) c['1.2'] = { status: 'warning', text: 'Alternative présente : vérifier que l’image n’est pas décorative (sinon l’alternative est à retirer)', extra: [] };
       const sus = e.name.s === 'alt' && suspiciousAlt(e.name.v[0], e.file);
       c['1.3'] = fromChecks(sus ? [['warning', sus]] : [], { judge: 'Pertinence de l’alternative à juger' });
     }
@@ -246,6 +288,8 @@ const collect = () => {
     el: e.el,
     status: e.status,
     label: e.hidden ? nameText(e.name) || 'Image masquée' : e.deco ? 'Décorative' : nameText(e.name) || 'Sans alternative',
+    // Alternative en gras, pour la distinguer de « Sans alternative », « Décorative »…
+    strong: !e.deco && !!nameText(e.name),
     meta: [e.tag, e.hidden ? `masquée : ${e.hidden}` : ''].filter(Boolean).join(' · '),
     prefix: e.hidden ? '' : pills(e.crit, CRIT),
     filter: [
@@ -293,13 +337,17 @@ const detail = (e) => {
   return html;
 };
 
-inspector({
+const ui = inspector({
   id: ID,
   css: CRIT_CSS,
   pinOnLocate: true,
   list: {
     title: 'Images',
-    collect,
+    collect() {
+      // Après « Actualiser », les cadres atteignent aussi les nouveaux Shadow DOM.
+      if (framed) setFrames(true);
+      return collect();
+    },
     css: PILL_CSS,
     toolsOnTop: true,
     filters: [
@@ -308,9 +356,14 @@ inspector({
       { id: 'deco', label: 'Décoratives' },
     ],
     footer:
-      'La pertinence d’une alternative reste à juger (pastille 1.3 « ! ») : la ligne reste ✓ si rien d’autre n’est signalé. ' +
+      `${FRAME_LEGEND}<br>` +
+      'Alternatives en gras. Une image avec alternative est « à vérifier » (pastille 1.2 « ! ») : si elle est en fait décorative, l’alternative est à retirer. ' +
+      'La pertinence de l’alternative reste à juger (pastille 1.3 « ! »). ' +
       'Estomper les images ou Maj+I : repérer les images texte (1.8). Les images CSS ne sont pas listées.',
-    tools: [{ label: 'Estomper les images', pressed: () => dimmed, toggle: () => setDim(!dimmed) }],
+    tools: [
+      { label: 'Encadrer les images', pressed: () => framed, toggle: () => setFrames(!framed) },
+      { label: 'Estomper les images', pressed: () => dimmed, toggle: () => setDim(!dimmed) },
+    ],
   },
   onKey(e) {
     const tag = e.target && e.target.tagName;
@@ -318,7 +371,10 @@ inspector({
     setDim(!dimmed);
     return true;
   },
-  onStop: () => setDim(false),
+  onStop: () => {
+    setDim(false);
+    setFrames(false);
+  },
   inspect(target) {
     let t = target.closest(IMG);
     if (t && tagOf(t) !== 'svg' && t.closest('svg')) t = t.closest('svg');
@@ -338,3 +394,9 @@ inspector({
     return { html: detail(e), highlight: hl };
   },
 });
+
+// Les images sont encadrées dès le lancement.
+if (ui) {
+  setFrames(true);
+  ui.redraw();
+}

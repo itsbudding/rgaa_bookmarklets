@@ -116,7 +116,21 @@ chaque image balisée, avec ses pastilles : **1.1** alternative présente,
 juger), **1.6** description détaillée (si présente) et **1.9** légende (si
 `figcaption`). Filtres : non conformes, à vérifier, décoratives. Les images
 CSS n'y figurent pas, mais sont détectées au survol. Un clic sur une ligne
-épingle le détail à côté de l'image.
+épingle le détail à côté de l'image. Les alternatives sont **en gras**, pour
+les distinguer d'un coup d'œil des lignes « Sans alternative » ou
+« Décorative ».
+
+Une image avec alternative est **à vérifier** (pastille 1.2 « ! ») : le code
+ne peut pas savoir si elle porte une information ; si elle est en fait
+décorative, son alternative la rend non conforme. Exceptions : zone
+cliquable (`area href`) et bouton image (`input type="image"`), qui sont des
+commandes.
+
+Au lancement, chaque image détectée est **encadrée** dans la page, un cadre
+par type : `img` / `input type="image"` (bleu, trait plein), `svg` (magenta,
+tirets), `canvas` (orange, pointillés), `object` / `embed` (bleu-vert,
+double), autre `role="img"` (violet, trait plein). La légende est en bas de
+la liste ; le bouton **« Encadrer les images »** retire ou remet les cadres.
 
 Au survol d'une image (`img`, `svg`, `canvas`, `object`, `embed`, `area`,
 `input type="image"`, `role="img"`, image CSS), le panneau affiche :
@@ -795,7 +809,8 @@ Il accepte aussi `tools` (boutons à bascule à côté d'« Actualiser », comme
 `pressed()` est un simple bouton (« Copier le plan »). Un élément peut
 regrouper plusieurs éléments de la page (`els`) : chaque clic passe au suivant.
 Pour une liste arborescente, un élément peut porter `indent` (retrait) ou
-`section: true` (ligne de titre non cliquable). `collect()` peut renvoyer
+`section: true` (ligne de titre non cliquable), et `strong: true` (libellé
+en gras). `collect()` peut renvoyer
 `count`, le nombre affiché dans le titre du panneau.
 `pinOnLocate: true` épingle le détail à côté de l'élément quand on clique sa
 ligne dans la liste (clic ailleurs ou Échap pour le libérer) ; `onAction(name,
