@@ -53,7 +53,7 @@ const check = (ok, msg) => { console.log(ok ? '✓' : '✗', msg); if (!ok) fail
   const scroll = await p.evaluate(() => [scrollY, document.querySelector('iframe').contentWindow.scrollY]);
   check(scroll[0] === 0 && scroll[1] === 0, `positions de défilement rétablies : ${scroll}`);
   // Clic sur la ligne : l'iframe reçoit le focus et le détail l'explique.
-  await p.evaluate(() => document.getElementById('rgaa-3-couleurs-liste').shadowRoot.querySelector('.item').click());
+  await p.evaluate(() => [...document.getElementById('rgaa-3-couleurs-liste').shadowRoot.querySelectorAll('.item')].find((i) => /Iframe non analysée/.test(i.innerText)).click());
   await p.waitForTimeout(100);
   const detail = await p.evaluate(() => { const el = document.getElementById('rgaa-3-couleurs').shadowRoot.querySelector('.panel'); return el.hidden ? '(masqué)' : el.innerText.replace(/\n+/g, ' | '); });
   console.log('DÉTAIL →', detail);

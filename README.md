@@ -69,7 +69,10 @@ bookmarklet sans l'installer.
 | ∅ gris | Non concerné (élément masqué, non restitué) |
 
 Ces quatre mots sont les mêmes dans tous les bookmarklets, et rappelés en
-légende en bas de chaque liste. Chaque ligne de la liste porte **une pastille
+légende en bas de chaque liste. Les lignes suivent **l'ordre du document**, quel que
+soit leur statut (les filtres isolent les erreurs) ; le contenu d'un Shadow
+DOM ou d'une iframe de même origine est à la place de son hôte (sauf pour les
+titres et les listes, où chaque iframe a sa propre section). Chaque ligne de la liste porte **une pastille
 par critère** (`1.1 ✓`, `1.3 !`…) ; la ligne prend le statut le plus grave.
 Quand le code trouve une alternative, un titre ou une étiquette sans pouvoir
 juger sa pertinence, la pastille est « ! » mais la ligne reste ✓ si rien
@@ -167,9 +170,10 @@ même origine affiche aussi le détail.
 ### RGAA 3 – Couleurs
 
 La liste donne le compteur (textes, puis composants et graphiques, non conformes
-et à vérifier) et les paires de couleurs de la page, du pire ratio au
-meilleur. Les éléments qui ont les mêmes couleurs et le même résultat sont
-regroupés (« 23 éléments ») : chaque clic sur la ligne passe au suivant. Deux
+et à vérifier) et les paires de couleurs de la page, dans l'ordre du
+document. Les éléments qui ont les mêmes couleurs et le même résultat sont
+regroupés (« 23 éléments ») à la place du premier d'entre eux : chaque clic
+sur la ligne passe au suivant. Deux
 filtres séparent les **textes (3.2)** et les **composants et graphiques (3.3)**.
 
 Ce qui est vérifié :
@@ -243,7 +247,7 @@ Mapbox), `canvas` interactif, et pour information les liens vers un fichier
 média (filtre « Liens »). Les médias masqués sont marqués non concernés.
 
 La liste donne un média par ligne, avec une pastille par critère
-(`4.1 !`, `4.3 ✓`, `4.11 ×`…), les erreurs en premier. Un clic sur une ligne
+(`4.1 !`, `4.3 ✓`, `4.11 ×`…), dans l'ordre du document. Un clic sur une ligne
 fait défiler jusqu'au média et **épingle son détail** à côté de lui ; un clic
 ailleurs ou Échap le libère (un second Échap arrête le bookmarklet). C'est le
 seul moyen d'afficher le détail d'un lecteur tiers : le survol ne traverse pas
@@ -309,7 +313,7 @@ Limites :
 
 La liste donne chaque `table` et chaque élément `role="table"`, `grid` ou
 `treegrid`, avec son type, sa taille et une pastille par critère
-(`5.4 ✓`, `5.6 ×`…), les erreurs en premier. Les tableaux faits de `div`
+(`5.4 ✓`, `5.6 ×`…), dans l'ordre du document. Les tableaux faits de `div`
 sans rôle ne sont pas détectés : **un tableau visible absent de la liste**
 n'est pas restitué comme un tableau (5.6, 5.7), c'est à l'auditeur de le
 constater. Les tableaux masqués sont marqués non concernés.
@@ -389,8 +393,8 @@ Limites :
 La liste donne chaque `a[href]`, `area[href]` et élément `role="link"`, avec
 son **intitulé** (nom accessible) tel qu'une aide technique le restitue hors
 contexte, sa **nature** (texte, image, composite, SVG, icône masquée…), la
-source de l'intitulé et une pastille par critère (`6.1 !`, `6.2 ×`), les
-erreurs en premier. Les liens masqués sont marqués non concernés, sauf un lien
+source de l'intitulé et une pastille par critère (`6.1 !`, `6.2 ×`), dans
+l'ordre du document. Les liens masqués sont marqués non concernés, sauf un lien
 masqué par `aria-hidden` mais visible et focalisable, signalé « à vérifier ».
 
 L'intitulé est calculé comme le nom accessible : `aria-labelledby`, puis
@@ -563,8 +567,9 @@ test :
   « ! », mais la ligne est ✓ quand rien d'autre n'est signalé.
 
 Les titres masqués (`display:none`, `aria-hidden`) et les `hx` dont le rôle
-est remplacé (`<h2 role="presentation">`) sont en gris (∅) en fin de liste,
-hors du plan. Un titre **caché visuellement** (classe `sr-only`, `clip`,
+est remplacé (`<h2 role="presentation">`) sont en gris (∅) à leur place
+dans le document, au retrait du titre précédent, mais hors du plan (ils ne
+comptent pas pour les sauts de niveau). Un titre **caché visuellement** (classe `sr-only`, `clip`,
 hors écran) compte comme présent (glossaire RGAA) : il est dans le plan,
 avec la mention « caché visuellement ».
 
@@ -641,7 +646,8 @@ Une liste bien codée est **conforme** : le 9.3 ne demande que le bon
 balisage. Une liste sans puce (`list-style: none`) est conforme ; le détail
 rappelle que Safari et VoiceOver peuvent alors ne pas l'annoncer.
 
-Section **Hors liste** (toujours « à vérifier ») :
+Passages **hors liste** (toujours « à vérifier », à leur place dans le
+document, repérés ¶ ou nav) :
 
 - **lignes à puces écrites à la main** : au moins deux lignes qui se suivent
   (paragraphes frères, ou lignes séparées par `<br>`) et commencent par le
@@ -655,7 +661,7 @@ Section **Hors liste** (toujours « à vérifier ») :
 
 Les listes masquées, vides, et les `ul` dont le rôle est remplacé par un
 composant (`role="menubar"`, `tablist`, `tree`, `listbox`… : voir RGAA 7)
-sont en gris (∅) en fin de liste.
+sont en gris (∅), à leur place dans le document.
 
 **Détail** (au survol, au focus, ou épinglé par un clic sur une ligne) :
 type et source (`start`, `reversed`, rôle retiré ou remplacé), nom,

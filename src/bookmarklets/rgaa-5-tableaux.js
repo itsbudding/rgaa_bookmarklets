@@ -25,7 +25,7 @@
  */
 import { inspector } from '../lib/floating-panel.js';
 import { row, esc, src, icon, list, flag } from '../lib/dom.js';
-import { pills, critBlock, worst as worstOf, RANK, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
+import { pills, critBlock, worst as worstOf, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, presentational, byId, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
 
@@ -432,7 +432,6 @@ const collect = () => {
   entries = found.map(analyse);
   // Oublie les choix des tableaux retirés de la page.
   [...choices.keys()].forEach((t) => !t.isConnected && choices.delete(t));
-  const sorted = [...entries].sort((a, b) => RANK[b.status] - RANK[a.status] || a.idx - b.idx);
   const shown = entries.filter((e) => !e.hidden);
   const data = shown.filter((e) => e.type === 'data');
   const cplx = data.filter((e) => e.complex).length;
@@ -441,7 +440,7 @@ const collect = () => {
   const err = shown.filter((e) => e.status === 'error').length;
   const hidden = entries.length - shown.length;
   return {
-    items: sorted.map((e) => ({
+    items: entries.map((e) => ({
       el: e.el,
       status: e.status,
       label: e.hidden ? `${labelOf(e)} (masqué : ${e.hidden})` : labelOf(e),

@@ -18,7 +18,7 @@ import { inspector } from '../lib/floating-panel.js';
 import { dialog } from '../lib/dialog-panel.js';
 import { row, esc, flag, checks, icon, src } from '../lib/dom.js';
 import { STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
-import { deepAll, isOwn } from '../lib/a11y.js';
+import { deepAll, isOwn, sortByDom } from '../lib/a11y.js';
 import { withoutHighlight } from '../lib/highlight.js';
 import { parseColor, colorsIn, fade, over, ratio, fmtRatio, hex, label, TRANSPARENT, WHITE } from '../lib/color.js';
 
@@ -540,7 +540,7 @@ const textCandidate = (el) => {
 const graphicCandidates = () => {
   const svgs = deepAll('svg').filter((s) => !isOwn(s) && !(s.parentElement && s.parentElement.closest('svg')) && svgCandidate(s));
   const icons = deepAll('i,span,em,b').filter((e) => !isOwn(e) && ((iconFont(cs(e)) && ownText(e)) || (!ownText(e) && iconPseudo(e))));
-  return [...svgs, ...icons];
+  return sortByDom([...svgs, ...icons]);
 };
 
 const safe = (fn, el) => {
@@ -552,7 +552,6 @@ const safe = (fn, el) => {
   }
 };
 
-const STATUS_ORDER = { error: 0, warning: 1, ok: 2, hidden: 3 };
 const swatches = (fg, bg) =>
   `<span class="pair" aria-hidden="true" style="color:${hex(fg)};background:${hex(bg)}">Aa</span> `;
 
@@ -658,18 +657,20 @@ const collect = () => {
       ratioTxt: `${fmtRatio(g.best)} (seuil 3)`,
     }, g.el);
   });
-  const items = [...groups.values()]
-    .map((g) => ({ ...g, el: g.els[0], meta: `${g.ratioTxt}${g.els.length > 1 ? ` · ${g.els.length} éléments` : ''}` }))
-    .sort((a, b) => STATUS_ORDER[a.status] - STATUS_ORDER[b.status] || a.r - b.r);
-  // Iframes non analysées : en tête, quel que soit le filtre.
-  items.unshift(
-    ...closed.map((f) => ({
-      el: f,
-      filter: ['texte', 'ui', ...statusFilter('warning')],
-      status: 'warning',
-      label: `Iframe non analysée : ${frameName(f)}`,
-      meta: 'autre origine',
-    })),
+  // Ordre du document, d'après le premier élément de chaque groupe.
+  // Iframes non analysées : à leur place, quel que soit le filtre.
+  const items = sortByDom(
+    [
+      ...[...groups.values()].map((g) => ({ ...g, el: g.els[0], meta: `${g.ratioTxt}${g.els.length > 1 ? ` · ${g.els.length} éléments` : ''}` })),
+      ...closed.map((f) => ({
+        el: f,
+        filter: ['texte', 'ui', ...statusFilter('warning')],
+        status: 'warning',
+        label: `Iframe non analysée : ${frameName(f)}`,
+        meta: 'autre origine',
+      })),
+    ],
+    (x) => x.el,
   );
 
   const count = (list, st) => list.filter((x) => x.status === st).length;
