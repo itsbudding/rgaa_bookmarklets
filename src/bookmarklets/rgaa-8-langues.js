@@ -109,6 +109,23 @@ const blockOf = (el) => {
 
 const PRESENTATIONAL = { font: 'CSS', center: 'CSS', big: 'CSS', tt: 'code, kbd, samp ou CSS', strike: 's ou del', marquee: 'CSS (ou rien)', blink: 'CSS (ou rien)', basefont: 'CSS', spacer: 'CSS', nobr: 'CSS (white-space)' };
 const EMBEDDED = 'img,svg,video,audio,iframe,canvas,object,embed,input,select,textarea,button,picture,math';
+/** Balises sémantiques dont l'absence de contenu est signalée (8.9). */
+const EMPTY_TAGS = new Set(
+  ('h1 h2 h3 h4 h5 h6 p strong em b i u s small mark q cite abbr dfn code kbd samp var sub sup del ins time ' +
+    'li dt dd ul ol dl menu blockquote section article aside nav header footer main figure figcaption address caption legend pre summary').split(' '),
+);
+const EMPTY_TEXT = /[\s\u00a0\u200b\u200c\u200d\ufeff]/g;
+/** Contenu CSS (::before / ::after) d'un élément, ou ''. */
+const pseudoContent = (el) => {
+  const win = el.ownerDocument.defaultView;
+  return ['::before', '::after']
+    .map((p) => {
+      const c = win.getComputedStyle(el, p).content;
+      return c && c !== 'none' && c !== 'normal' ? c : '';
+    })
+    .filter(Boolean)
+    .join(' ');
+};
 
 const walkDoc = (doc) => {
   const langs = [];
@@ -116,7 +133,7 @@ const walkDoc = (doc) => {
   const passages = new Map(); // clé → passage (8.7 ou 8.10)
   const tags = [];
   const brs = [];
-  const empties = new Map(); // parent → [p]
+  const empties = new Map(); // parent → Map(balise → [els])
   const presentational = new Map(); // balise → [els]
 
   const addPassage = (key, make) => {
@@ -195,10 +212,12 @@ const walkDoc = (doc) => {
           presentational.get(t).push(c);
         }
         if (t === 'blockquote') tags.push({ kind: 'blockquote', el: c, els: [c] });
-        if (t === 'p' && !c.textContent.replace(/[\s ​]/g, '') && !c.querySelector(EMBEDDED)) {
+        if (c.namespaceURI === XHTML_NS && EMPTY_TAGS.has(t) && !c.textContent.replace(EMPTY_TEXT, '') && !c.querySelector(EMBEDDED)) {
           const par = up(c);
-          if (!empties.has(par)) empties.set(par, []);
-          empties.get(par).push(c);
+          if (!empties.has(par)) empties.set(par, new Map());
+          const byTag = empties.get(par);
+          if (!byTag.has(t)) byTag.set(t, []);
+          byTag.get(t).push(c);
         }
         if (!code && !CODE.has(c.tagName)) {
           const lang = langAbove(c);
@@ -228,7 +247,9 @@ const walkDoc = (doc) => {
     if (doc.body && ownLang(doc.body) !== null && !langs.some((l) => l.el === doc.body)) langs.push({ kind: 'lang', el: doc.body, els: [doc.body], hidden: false });
   }
   const pass = [...passages.values()].flatMap((m) => [...m.values()]);
-  empties.forEach((els, par) => tags.push({ kind: 'empty', el: els[0], els, parent: par }));
+  empties.forEach((byTag, par) =>
+    byTag.forEach((els, t) => tags.push({ kind: 'empty', tag: t, el: els[0], els, parent: par, pseudo: els.map(pseudoContent).find(Boolean) || '' })),
+  );
   presentational.forEach((els, t) => tags.push({ kind: 'presentational', tag: t, el: els[0], els }));
   return { langs, dirs, pass, tags: [...tags, ...brs] };
 };
@@ -330,10 +351,18 @@ const finishPassage = (e) => {
   };
 };
 
+const emptyText = (e) => {
+  const n = e.els.length;
+  const what = n > 1 ? `${n} <${e.tag}> vides` : `<${e.tag}> vide`;
+  if (e.tag === 'p') return `${what} : ${n > 1 ? 'servent' : 'sert'} d’espacement ? À retirer (l’espacement relève de la CSS)`;
+  if (e.pseudo) return `${what} : contenu ajouté en CSS seulement (icône ?), balise sans texte à retirer ou à remplacer`;
+  return `${what} : balise${n > 1 ? 's' : ''} sans contenu, à retirer`;
+};
+
 const finishTag = (e) => {
   let text;
   if (e.kind === 'br') text = `${e.runs > 1 ? `${e.runs} suites de <br> (jusqu’à ${e.max})` : `${e.max} <br> à la suite`} : paragraphes simulés ?`;
-  else if (e.kind === 'empty') text = e.els.length > 1 ? `${e.els.length} paragraphes vides : servent d’espacement ?` : 'Paragraphe vide : sert d’espacement ?';
+  else if (e.kind === 'empty') text = emptyText(e);
   else if (e.kind === 'blockquote') text = 'blockquote : est-ce une citation (et non un simple retrait) ?';
   else text = `<${e.tag}> : balise de présentation (obsolète en HTML5, voir aussi 8.2)`;
   e.crit = { '8.9': { status: 'warning', text, extra: [] } };
@@ -427,8 +456,10 @@ const itemOf = (e, theme) => {
     prefix = `<span class="lvl">br</span>`;
     label = `${e.runs > 1 ? `${e.runs} suites de <br>` : `${e.max} <br> à la suite`} « ${shortText(e.el)} »`;
   } else if (e.kind === 'empty') {
-    prefix = `<span class="lvl">p</span>`;
-    label = e.els.length > 1 ? `${e.els.length} paragraphes vides` : 'paragraphe vide';
+    prefix = `<span class="lvl">${e.tag}</span>`;
+    const n = e.els.length;
+    label = e.tag === 'p' ? (n > 1 ? `${n} paragraphes vides` : 'paragraphe vide') : `${n > 1 ? `${n} balises vides` : 'balise vide'}${e.pseudo ? ' (contenu CSS seul)' : ''}`;
+    label += ', à retirer';
   } else if (e.kind === 'blockquote') {
     prefix = `<span class="lvl">blockquote</span>`;
     label = `« ${shortText(e.el)} »`;
@@ -549,8 +580,9 @@ const detailOf = (e) => {
     html += row('Suites de <br>', `${e.runs} (jusqu’à ${e.max} à la suite)`);
     html += `<p class="note small muted">Le glossaire du RGAA (« Uniquement à des fins de présentation », note 1) : des &lt;br&gt; qui créent visuellement des paragraphes invalident le critère. Des &lt;br&gt; dans une adresse ou un poème sont acceptés.</p>`;
   } else if (e.kind === 'empty') {
-    html += row('Paragraphes vides', `${e.els.length} dans <code>&lt;${esc(tagOf(e.parent || el))}&gt;</code>`);
-    html += `<p class="note small muted">Un paragraphe vide qui crée un espace est restitué (« vide ») par certains lecteurs d’écran : l’espacement relève de la CSS.</p>`;
+    html += row('Balises vides', `${e.els.length} <code>&lt;${esc(e.tag)}&gt;</code> dans <code>&lt;${esc(tagOf(e.parent || el))}&gt;</code>`);
+    if (e.pseudo) html += row('Contenu CSS', `<code>${esc(cut(e.pseudo, 60))}</code>`);
+    html += `<p class="note small muted">Une balise sémantique vide (titre, paragraphe, liste, emphase…) est restituée par certains lecteurs d’écran (« titre niveau 2 », « vide », « liste de 0 éléments ») sans rien porter : elle est à retirer. L’espacement et les icônes relèvent de la CSS (ou d’une image avec alternative).</p>`;
   } else if (e.kind === 'blockquote') {
     html += row('Texte', `<span class="quote">« ${esc(excerptOf(el))} »</span>`);
     if (el.getAttribute('cite')) html += row('Source (cite)', esc(el.getAttribute('cite')));
@@ -578,6 +610,12 @@ font:700 11px/1.3 ${THEME.font};color:#fff;padding:1px 4px;border-radius:2px}
 const MAX_BOXES = 2000;
 
 /** Calque : boîtes et étiquettes posées sur des éléments, replacées au défilement. */
+/** Position de repli d'un élément sans boîte (display: contents…) : celle de son premier parent qui en a une. */
+const emptyRect = (el) => {
+  for (let e = up(el); e; e = up(e)) if (e.getClientRects && e.getClientRects().length) return e.getBoundingClientRect();
+  return null;
+};
+
 const createLayer = (name, specsOf) => {
   const host = document.createElement('div');
   host.setAttribute('data-rgaa-bookmarklet', '');
@@ -603,11 +641,17 @@ const createLayer = (name, specsOf) => {
     // Lectures d'abord, écritures ensuite (une seule mise en page).
     const pos = items.map(({ s }) => {
       const el = s.el;
-      if (!el.isConnected || !el.getClientRects().length) return null;
-      const r = el.getBoundingClientRect();
+      if (!el.isConnected) return null;
+      // Balise vide : marquée même sans taille (repère minimal à sa place).
+      const empty = s.empty && (!el.getClientRects().length || !el.offsetWidth || !el.offsetHeight);
+      if (!empty && !el.getClientRects().length) return null;
+      let r = el.getBoundingClientRect();
+      if (empty && !el.getClientRects().length) r = emptyRect(el);
+      if (!r) return null;
+      if (empty) r = { left: r.left, top: r.top, width: Math.max(r.width, 10), height: Math.max(r.height, 10), right: r.left + Math.max(r.width, 10), bottom: r.top + Math.max(r.height, 10) };
       const win = el.ownerDocument.defaultView;
       if (r.bottom < 0 || r.top > win.innerHeight || r.right < 0 || r.left > win.innerWidth) return null;
-      if (!visibleOnScreen(el, r)) return null;
+      if (!empty && !visibleOnScreen(el, r)) return null;
       return { r, xy: toTopCoords(win, r.left, r.top) };
     });
     // Étiquettes : au-dessus des blocs, sous les éléments en ligne, décalées
@@ -724,7 +768,7 @@ const tagSpecs = () => {
   const flagged = new Map();
   docs.forEach((d) =>
     d.tags.forEach((e) =>
-      e.els.forEach((el) => flagged.set(el, e.kind === 'br' ? `! ${e.max} br` : e.kind === 'empty' ? '! p vide' : `! ${e.kind === 'blockquote' ? 'blockquote' : e.tag}`)),
+      e.els.forEach((el) => flagged.set(el, e.kind === 'br' ? `! ${e.max} br` : e.kind === 'empty' ? `! ${e.tag} vide` : `! ${e.kind === 'blockquote' ? 'blockquote' : e.tag}`)),
     ),
   );
   allDocuments().forEach((doc) => {
@@ -734,9 +778,10 @@ const tagSpecs = () => {
         if (out.length >= MAX_BOXES || isOwn(el) || (el.namespaceURI !== HTML_NS && el.closest('svg,math') !== el)) return;
         const warn = flagged.get(el);
         const label = warn || semanticLabel(el);
-        if (!label || !el.getClientRects().length) return;
+        const empty = !!warn && / vide$/.test(warn);
+        if (!label || (!empty && !el.getClientRects().length)) return;
         const inline = inlineEl(el);
-        out.push({ el, thin: true, inline, dashed: !!warn, color: warn ? COLORS.warning : inline ? COLORS.inline : COLORS.tag, text: label });
+        out.push({ el, thin: true, inline, empty, dashed: !!warn, color: warn ? COLORS.warning : inline ? COLORS.inline : COLORS.tag, text: label });
       });
     if (doc.body) visit(doc.body);
   });
