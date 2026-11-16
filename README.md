@@ -632,11 +632,15 @@ une série par iframe de même origine :
   redondant, en pointillés violets les textes dans un autre alphabet sans
   `lang`, en pointillés rouges les textes sans `dir`. En parcourant la page,
   un passage dans une autre langue qui n'est pas entouré est à signaler ;
-- **Balises sur la page** (Maj+B) : affiche le nom de chaque balise de texte
-  (`h1`–`h6`, `p`, `blockquote`, `strong`, `em`, `b`, `i`, `small`,
-  `code`…), et entoure en pointillés les constats 8.9, pour repérer d'un
-  coup d'œil une balise choisie pour son apparence (un `h4` sur une simple
-  mention, un `blockquote` sur un encadré).
+- **Balises sur la page** (Maj+B) : affiche le nom de chaque balise
+  sémantique (toutes sauf `div` et `span` ; ceux-ci aussi quand ils portent
+  un rôle ARIA, avec `role=…`), et entoure en pointillés orange les
+  constats 8.9, pour repérer d'un coup d'œil une balise choisie pour son
+  apparence (un `h4` sur une simple mention, un `blockquote` sur un encadré).
+  Pour lire les balises imbriquées (un `strong` dans un `h3`) : un élément
+  en bloc a son étiquette verte au-dessus de lui (cadre pointillé), un
+  élément en ligne a son étiquette violette en dessous (cadre plein), et
+  une étiquette qui en chevaucherait une autre est décalée vers la droite.
 
 Limites :
 

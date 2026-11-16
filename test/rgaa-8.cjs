@@ -96,8 +96,20 @@ const has = (list, re) => list.some((l) => re.test(l));
   const calque = await p.evaluate(() => document.getElementById('rgaa-8-langues-langues').shadowRoot.querySelectorAll('.tag').length);
   check(calque > 10, `calque Langues affiché au lancement (${calque} étiquettes)`);
   await p.keyboard.press('Shift+B');
-  const balises = await p.evaluate(() => !!document.getElementById('rgaa-8-langues-balises'));
-  check(balises, 'Maj+B : calque Balises affiché');
+  const balises = await p.evaluate(() => [...document.getElementById('rgaa-8-langues-balises').shadowRoot.querySelectorAll('.tag')].map((t) => t.textContent));
+  check(balises.length > 0, 'Maj+B : calque Balises affiché');
+  check(['h4', 'strong', 'details', 'summary', 'pre', 'code'].every((t) => balises.includes(t)) && !balises.includes('div') && !balises.includes('span'), 'toutes les balises sémantiques, sans div ni span');
+  await p.evaluate(() => [...document.querySelectorAll('h4')].pop().scrollIntoView({ block: 'center' }));
+  await p.waitForTimeout(300);
+  const nest = await p.evaluate(() => {
+    const tags = [...document.getElementById('rgaa-8-langues-balises').shadowRoot.querySelectorAll('.tag')].filter((t) => !t.hidden);
+    const h4 = [...document.querySelectorAll('h4')].pop().getBoundingClientRect();
+    const find = (txt) => tags.map((t) => ({ t: t.textContent, r: t.getBoundingClientRect() })).filter((x) => x.t === txt).sort((a, b) => Math.abs(a.r.top - h4.top) - Math.abs(b.r.top - h4.top))[0];
+    const a = find('h4');
+    const s = find('strong');
+    return a && s && a.r.bottom <= h4.top + 1 && s.r.top >= h4.top + 10;
+  });
+  check(nest, 'h4 : étiquette au-dessus ; strong imbriqué : étiquette en dessous');
   await p.keyboard.press('Shift+E');
   check(!(await p.$('#rgaa-8-langues-langues')), 'Maj+E : calque Langues masqué');
   // Survol d'un élément qui porte lang et dir : deux détails.

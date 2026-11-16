@@ -564,12 +564,13 @@ const detailOf = (e) => {
 
 /* ---------- Calques sur la page ---------- */
 
-const COLORS = { ok: '#0d47a1', warning: '#8a4b00', error: '#c40000', hidden: '#595959', script: '#6a1b9a', tag: '#00695c' };
+const COLORS = { ok: '#0d47a1', warning: '#8a4b00', error: '#c40000', hidden: '#595959', script: '#6a1b9a', tag: '#00695c', inline: '#4527a0' };
 const OVERLAY_CSS = `
 :host{all:initial}
 .box{position:fixed;z-index:${Number(THEME.zIndex) - 1};pointer-events:none;border:2px solid;border-radius:2px;box-sizing:border-box}
-.box--dashed{border-style:dashed}
 .box--thin{border-width:1px;border-style:dotted}
+.box--inline{border-style:solid}
+.box--dashed{border-style:dashed}
 .tag{position:fixed;z-index:${Number(THEME.zIndex) - 1};pointer-events:none;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 font:700 11px/1.3 ${THEME.font};color:#fff;padding:1px 4px;border-radius:2px}
 .tag--small{font-size:10px;padding:0 3px;opacity:.92}
@@ -587,7 +588,7 @@ const createLayer = (name, specsOf) => {
     .slice(0, MAX_BOXES)
     .map((s) => {
       const box = document.createElement('div');
-      box.className = `box${s.dashed ? ' box--dashed' : ''}${s.thin ? ' box--thin' : ''}`;
+      box.className = `box${s.thin ? ' box--thin' : ''}${s.inline ? ' box--inline' : ''}${s.dashed ? ' box--dashed' : ''}`;
       box.style.borderColor = s.color;
       const tag = document.createElement('span');
       tag.className = `tag${s.thin ? ' tag--small' : ''}`;
@@ -609,14 +610,27 @@ const createLayer = (name, specsOf) => {
       if (!visibleOnScreen(el, r)) return null;
       return { r, xy: toTopCoords(win, r.left, r.top) };
     });
-    items.forEach(({ box, tag }, i) => {
+    // Étiquettes : au-dessus des blocs, sous les éléments en ligne, décalées
+    // vers la droite quand elles en chevaucheraient une autre (éléments imbriqués).
+    const placed = [];
+    items.forEach(({ s, box, tag }, i) => {
       const q = pos[i];
       box.hidden = tag.hidden = !q;
       if (!q) return;
       const [x, y] = q.xy;
       Object.assign(box.style, { left: `${x - 2}px`, top: `${y - 2}px`, width: `${q.r.width + 4}px`, height: `${q.r.height + 4}px` });
-      tag.style.left = `${Math.max(0, Math.min(x, window.innerWidth - 40))}px`;
-      tag.style.top = `${Math.max(0, y - 16)}px`;
+      const w = Math.min(260, s.text.length * (s.thin ? 6 : 6.8) + 10);
+      const h = s.thin ? 14 : 16;
+      let lx = Math.max(0, Math.min(x, window.innerWidth - w));
+      const ly = s.inline ? y + q.r.height + 1 : Math.max(0, y - h);
+      for (let k = 0; k < 20; k++) {
+        const hit = placed.find((o) => lx < o.x + o.w && lx + w > o.x && ly < o.y + o.h && ly + h > o.y);
+        if (!hit) break;
+        lx = hit.x + hit.w + 2;
+      }
+      placed.push({ x: lx, y: ly, w, h });
+      tag.style.left = `${lx}px`;
+      tag.style.top = `${ly}px`;
     });
   };
   const schedule = () => {
@@ -682,26 +696,47 @@ const langSpecs = () => {
   return [...byEl.values()];
 };
 
-const SEMANTIC = 'h1,h2,h3,h4,h5,h6,p,blockquote,strong,em,b,i,u,s,small,mark,q,cite,abbr,dfn,address,code,pre,kbd,figure,figcaption,hr,sub,sup,del,ins,font,center,big,tt,strike,marquee';
+/** Balises sans sémantique ou sans rendu : non étiquetées (div et span le sont s'ils portent un rôle). */
+const NOT_SEMANTIC = new Set(['div', 'span', 'br', 'wbr', 'script', 'style', 'template', 'noscript', 'link', 'meta', 'slot', 'source', 'track', 'param', 'option', 'optgroup', 'datalist', 'colgroup', 'col', 'area', 'map', 'head', 'title', 'base']);
+const HTML_NS = 'http://www.w3.org/1999/xhtml';
 
-/** Calque « Balises sur la page » : nom de chaque balise de texte, et constats 8.9. */
+/** Nom affiché d'une balise sémantique (avec son rôle ARIA éventuel), ou '' si elle n'est pas étiquetée. */
+const semanticLabel = (el) => {
+  const role = (el.getAttribute('role') || '').trim().split(/\s+/)[0];
+  if (el.namespaceURI !== HTML_NS) return el.localName === 'svg' || el.localName === 'math' ? `${el.localName}${role ? ` role=${role}` : ''}` : '';
+  const t = tagOf(el);
+  if (t.includes('-')) return role ? `${t} role=${role}` : '';
+  if (NOT_SEMANTIC.has(t)) return role && (t === 'div' || t === 'span') ? `${t} role=${role}` : '';
+  return role ? `${t} role=${role}` : t;
+};
+
+/** Élément affiché en ligne (strong dans un h3…) : son étiquette va sous lui, d'une autre couleur. */
+const inlineEl = (el) => /^inline/.test(styleOf(el).display);
+
+/**
+ * Calque « Balises sur la page » : nom de chaque balise sémantique (toutes
+ * sauf div et span sans rôle), et constats 8.9. Les éléments en bloc ont leur
+ * étiquette au-dessus, les éléments en ligne en dessous, d'une autre couleur,
+ * pour qu'un strong dans un h3 ne se confonde pas avec le h3.
+ */
 const tagSpecs = () => {
   const out = [];
-  const flagged = new Set();
+  const flagged = new Map();
   docs.forEach((d) =>
     d.tags.forEach((e) =>
-      e.els.forEach((el) => {
-        flagged.add(el);
-        out.push({ el, dashed: true, color: COLORS.warning, text: e.kind === 'br' ? `! ${e.max} br` : e.kind === 'empty' ? '! p vide' : `! ${e.kind === 'blockquote' ? 'blockquote' : e.tag}` });
-      }),
+      e.els.forEach((el) => flagged.set(el, e.kind === 'br' ? `! ${e.max} br` : e.kind === 'empty' ? '! p vide' : `! ${e.kind === 'blockquote' ? 'blockquote' : e.tag}`)),
     ),
   );
   allDocuments().forEach((doc) => {
     const visit = (root) =>
-      root.querySelectorAll(`${SEMANTIC},*`).forEach((el) => {
+      root.querySelectorAll('*').forEach((el) => {
         if (el.shadowRoot && !isOwn(el)) visit(el.shadowRoot);
-        if (flagged.has(el) || !el.matches(SEMANTIC) || isOwn(el) || out.length >= MAX_BOXES) return;
-        out.push({ el, thin: true, color: COLORS.tag, text: tagOf(el) });
+        if (out.length >= MAX_BOXES || isOwn(el) || (el.namespaceURI !== HTML_NS && el.closest('svg,math') !== el)) return;
+        const warn = flagged.get(el);
+        const label = warn || semanticLabel(el);
+        if (!label || !el.getClientRects().length) return;
+        const inline = inlineEl(el);
+        out.push({ el, thin: true, inline, dashed: !!warn, color: warn ? COLORS.warning : inline ? COLORS.inline : COLORS.tag, text: label });
       });
     if (doc.body) visit(doc.body);
   });
@@ -788,7 +823,7 @@ const ui = inspector({
     footer:
       'Langues : attributs lang (8.8) et textes dans un autre alphabet sans lang (8.7). Sens de lecture : attributs dir et textes de sens différent sans dir (8.10). ' +
       'Balises de présentation (8.9) : &lt;br&gt; à la suite, paragraphes vides, blockquote, balises obsolètes. ' +
-      'Langues sur la page (affiché au lancement, Maj+E), Balises sur la page (Maj+B).',
+      'Langues sur la page (affiché au lancement, Maj+E). Balises sur la page (Maj+B) : toutes les balises sémantiques, étiquette au-dessus d’un bloc, en dessous d’un élément en ligne.',
   },
   onKey(e) {
     if (!keyOk(e)) return false;
