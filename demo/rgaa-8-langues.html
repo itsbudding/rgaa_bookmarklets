@@ -8,6 +8,7 @@
 <script src="demo.js" defer></script>
 <style id="styles-cas">
   .retrait { margin-left: 2rem; }
+  .icone-demo::before { content: "\\2605"; color: #b26a00; }
 </style>
 </head>
 <body>
@@ -184,7 +185,17 @@
       <p></p>
       <p>Après</p>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> ! p « 2 paragraphes vides : servent d’espacement ? ».</p>
+    <p class="attendu"><strong>Attendu :</strong> ! p « 2 &lt;p&gt; vides : servent d’espacement ? À retirer ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Balises sémantiques vides</h3>
+    <div class="demo">
+      <h4></h4>
+      <p>Tarif <strong></strong>réduit sur présentation de la carte.</p>
+      <ul class="liste-vide"><li>Lundi</li><li></li><li>Mardi</li></ul>
+      <p><i class="icone-demo"></i> Horaires</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! h4, strong, li « vide : balise sans contenu, à retirer », ! i « contenu ajouté en CSS seulement (icône ?) ». Sur la page (Maj+B), chacune est marquée en orange, même sans taille.</p>
   </div>
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>blockquote pour un retrait</h3>

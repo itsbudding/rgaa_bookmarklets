@@ -621,8 +621,11 @@ une série par iframe de même origine :
   test 8.10.1, même pour un mot isolé dans une phrase ;
 - **Balises de présentation (8.9)**, toujours à vérifier : suites d'au
   moins deux `<br>` (paragraphes simulés, note 1 du glossaire ; pas dans
-  `address` ni `pre`), paragraphes vides, `blockquote` (citation ou simple
-  retrait ?), balises de présentation obsolètes (`font`, `center`, `big`…).
+  `address` ni `pre`), balises sémantiques vides (titre, paragraphe,
+  `strong`, `li`, liste, section… sans texte ni image : à retirer ; un `i`
+  vide qui ne porte qu'une icône en CSS est signalé comme tel),
+  `blockquote` (citation ou simple retrait ?), balises de présentation
+  obsolètes (`font`, `center`, `big`…).
 
 **Outils** (boutons en haut du panneau liste, ou raccourcis) :
 
