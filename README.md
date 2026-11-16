@@ -1,6 +1,6 @@
 # Bookmarklets RGAA
 
-Dix bookmarklets pour aider à auditer une page web selon le
+Douze bookmarklets pour aider à auditer une page web selon le
 [RGAA 4.1](https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/).
 Ils s'installent comme des favoris et fonctionnent sur n'importe quelle page,
 sans extension ni compte.
@@ -19,6 +19,8 @@ intitulé reste à juger par l'auditeur.
 | **RGAA 5 – Tableaux** | 5. Tableaux | Liste des tableaux, type choisi par l'auditeur, une pastille par critère + en-têtes de chaque cellule au survol |
 | **RGAA 6 – Liens** | 6. Liens | Liste des liens et de leur intitulé, intitulés vagues à juger avec leur contexte, une pastille par critère |
 | **RGAA 7 – Composants ARIA** | 7. Scripts | Code ARIA des composants (rôle, états, structure, nom, focus) et zones de messages, une pastille par critère + annonces des messages |
+| **RGAA 8 – Page** | 8. Éléments obligatoires (critères 8.1 à 8.6) | Doctype, validité du code généré (erreurs lisibles + validateur du W3C), langue par défaut, titre de la page |
+| **RGAA 8 – Langues et balises** | 8. Éléments obligatoires (critères 8.7 à 8.10) | Codes de langue, textes dans un autre alphabet sans lang, sens de lecture, balises de présentation, langues et balises affichées sur la page |
 | **RGAA 9 – Titres** | 9. Structuration (critère 9.1) | Plan des titres en retrait selon le niveau, une pastille par test, plan affiché sur la page |
 | **RGAA 9 – Listes** | 9. Structuration (critère 9.3) | Inventaire et structure des listes, sous-listes en retrait, lignes à puces et menus hors liste, listes affichées sur la page |
 | **RGAA 11 – Formulaires** | 11. Formulaires | Liste des champs et boutons + détail au survol (ou au focus) |
@@ -27,11 +29,11 @@ intitulé reste à juger par l'auditeur.
 
 1. Téléchargez le dépôt (bouton **Code › Download ZIP** sur GitHub) et décompressez-le.
 2. Ouvrez `dist/index.html` dans votre navigateur.
-3. Glissez chacun des dix liens dans votre barre de favoris.
+3. Glissez chacun des douze liens dans votre barre de favoris.
 
 Autre méthode : créez un favori et collez comme adresse le contenu d'un des
 fichiers `dist/rgaa-1-images.js`, `dist/rgaa-2-cadres.js`, `dist/rgaa-3-couleurs.js`,
-`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js`, `dist/rgaa-6-liens.js`, `dist/rgaa-7-composants.js`, `dist/rgaa-9-titres.js`, `dist/rgaa-9-listes.js` ou
+`dist/rgaa-4-multimedia.js`, `dist/rgaa-5-tableaux.js`, `dist/rgaa-6-liens.js`, `dist/rgaa-7-composants.js`, `dist/rgaa-8-page.js`, `dist/rgaa-8-langues.js`, `dist/rgaa-9-titres.js`, `dist/rgaa-9-listes.js` ou
 `dist/rgaa-11-formulaires.js`.
 
 ### Pages de démo
@@ -52,7 +54,7 @@ bookmarklet sans l'installer.
 - **Réduire** : le bouton « − » du panneau liste le réduit à son en-tête
   (« + » pour le déplier). Le bookmarklet continue de fonctionner (détail au
   survol, raccourcis).
-- Les neuf bookmarklets sont indépendants et peuvent tourner en même temps.
+- Les bookmarklets sont indépendants et peuvent tourner en même temps.
 - Ils inspectent aussi le contenu des Shadow DOM ouverts et des iframes de
   même origine. Une iframe chargée après le lancement n'est prise en compte
   qu'en relançant le bookmarklet.
@@ -536,6 +538,114 @@ Limites :
 - composants ajoutés après le lancement : « Actualiser » (la bande
   d'annonces, elle, suit la page en direct).
 
+### RGAA 8 – Page
+
+Ce bookmarklet couvre les **critères 8.1 à 8.6** : ce qui vaut pour la page
+entière. La liste a quatre lignes pour la page, puis un groupe par iframe de
+même origine (doctype et langue ; le titre d'une iframe relève du 2.1) :
+
+- **Doctype (8.1)** : présent, reconnu (HTML5, HTML 4.01, XHTML 1.0 et 1.1,
+  HTML 3.2…), mode du navigateur (standard ou quirks). Un doctype écrit
+  après `<html>` est ignoré par le navigateur : le code généré n'en a pas
+  (×). Le bouton **Relire le code source** récupère la page une seconde fois
+  à la même adresse pour vérifier ce qui précède le doctype (8.1.3) ; il
+  refait une requête, il n'est donc lancé qu'à la demande. Une iframe
+  `srcdoc` n'a pas besoin de doctype (∅) ;
+- **Validité (8.2)** : le navigateur corrige le code avant que le
+  bookmarklet ne le lise (guillemets, balises non fermées, attributs
+  doublés), seul le validateur vérifie la syntaxe. Le bookmarklet relève
+  ce qui reste lisible dans le code généré, chaque constat sur sa ligne :
+  **id en double** (avec les attributs qui le référencent : `for`,
+  `aria-labelledby`…), **éléments obsolètes** en HTML5 (`font`, `center`,
+  `big`, `tt`, `marquee`…), **éléments interactifs imbriqués** (bouton
+  dans un lien, élément avec `tabindex` dans un bouton, `label` dans un
+  `label`), plusieurs balises `title`. Sans constat, la ligne est « à
+  vérifier ». Le détail propose trois boutons : **Valider le code généré au
+  W3C** (envoie le code de la page, après exécution des scripts, au
+  validateur du W3C dans un nouvel onglet : rien ne part sans ce clic),
+  **Valider l'adresse au W3C** (page publique : code envoyé par le serveur,
+  avant scripts) et **Copier le code généré** (pour un validateur installé
+  en local, page d'intranet ou contenu confidentiel) ;
+- **Langue (8.3, 8.4)** : `lang` sur `html`, ou sur chaque texte de la page
+  (seconde condition du test 8.3.1) ; `xml:lang` seul en HTML (×) ; règles
+  du glossaire pour XHTML (`lang` et `xml:lang` selon la version et le type
+  servi). Le code doit faire 2 ou 3 lettres avant le tiret (ISO 639), sans
+  `_` (×) ; un code retiré (`iw`) ou un code de 3 lettres inconnu du
+  navigateur est à vérifier. Un code valide reste « à vérifier » : le détail
+  donne le nom de la langue et le début du texte de la page, et signale un
+  texte écrit surtout dans un autre alphabet que celui de la langue
+  (`lang="fr"` sur une page en cyrillique) ;
+- **Titre (8.5, 8.6)** : balise `title` absente ou vide (×) ; la
+  pertinence est toujours à vérifier, avec le titre, le `h1` et l'adresse
+  dans le détail. Un titre générique (« Document », « Sans titre »,
+  « Accueil », « React App », nom de fichier…) est signalé. Le titre est
+  suivi en direct : s'il change pendant l'audit (application monopage,
+  formulaire en plusieurs étapes), la ligne est mise à jour et le détail
+  garde l'historique. L'unicité du titre sur le site reste à vérifier :
+  rien n'est mémorisé d'une page à l'autre.
+
+Limites :
+
+- syntaxe du code (8.2) : seulement avec le validateur ;
+- pertinence de la langue et du titre : à juger ;
+- iframes d'une autre origine et Shadow DOM fermés : non inspectés.
+
+### RGAA 8 – Langues et balises
+
+Ce bookmarklet couvre les **critères 8.7 à 8.10**. La liste commence par une
+ligne « Page » (langue de la page, 8.7 toujours à vérifier : la lecture de
+la page reste nécessaire), puis trois sections dans l'ordre du document,
+une série par iframe de même origine :
+
+- **Langues** :
+  - chaque élément qui porte `lang` (ou `xml:lang`), avec sa pastille
+    **8.8** : code invalide (`lang="english"`, `lang="de_DE"`) ×,
+    `lang=""` à vérifier, code valide à vérifier (le nom de la langue et le
+    texte sont dans le détail ; un texte écrit dans un autre alphabet que
+    celui de la langue est signalé). Un `lang` identique à celui du parent
+    est en gris (redondant) ;
+  - les **textes et attributs** (`title`, `alt`, `aria-label`,
+    `placeholder`) **écrits dans un autre alphabet** que celui de la langue
+    qui s'applique, sans `lang` (au moins deux lettres : cyrillique, grec,
+    arabe, hébreu, chinois, japonais, coréen, devanagari, thaï…), pastille
+    **8.7** toujours à vérifier : un nom propre n'a pas besoin de `lang`
+    (cas particuliers du critère). Le texte des balises `code`, `pre`,
+    `kbd`… n'est pas analysé. **Un changement de langue dans le même
+    alphabet** (anglais dans une page en français) **n'est pas détecté** :
+    ce serait une supposition, il se repère en lisant la page ;
+- **Sens de lecture (8.10)** : chaque attribut `dir` (`rtl` ou `ltr` ✓,
+  `auto` à vérifier car le RGAA attend `rtl` ou `ltr`, autre valeur ×,
+  `dir="rtl"` sur un texte sans lettre de droite à gauche à vérifier), et
+  chaque texte écrit dans l'autre sens que celui qui s'applique sans `dir`
+  qui l'indique (arabe ou hébreu sans `dir="rtl"`) : ×, lecture stricte du
+  test 8.10.1, même pour un mot isolé dans une phrase ;
+- **Balises de présentation (8.9)**, toujours à vérifier : suites d'au
+  moins deux `<br>` (paragraphes simulés, note 1 du glossaire ; pas dans
+  `address` ni `pre`), paragraphes vides, `blockquote` (citation ou simple
+  retrait ?), balises de présentation obsolètes (`font`, `center`, `big`…).
+
+**Outils** (boutons en haut du panneau liste, ou raccourcis) :
+
+- **Langues sur la page** (affiché dès le lancement, Maj+E pour le masquer
+  ou l'afficher) : entoure chaque élément qui porte `lang` ou `dir` avec
+  une étiquette (`en`, `ar · rtl`, `× english` en rouge), en gris un `lang`
+  redondant, en pointillés violets les textes dans un autre alphabet sans
+  `lang`, en pointillés rouges les textes sans `dir`. En parcourant la page,
+  un passage dans une autre langue qui n'est pas entouré est à signaler ;
+- **Balises sur la page** (Maj+B) : affiche le nom de chaque balise de texte
+  (`h1`–`h6`, `p`, `blockquote`, `strong`, `em`, `b`, `i`, `small`,
+  `code`…), et entoure en pointillés les constats 8.9, pour repérer d'un
+  coup d'œil une balise choisie pour son apparence (un `h4` sur une simple
+  mention, un `blockquote` sur un encadré).
+
+Limites :
+
+- changements de langue dans le même alphabet (8.7) : non détectés ;
+- pertinence des codes de langue et des `dir` : à juger ;
+- balises utilisées pour leur apparence (titres, `strong`…) : à repérer à
+  l'œil avec « Balises sur la page » ;
+- iframes d'une autre origine et Shadow DOM fermés : non inspectés.
+
 ### RGAA 9 – Titres
 
 Ce bookmarklet couvre le **critère 9.1** (titres). La liste montre le
@@ -746,6 +856,8 @@ src/
                         fromChecks(), lineStatus()
     live.js             calques sur la page : visibleOnScreen(), pageMutation(),
                         visuallyHidden(), createRevealer() (afficher les éléments cachés)
+    lang.js             langues et alphabets (RGAA 8) : checkCode(), langName(),
+                        expectedScripts(), scriptCounts(), dirCounts(), langOf(), dirOf()
   bookmarklets/         un fichier par bookmarklet
 demo/                   sources des pages de démo ({{BOOKMARKLET}} remplacé au build)
 dist/                   versions installables générées (ne pas modifier à la main)

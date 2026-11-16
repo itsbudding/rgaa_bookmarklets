@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 8 – Langues et balises</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<style id="styles-cas">
+  .retrait { margin-left: 2rem; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-3-couleurs.html">Couleurs</a> <a href="rgaa-4-multimedia.html">Multimédia</a> <a href="rgaa-5-tableaux.html">Tableaux</a> <a href="rgaa-6-liens.html">Liens</a> <a href="rgaa-7-composants.html">Composants ARIA</a> <a href="rgaa-8-page.html">Page</a> <a href="rgaa-8-langues.html">Langues et balises</a> <a href="rgaa-9-titres.html">Titres</a> <a href="rgaa-9-listes.html">Listes</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 8 – Langues et balises</h1>
+<div class="intro">
+  <p>Cette page rassemble des cas conformes et non conformes aux
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#8">critères 8.7 à 8.10 du RGAA</a>
+  (changements de langue, sens de lecture, balises utilisées à des fins de présentation).
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 8 – Langues et balises</a>
+  (ou utilisez votre favori). Le panneau a trois sections : Langues, Sens de lecture et Balises de présentation.
+  Les langues et les sens de lecture sont entourés sur la page dès le lancement (<kbd>Maj+E</kbd> pour masquer ou afficher le calque) ;
+  <kbd>Maj+B</kbd> affiche le nom des balises de texte. Cliquez sur une ligne pour épingler son détail.
+  <kbd>Échap</kbd> libère le détail, puis arrête le bookmarklet.</p>
+</div>
+
+<h2>8.8 Code de langue des passages</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Passage en anglais</h3>
+    <div class="demo">
+      <p>Téléchargez notre <span lang="en">mobile app</span> dès maintenant.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « span lang="en" », 8.8 ! « langue : anglais, vérifier que le passage est bien dans cette langue » (code valide, pertinence à confirmer).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Code en toutes lettres</h3>
+    <div class="demo">
+      <p lang="english">Terms and conditions</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 8.8 « code de 7 lettres, 2 ou 3 attendues (ISO 639) » ; étiquette « × english » en rouge sur la page.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Séparateur souligné</h3>
+    <div class="demo">
+      <p lang="de_DE">Willkommen in unserer Bibliothek.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 8.8 « séparateur _ au lieu du tiret (de-DE) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>lang vide</h3>
+    <div class="demo">
+      <p>Le mot <span lang="">xyzzy</span> n’appartient à aucune langue.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! 8.8 « lang="" : langue non précisée ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Mauvaise langue : lang="en" sur du russe</h3>
+    <div class="demo">
+      <p lang="en">Добро пожаловать в библиотеку</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! 8.8 « texte en alphabet cyrillique alors que « en » (anglais) s’écrit autrement : la langue est-elle la bonne ? ». Non conforme après lecture par l’auditeur.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Même langue que le parent</h3>
+    <div class="demo">
+      <div lang="fr"><p>Ce bloc répète la langue de la page.</p></div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ∅ « même langue que le parent », attribut redondant ; cadre gris sur la page.</p>
+  </div>
+</div>
+
+<h2>8.7 Changements de langue non indiqués</h2>
+<p>Seuls les textes écrits dans un autre alphabet que celui de la langue qui s’applique sont repérés, toujours « à vérifier » (un nom propre n’a pas besoin de lang).</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Mot russe sans lang</h3>
+    <div class="demo">
+      <p>Le mot russe <q>Спасибо</q> veut dire merci.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! ¶ « cyrillique, sans lang », 8.7 ! « texte en alphabet cyrillique sans lang » ; pointillés violets sur la page.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Nom propre en japonais</h3>
+    <div class="demo">
+      <p>Le siège est à 東京.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « chinois (sinogrammes), sans lang » : l’auditeur juge que c’est un nom propre (cas particulier, non applicable).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Attribut title en grec</h3>
+    <div class="demo">
+      <p><a href="#" title="Καλώς ορίσατε">Bienvenue</a></p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! « title », 8.7 ! « attribut title en alphabet grec : indiquer la langue (lang sur l’élément) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Passage en grec avec lang</h3>
+    <div class="demo">
+      <p>Devise : <span lang="el">Ελευθερία ή θάνατος</span>.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! 8.8 « langue : grec » (pertinence) ; aucun passage 8.7.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Anglais sans lang (non détecté)</h3>
+    <div class="demo">
+      <p>Inscrivez-vous à notre newsletter : stay tuned for our next events!</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien dans la liste : même alphabet que le français. C’est à l’auditeur de le repérer en lisant la page (ligne « Page » 8.7 !).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Code informatique</h3>
+    <div class="demo">
+      <p>La variable <code>приветствие</code> contient le message.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien : le texte des balises <code>code</code>, <code>pre</code>, <code>kbd</code>… n’est pas analysé.</p>
+  </div>
+</div>
+
+<h2>8.10 Sens de lecture</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Paragraphe arabe avec dir et lang</h3>
+    <div class="demo">
+      <p lang="ar" dir="rtl">مرحبا بكم في المكتبة</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ 8.10 « dir="rtl" : valeur conforme » (section Sens de lecture) et ! 8.8 « langue : arabe » (section Langues) ; étiquette « ar · rtl ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Hébreu sans dir</h3>
+    <div class="demo">
+      <p lang="he">ברוכים הבאים לספרייה</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 8.10 « texte en alphabet hébreu (de droite à gauche) sans dir="rtl" (8.10.1) » ; pointillés rouges sur la page.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Mot arabe dans une phrase française</h3>
+    <div class="demo">
+      <p>Le mot <span lang="ar">شكرا</span> veut dire merci.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 8.10 « sans dir="rtl" » : lecture stricte du test 8.10.1, même pour un mot isolé.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>dir="auto"</h3>
+    <div class="demo">
+      <p dir="auto">Commentaire d’un lecteur</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! 8.10 « dir="auto" : accepté par le HTML, mais le RGAA attend rtl ou ltr ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Valeur invalide</h3>
+    <div class="demo">
+      <p dir="right">Texte aligné à droite</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × 8.10 « dir="right" : valeur invalide, rtl ou ltr attendu ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>dir="rtl" sur du français</h3>
+    <div class="demo">
+      <p dir="rtl">Texte en français affiché à droite</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! 8.10 « dir="rtl" sur un texte sans lettre qui s’écrit de droite à gauche : sens pertinent ? ». Non conforme après vérification.</p>
+  </div>
+</div>
+
+<h2>8.9 Balises utilisées à des fins de présentation</h2>
+<p>Tous les signaux sont « à vérifier ». Avec <kbd>Maj+B</kbd>, le nom de chaque balise de texte est affiché sur la page.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Paragraphes simulés avec des br</h3>
+    <div class="demo">
+      <div>Premier paragraphe.<br><br>Deuxième paragraphe.<br><br>Troisième paragraphe.</div>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! br « 2 suites de &lt;br&gt; (jusqu’à 2) : paragraphes simulés ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Paragraphes vides pour l’espacement</h3>
+    <div class="demo">
+      <p>Avant</p>
+      <p>&nbsp;</p>
+      <p></p>
+      <p>Après</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! p « 2 paragraphes vides : servent d’espacement ? ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>blockquote pour un retrait</h3>
+    <div class="demo">
+      <blockquote>Horaires d’été : la médiathèque ferme à 17 h.</blockquote>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! blockquote « est-ce une citation (et non un simple retrait) ? ». Ici, non : non conforme.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>blockquote pour une citation</h3>
+    <div class="demo">
+      <blockquote cite="https://fr.wikisource.org/">La lecture est à l’esprit ce que l’exercice est au corps.</blockquote>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! blockquote, la source (cite) dans le détail : l’auditeur juge que c’est une citation.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Balises de présentation obsolètes</h3>
+    <div class="demo">
+      <center>Texte centré</center>
+      <p><font color="#c40000">Texte en rouge</font> et <big>texte agrandi</big></p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> ! center, ! font, ! big « balise de présentation (obsolète en HTML5, voir aussi 8.2) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Titre utilisé pour la taille (à repérer à l’œil)</h3>
+    <div class="demo">
+      <p>Prix : <span class="retrait">12 €</span></p>
+      <h4>Offre valable jusqu’au 31 décembre</h4>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien dans la liste. Avec <kbd>Maj+B</kbd>, l’étiquette « h4 » sur une simple mention aide l’auditeur à repérer un titre utilisé pour sa taille (non conforme s’il ne structure rien).</p>
+  </div>
+</div>
+
+<h2>Non signalé</h2>
+<p>Cas où le bookmarklet ne doit rien signaler.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Un seul br, adresse postale</h3>
+    <div class="demo">
+      <p>Médiathèque<br>1 rue de la Paix</p>
+      <address>Mairie<br><br>75001 Paris</address>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien : un seul <code>br</code>, et les <code>br</code> d’une adresse sont acceptés.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Symboles, chiffres et emoji</h3>
+    <div class="demo">
+      <p>Tarif : 25 € · © 2026 · 📚 · 10 % · µm</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien : ce ne sont pas des lettres d’un autre alphabet.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Lettre grecque isolée</h3>
+    <div class="demo">
+      <p>La valeur de π est proche de 3,14.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> rien : une seule lettre grecque (au moins deux lettres pour signaler un passage).</p>
+  </div>
+</div>
+</div>
+</body>
+</html>
