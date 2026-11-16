@@ -166,7 +166,8 @@
 </div>
 
 <h2>8.9 Balises utilisées à des fins de présentation</h2>
-<p>Tous les signaux sont « à vérifier ». Avec <kbd>Maj+B</kbd>, le nom de chaque balise de texte est affiché sur la page.</p>
+<p>Tous les signaux sont « à vérifier ». Avec <kbd>Maj+B</kbd>, le nom de chaque balise sémantique est affiché sur la page :
+étiquette verte au-dessus d’un élément en bloc, violette en dessous d’un élément en ligne.</p>
 <div class="cases">
   <div class="case">
     <h3><span class="badge badge--ko">Non conforme</span>Paragraphes simulés avec des br</h3>
@@ -211,9 +212,9 @@
     <h3><span class="badge badge--ok">Conforme</span>Titre utilisé pour la taille (à repérer à l’œil)</h3>
     <div class="demo">
       <p>Prix : <span class="retrait">12 €</span></p>
-      <h4>Offre valable jusqu’au 31 décembre</h4>
+      <h4>Offre valable jusqu’au <strong>31 décembre</strong></h4>
     </div>
-    <p class="attendu"><strong>Attendu :</strong> rien dans la liste. Avec <kbd>Maj+B</kbd>, l’étiquette « h4 » sur une simple mention aide l’auditeur à repérer un titre utilisé pour sa taille (non conforme s’il ne structure rien).</p>
+    <p class="attendu"><strong>Attendu :</strong> rien dans la liste. Avec <kbd>Maj+B</kbd>, l’étiquette « h4 » (verte, au-dessus) sur une simple mention aide l’auditeur à repérer un titre utilisé pour sa taille (non conforme s’il ne structure rien) ; le strong qu’il contient a son étiquette violette en dessous.</p>
   </div>
 </div>
 
