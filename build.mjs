@@ -13,7 +13,7 @@ mkdirSync(OUT, { recursive: true });
 const files = readdirSync(SRC).filter((f) => f.endsWith('.js')).sort((a, b) => a.localeCompare(b, 'fr', { numeric: true }));
 const links = [];
 // Nom affiché du lien : « rgaa-11-formulaires » → « RGAA 11 – Formulaires ».
-const LABELS = { 'rgaa-7-composants': 'RGAA 7 – Composants ARIA' };
+const LABELS = { 'rgaa-7-composants': 'RGAA 7 – Composants ARIA', 'rgaa-8-langues': 'RGAA 8 – Langues et balises' };
 const label = (name) => LABELS[name] || name.replace(/^rgaa-(\d+)-(.*)$/, (_, n, t) => `RGAA ${n} – ${t[0].toUpperCase()}${t.slice(1)}`);
 
 for (const file of files) {

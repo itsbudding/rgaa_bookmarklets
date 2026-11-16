@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Démo RGAA 8 – Page</title>
+<link rel="stylesheet" href="demo.css">
+<script src="demo.js" defer></script>
+<script src="page-documents.js" defer></script>
+<style>
+  .case .demo-doc { background: var(--bg); border: 1px dashed var(--border); border-radius: 4px; padding: .25rem; }
+  .case .demo-doc iframe { display: block; width: 100%; height: 4.5rem; border: 0; }
+</style>
+</head>
+<body>
+<div class="page">
+<p class="nav"><a href="index.html">Toutes les démos</a> <a href="rgaa-1-images.html">Images</a> <a href="rgaa-2-cadres.html">Cadres</a> <a href="rgaa-3-couleurs.html">Couleurs</a> <a href="rgaa-4-multimedia.html">Multimédia</a> <a href="rgaa-5-tableaux.html">Tableaux</a> <a href="rgaa-6-liens.html">Liens</a> <a href="rgaa-7-composants.html">Composants ARIA</a> <a href="rgaa-8-page.html">Page</a> <a href="rgaa-8-langues.html">Langues et balises</a> <a href="rgaa-9-titres.html">Titres</a> <a href="rgaa-9-listes.html">Listes</a> <a href="rgaa-11-formulaires.html">Formulaires</a></p>
+<h1>Démo RGAA 8 – Page</h1>
+<div class="intro">
+  <p>Cette page rassemble des cas conformes et non conformes aux
+  <a href="https://accessibilite.numerique.gouv.fr/methode/criteres-et-tests/#8">critères 8.1 à 8.6 du RGAA</a>
+  (doctype, validité du code, langue par défaut, titre de la page).
+  Chaque carte indique le résultat attendu dans le panneau du bookmarklet.</p>
+  <p><a class="launch" href="{{BOOKMARKLET}}">Lancer RGAA 8 – Page</a>
+  (ou utilisez votre favori). Le panneau montre quatre lignes pour cette page (Doctype, Validité, Langue, Titre),
+  les erreurs de code sous la ligne Validité, puis un groupe par iframe : chaque exemple de doctype et de langue
+  est un document à part, écrit dans une iframe. Cliquez sur une ligne pour épingler son détail.
+  <kbd>Échap</kbd> libère le détail, puis arrête le bookmarklet.</p>
+</div>
+
+<h2>8.5 et 8.6 Titre de cette page</h2>
+<p>Le titre de cette page est « Démo RGAA 8 – Page ». Les boutons le modifient : le bookmarklet suit le titre en direct
+et garde l’historique des titres pris pendant l’audit.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Titre de la page</h3>
+    <div class="demo">
+      <button type="button" id="titre-generique">Titre générique « Document »</button>
+      <button type="button" id="titre-vide">Supprimer la balise title</button>
+      <button type="button" id="titre-retour">Rétablir le titre</button>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> au lancement, ligne Titre ! : 8.5 ✓, 8.6 ! « vérifier que le titre identifie la page ».
+    « Titre générique » : 8.6 ! « titre générique » et « le titre a changé 1 fois pendant l’audit », historique dans le détail.
+    « Supprimer la balise title » : 8.5 × « aucune balise title ».</p>
+  </div>
+</div>
+
+<h2>8.2 Validité du code généré (cette page)</h2>
+<p>Ces erreurs se lisent dans le code de la page après exécution des scripts. Chacune a sa ligne sous « Validité ».
+Le reste de la syntaxe se vérifie avec le validateur du W3C (boutons du détail de la ligne Validité).</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>id en double, référencé par un label</h3>
+    <div class="demo">
+      <label for="courriel">Courriel</label>
+      <input id="courriel" type="email">
+      <p id="courriel">Saisissez une adresse valide.</p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « id « courriel » présent 2 fois », détail « référencé par : for ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Éléments obsolètes en HTML5</h3>
+    <div class="demo">
+      <center>Texte centré</center>
+      <p><font color="#c40000">Texte en rouge</font></p>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « &lt;center&gt; obsolète en HTML5 » et × « &lt;font&gt; obsolète en HTML5 », « à remplacer par : CSS ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Bouton ajouté par script dans un lien</h3>
+    <div class="demo">
+      <a href="#" id="lien-carte">Voir la fiche </a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « &lt;button&gt; dans &lt;a&gt; : imbrication interdite » (impossible à écrire en HTML, le script l’ajoute après le chargement).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Élément avec tabindex dans un bouton</h3>
+    <div class="demo">
+      <button type="button">Ajouter <span tabindex="0">au panier</span></button>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> × « élément avec tabindex dans &lt;button&gt; : imbrication interdite ».</p>
+  </div>
+</div>
+
+<h2>8.1 Doctype</h2>
+<p>Chaque exemple est un document à part, dans une iframe.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Doctype HTML5</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html lang="fr"><head><title>HTML5</title></head>
+<body><p>Doctype HTML5.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> ligne Doctype ✓ « Doctype HTML5 présent et valide », mode standard.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Doctype HTML 4.01 Strict</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="fr"><head><title>HTML 4.01</title></head>
+<body><p>Doctype HTML 4.01 Strict.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> ✓ « Doctype HTML 4.01 Strict présent et valide ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Sans doctype</h3>
+    <div class="demo-doc"><script type="text/plain">
+<html lang="fr"><head><title>Sans doctype</title></head>
+<body><p>Pas de doctype : mode quirks.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> × « aucun doctype dans le code généré », mode quirks.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Doctype mal écrit</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE htm>
+<html lang="fr"><head><title>Doctype mal écrit</title></head>
+<body><p>Doctype « htm ».</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> ! « doctype non reconnu : vérifier sa syntaxe (8.1.2) ».</p>
+  </div>
+</div>
+
+<h2>8.3 et 8.4 Langue par défaut</h2>
+<p>Chaque exemple est un document à part, dans une iframe.</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>lang="fr"</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html lang="fr"><head><title>Français</title></head>
+<body><p>Bienvenue sur le site de la médiathèque, ouverte du mardi au samedi.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> ligne Langue « lang="fr" (français) » : 8.3 ✓, 8.4 ! « vérifier que c’est la langue principale de la page », avec le début du texte.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Langue sur body, pas sur html</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html><head><title>Langue sur body</title></head>
+<body lang="fr"><p>Chaque texte a une langue grâce à son parent body.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> 8.3 ✓ « pas de langue sur html, mais chacun des textes a une langue » (seconde condition du test 8.3.1) ; 8.4 ! « voir RGAA 8 – Langues et balises ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Aucune langue</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html><head><title>Sans langue</title></head>
+<body><p>Aucune langue indiquée.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> 8.3 × « aucune langue par défaut », « 1 texte sans langue sur 1 » ; 8.4 ∅.</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>xml:lang seul en HTML5</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html xml:lang="fr"><head><title>xml:lang seul</title></head>
+<body><p>Seul xml:lang est présent.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> 8.3 × « seul xml:lang est présent sur html : en HTML, l’attribut lang est obligatoire ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>lang vide</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html lang=""><head><title>lang vide</title></head>
+<body><p>Langue vide.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> 8.3 × « lang="" sur html : langue par défaut non précisée ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>lang="french"</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html lang="french"><head><title>french</title></head>
+<body><p>Code de langue en toutes lettres.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> 8.3 ✓, 8.4 × « code de 6 lettres, 2 ou 3 attendues (ISO 639) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>lang="fr_FR"</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html lang="fr_FR"><head><title>fr_FR</title></head>
+<body><p>Séparateur souligné au lieu du tiret.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> 8.4 × « séparateur _ au lieu du tiret (fr-FR) ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>lang="fr-XY"</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html lang="fr-XY"><head><title>fr-XY</title></head>
+<body><p>Seule la partie avant le tiret compte (glossaire « Code de langue »).</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> 8.3 ✓, 8.4 ! pertinence seulement (code valide).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--check">À vérifier</span>Code retiré : lang="iw"</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html lang="iw"><head><title>iw</title></head>
+<body><p>Ancien code de l’hébreu.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> 8.4 ! « code ISO 639-1 retiré, remplacé par « he » ».</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>lang="fr" sur une page en russe</h3>
+    <div class="demo-doc"><script type="text/plain">
+<!DOCTYPE html>
+<html lang="fr"><head><title>Russe</title></head>
+<body><p>Добро пожаловать в нашу библиотеку, она открыта со вторника по субботу.</p></body></html>
+</script></div>
+    <p class="attendu"><strong>Attendu :</strong> 8.4 ! « texte surtout en alphabet cyrillique alors que « fr » (français) s’écrit en alphabet latin : la langue est-elle la bonne ? ». Non conforme après lecture par l’auditeur.</p>
+  </div>
+</div>
+
+<h2>Iframe srcdoc</h2>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--na">Non applicable</span>Iframe srcdoc sans doctype</h3>
+    <div class="demo">
+      <iframe title="Contenu intégré" srcdoc="<p lang='fr'>Contenu intégré par srcdoc.</p>" style="height:3rem;width:100%;border:0"></iframe>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> groupe « Iframe « Contenu intégré » » : Doctype ∅ « iframe srcdoc : pas de doctype attendu ».</p>
+  </div>
+</div>
+</div>
+<script>
+  // Imbrication interdite : impossible à écrire en HTML (le navigateur ferme le lien), ajoutée par script.
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = 'Ajouter';
+  document.getElementById('lien-carte').append(b);
+  const titre = document.title;
+  document.getElementById('titre-generique').onclick = () => (document.title = 'Document');
+  document.getElementById('titre-vide').onclick = () => document.querySelector('head title') && document.querySelector('head title').remove();
+  document.getElementById('titre-retour').onclick = () => {
+    if (!document.querySelector('head title')) document.head.append(document.createElement('title'));
+    document.title = titre;
+  };
+</script>
+</body>
+</html>

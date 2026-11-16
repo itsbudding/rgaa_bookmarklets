@@ -25,8 +25,8 @@
  *     ],                                              // filter: 'texte'
  *   }
  *
- * beforeLocate(el) (optionnel) : appelé juste avant le défilement (ex. afficher
- * temporairement un élément masqué).
+ * beforeLocate(el, item) (optionnel) : appelé juste avant le défilement (ex.
+ * afficher temporairement un élément masqué) ; item est la ligne cliquée.
  * onLocate(el) (optionnel) : appelé après le clic sur une ligne, une fois le
  * défilement lancé (le panneau flottant s'en sert pour épingler le détail).
  *
@@ -184,7 +184,7 @@ export const createListPanel = ({ id, title, collect, footer = '', tools = [], f
     const el = els[(it.cursor = ((it.cursor ?? -1) + 1) % els.length)];
     if (!el || !el.isConnected) return render();
     clearTimeout(timer);
-    if (beforeLocate) beforeLocate(el);
+    if (beforeLocate) beforeLocate(el, it);
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     // Focus si l'élément est focalisable : le panneau flottant s'ouvre à côté.
     if (el.tabIndex >= 0 && typeof el.focus === 'function') el.focus({ preventScroll: true });
