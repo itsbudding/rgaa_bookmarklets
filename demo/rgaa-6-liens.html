@@ -259,6 +259,54 @@ adresse sont simplement signalés dans le détail.</p>
   </div>
 </div>
 
+<h2>Contenu masqué dans le nom</h2>
+<p>Le contenu masqué aux technologies d’assistance (<code>aria-hidden="true"</code>, <code>display:none</code>, attribut <code>hidden</code>, <code>visibility:hidden</code>, image en <code>role="presentation"</code>) ne compte pas dans l’intitulé. Exception : une cible d’<code>aria-labelledby</code> elle-même masquée compte en entier. Le détail affiche la ligne « Contenu ignoré ».</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Icône de police en aria-hidden</h3>
+    <div class="demo">
+      <a href="https://example.org/favoris"><span aria-hidden="true">★</span> Mes favoris</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Mes favoris », contenu ignoré « ★ » (aria-hidden).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Texte en display:none et hidden</h3>
+    <div class="demo">
+      <a href="https://example.org/panier">Panier<span style="display:none"> promo</span><span hidden> (3 articles)</span></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Panier », contenu ignoré « promo » (display:none) et « (3 articles) » (attribut hidden).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>visibility:hidden avec un enfant visible</h3>
+    <div class="demo">
+      <a href="https://example.org/agenda"><span style="visibility:hidden">Ancien </span><span style="visibility:hidden"><span style="visibility:visible">Agenda</span></span></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Agenda », contenu ignoré « Ancien » (visibility:hidden).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Image en role="presentation"</h3>
+    <div class="demo">
+      <a href="https://example.org/"><img src="img/logo-rgaa.svg" role="presentation" alt="Logo" width="24" height="24"> Accueil</a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Accueil », contenu ignoré « Logo » (role="presentation").</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ko">Non conforme</span>Seul contenu masqué</h3>
+    <div class="demo">
+      <a href="https://example.org/recherche"><span aria-hidden="true">🔍 Rechercher</span></a>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> 6.2 × sans intitulé, contenu ignoré « 🔍 Rechercher » (aria-hidden).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>aria-labelledby vers un texte masqué</h3>
+    <div class="demo">
+      <a href="https://example.org/rapport.pdf" aria-labelledby="nm-rapport">Rapport annuel</a>
+      <span id="nm-rapport" hidden>Rapport annuel <span aria-hidden="true">2026</span></span>
+    </div>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Rapport annuel 2026 » (aria-labelledby) : la cible est masquée et référencée directement, tout son contenu compte, aria-hidden compris.</p>
+  </div>
+</div>
+
 <h2>Autres constats</h2>
 <p>Signalés « à vérifier », sans verdict RGAA sur la thématique 6 : bonnes pratiques et indices d’un autre problème.</p>
 <div class="cases">

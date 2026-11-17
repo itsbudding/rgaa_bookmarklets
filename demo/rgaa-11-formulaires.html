@@ -153,6 +153,21 @@
   </div>
 </div>
 
+<h2>Contenu masqué dans le nom</h2>
+<p>Le contenu masqué aux technologies d’assistance ne compte pas dans le nom (une étiquette elle-même masquée mais associée au champ compte en entier : voir « Label masqué » en 11.1). Le détail affiche la ligne « Contenu ignoré ».</p>
+<div class="cases">
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Bouton avec icône masquée</h3>
+    <form class="demo" onsubmit="return false"><button type="button"><span aria-hidden="true">➜</span> Continuer</button></form>
+    <p class="attendu"><strong>Attendu :</strong> intitulé « Continuer » (contenu), contenu ignoré « ➜ » (aria-hidden).</p>
+  </div>
+  <div class="case">
+    <h3><span class="badge badge--ok">Conforme</span>Label avec astérisque en aria-hidden</h3>
+    <form class="demo" onsubmit="return false"><label for="nm-ville">Ville <span aria-hidden="true">*</span></label><input id="nm-ville" required autocomplete="address-level2"></form>
+    <p class="attendu"><strong>Attendu :</strong> nom « Ville » (label), contenu ignoré « * » (aria-hidden).</p>
+  </div>
+</div>
+
 <h2>11.5 Les champs de même nature sont-ils regroupés ?</h2>
 <div class="cases">
   <div class="case">

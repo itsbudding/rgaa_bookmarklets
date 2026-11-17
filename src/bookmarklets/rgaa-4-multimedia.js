@@ -26,6 +26,7 @@ import { row, esc, src, icon, list, flag } from '../lib/dom.js';
 import { pills, critBlock, worst as worstOf, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isOwn, isNotExposed, roleInfo, toTopCoords, allDocuments, sortByDom } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
+import { nameOf as accNameOf, accText } from '../lib/name.js';
 
 const ID = 'rgaa-4-multimedia';
 
@@ -185,25 +186,10 @@ const findPlayer = (m) => {
 
 /* ---------- Contrôles d'un lecteur personnalisé ---------- */
 
-/** Nom accessible simplifié d'un contrôle. */
+/** Nom accessible d'un contrôle (calcul commun, contenu masqué exclu). */
 const nameOf = (e) => {
-  const lb = idrefs(e, 'aria-labelledby');
-  if (lb && lb.v.length) return { v: lb.v.join(' '), s: 'aria-labelledby' };
-  const al = (e.getAttribute('aria-label') || '').trim();
-  if (al) return { v: al, s: 'aria-label' };
-  if (tagOf(e) === 'input' || tagOf(e) === 'select') {
-    const l = e.labels && [...e.labels].map(textOf).join(' ');
-    if (l) return { v: l, s: 'label' };
-    if (['button', 'submit'].includes(e.type) && e.value) return { v: e.value, s: 'value' };
-  } else {
-    const t = textOf(e);
-    if (t) return { v: t, s: 'contenu' };
-    const img = e.querySelector('img[alt]:not([alt=""])');
-    if (img) return { v: img.getAttribute('alt'), s: 'alt de l’image' };
-  }
-  const title = (e.getAttribute('title') || '').trim();
-  if (title) return { v: title, s: 'title' };
-  return { v: '', s: '' };
+  const n = accNameOf(e);
+  return { v: n.name, s: n.s };
 };
 
 const KINDS = [
@@ -294,7 +280,7 @@ const findNear = (e, re) => {
 const identify = (e) => {
   const m = e.media;
   const items = [];
-  const lb = idrefs(m, 'aria-labelledby');
+  const lb = idrefs(m, 'aria-labelledby', accText);
   if (lb && lb.v.length) items.push({ t: lb.v.join(' '), s: 'aria-labelledby', el: lb.els[0] });
   const al = (m.getAttribute('aria-label') || '').trim();
   if (al) items.push({ t: al, s: 'aria-label' });
@@ -302,7 +288,7 @@ const identify = (e) => {
   if (title) items.push({ t: title, s: m.hasAttribute('title') ? 'title' : 'playlabel' });
   const fig = e.el.closest('figure');
   const cap = fig && fig.querySelector('figcaption');
-  if (cap && textOf(cap)) items.push({ t: textOf(cap), s: 'figcaption', el: cap });
+  if (cap && accText(cap)) items.push({ t: accText(cap), s: 'figcaption', el: cap });
   if (!cap) {
     // Texte qui précède le média : frère précédent du média ou de ses parents proches.
     const scope = scopeOf(e);

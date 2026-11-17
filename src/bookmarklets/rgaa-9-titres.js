@@ -23,7 +23,7 @@ import { row, esc, src, icon, list, flag } from '../lib/dom.js';
 import { pills, critBlock, worst, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
 import { norm, isNotExposed, toTopCoords, allDocuments, textOf } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
-import { nameOf, visibleText, clean, styleOf } from '../lib/name.js';
+import { nameOf, visibleText, clean, styleOf, ignoredList } from '../lib/name.js';
 import { visuallyHidden, visibleOnScreen, pageMutation, createRevealer } from '../lib/live.js';
 
 const ID = 'rgaa-9-titres';
@@ -391,6 +391,7 @@ const headingDetail = (h) => {
   const n = h.n;
   let html = row('Niveau', `${h.level} ${src(h.lv.src)}`);
   html += row('Titre', h.name ? `${esc(cut(h.name, 200))} ${src(n.s)}` : `${icon('error', 'Absent')} <span class="text-error">vide</span>`);
+  if (n.acc.ignored.length) html += row('Contenu ignoré', list(ignoredList(n.acc.ignored).map(esc)));
   if (h.visible && norm(h.visible) !== norm(h.name)) html += row('Texte visible', esc(cut(h.visible)));
   if (h.parents.length) html += row('Titres parents', h.parents.map(crumb).join(' › '));
   else html += row('Titres parents', '<span class="muted">aucun (premier niveau du plan)</span>');
