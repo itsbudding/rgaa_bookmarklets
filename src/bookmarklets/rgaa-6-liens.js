@@ -25,7 +25,7 @@ import { row, esc, src, icon, list, flag } from '../lib/dom.js';
 import { pills, critBlock, worst as worstOf, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, isOwn, byId, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
-import { nameOf, visibleText, clean } from '../lib/name.js';
+import { nameOf, visibleText, clean, accText, ignoredList } from '../lib/name.js';
 
 const ID = 'rgaa-6-liens';
 
@@ -103,7 +103,7 @@ const otherChecks = (e) => {
   } else if (e.role === 'link' && tagOf(el) !== 'a' && tagOf(el) !== 'area') {
     out.push(['warning', 'Lien ARIA : vérifier l’activation avec la touche Entrée (7.3)']);
   }
-  const desc = idrefs(el, 'aria-describedby');
+  const desc = idrefs(el, 'aria-describedby', accText);
   const said = `${e.name} ${n.ti} ${desc ? desc.v.join(' ') : ''}`;
   const target = (el.getAttribute('target') || '').trim().toLowerCase();
   const blank = (target && !['_self', '_parent', '_top'].includes(target)) || /window\.open/.test(el.getAttribute('onclick') || '');
@@ -311,14 +311,14 @@ const sentenceOf = (block, link) => {
 const cellHeaders = (cell) => {
   const out = [];
   const h = idrefs(cell, 'headers');
-  if (h && h.els.length) return h.els.map((el) => ({ t: textOf(el), s: 'en-tête (headers)', el }));
+  if (h && h.els.length) return h.els.map((el) => ({ t: accText(el), s: 'en-tête (headers)', el }));
   const tr = cell.parentElement;
   const table = cell.closest('table');
   if (!tr || !table) return out;
   const col = table.rows[0] && table.rows[0].cells[cell.cellIndex];
-  if (col && col !== cell && col.tagName === 'TH') out.push({ t: textOf(col), s: 'en-tête de colonne', el: col });
+  if (col && col !== cell && col.tagName === 'TH') out.push({ t: accText(col), s: 'en-tête de colonne', el: col });
   const first = tr.cells[0];
-  if (first && first !== cell && first.tagName === 'TH') out.push({ t: textOf(first), s: 'en-tête de ligne', el: first });
+  if (first && first !== cell && first.tagName === 'TH') out.push({ t: accText(first), s: 'en-tête de ligne', el: first });
   return out;
 };
 
@@ -369,9 +369,10 @@ const linkDetail = (e) => {
   html += row('Intitulé', e.name ? `${esc(cut(e.name, 200))} ${src(n.s)}` : icon('error', 'Absent') + ' <span class="text-error">aucun</span>');
   if (n.acc.parts.length > 1 && n.content === e.name) html += row('Composé de', list(n.acc.parts.map((p) => `${esc(cut(p.t, 80))} ${src(p.s === 'texte' ? 'texte' : p.s)}`)));
   if (OVERRIDE.includes(n.s) && n.content) html += row('Contenu', esc(cut(n.content)));
+  if (n.acc.ignored.length) html += row('Contenu ignoré', list(ignoredList(n.acc.ignored).map(esc)));
   if (e.visible && norm(e.visible) !== norm(e.name)) html += row('Texte visible', esc(cut(e.visible)));
   if (n.ti && n.s !== 'title') html += row('title', `${esc(cut(n.ti))}${norm(n.ti) === norm(e.name) ? ' <span class="muted small">(identique à l’intitulé : inutile)</span>' : ''}`);
-  const desc = idrefs(e.el, 'aria-describedby');
+  const desc = idrefs(e.el, 'aria-describedby', accText);
   if (desc && desc.v.length) html += row('Description', `${esc(cut(desc.v.join(' ')))} ${src('aria-describedby')}`);
   const tgt = e.el.getAttribute('target');
   html += row(

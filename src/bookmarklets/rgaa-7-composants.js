@@ -27,7 +27,7 @@ import { row, esc, src, icon, list, flag } from '../lib/dom.js';
 import { pill, critBlock, worst as worstOf, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, toTopCoords, allDocuments, implicitRole, isOwn } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
-import { nameOf, visibleText, clean } from '../lib/name.js';
+import { nameOf, visibleText, clean, ignoredList } from '../lib/name.js';
 
 const ID = 'rgaa-7-composants';
 
@@ -541,6 +541,7 @@ const detail = (e) => {
   html += row('Rôle', e.role ? `${esc(e.role)} ${src(e.rd.source)}` : '<span class="muted">aucun</span>');
   if (e.kind === 'composant' && e.role && WIDGET.has(e.role)) {
     html += row('Nom', e.name ? `${esc(cut(e.name, 200))} ${src(e.n.s)}` : `${icon('error', 'Absent')} <span class="text-error">aucun</span>`);
+    if (e.n.acc.ignored.length) html += row('Contenu ignoré', list(ignoredList(e.n.acc.ignored).map(esc)));
   }
   const attrs = ariaAttrs(el).filter((a) => !['aria-label'].includes(a.name));
   if (attrs.length) html += row('ARIA', list(attrs.map((a) => `<code>${esc(a.name)}="${esc(cut(a.value, 60))}"</code>`)));

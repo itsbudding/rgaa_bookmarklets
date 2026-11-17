@@ -18,6 +18,7 @@
 import { inspector } from '../lib/floating-panel.js';
 import { row, value, src, esc, flag, icon, roleValue } from '../lib/dom.js';
 import { idrefs, textOf, norm, deepAll, isOwn, ariaHiddenAncestor, presentational, allDocuments, roleInfo, isNotExposed } from '../lib/a11y.js';
+import { accText, notRendered } from '../lib/name.js';
 import { pills, critBlocks, lineStatus, fromChecks, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
 
 const ID = 'rgaa-1-images';
@@ -46,7 +47,7 @@ const decorative = (e) => {
 
 /** Nom accessible d'une image. isCss : image de fond (pas de alt). */
 const imgName = (e, isCss) => {
-  let n = idrefs(e, 'aria-labelledby');
+  let n = idrefs(e, 'aria-labelledby', accText);
   if (n && n.v.length) return n;
   if ((n = e.getAttribute('aria-label')) !== null && n.trim()) return { v: [n], s: 'aria-label' };
   if (!isCss && isAltElement(e)) {
@@ -120,7 +121,8 @@ const linkParts = (el) => {
       const t = c.textContent.trim();
       if (t) parts.push({ t, s: 'texte du lien' });
     } else if (c.nodeType === 1) {
-      if (ariaHiddenAncestor(c)) return;
+      // Contenu masqué aux technologies d'assistance : hors du nom du lien.
+      if (ariaHiddenAncestor(c) || notRendered(c) || c.matches('script,style,template,noscript')) return;
       const css = cssImage(c);
       if (c.matches(IMG) || css) {
         if (decorative(c)) return;
@@ -133,7 +135,7 @@ const linkParts = (el) => {
 };
 
 const linkName = (l) => {
-  let n = idrefs(l, 'aria-labelledby');
+  let n = idrefs(l, 'aria-labelledby', accText);
   if (n && n.v.length) return n;
   if ((n = l.getAttribute('aria-label')) !== null && n.trim()) return { v: [n], s: 'aria-label (lien)' };
   const p = linkParts(l);
@@ -144,7 +146,7 @@ const linkName = (l) => {
 
 /** Description détaillée (1.6) : aria-describedby, longdesc, lien adjacent. */
 const description = (t) => {
-  const d = idrefs(t, 'aria-describedby');
+  const d = idrefs(t, 'aria-describedby', accText);
   if (d && d.v.length) return { r: d };
   const ld = t.getAttribute('longdesc');
   if (ld) return { r: { v: [ld], s: 'longdesc' }, warn: 'longdesc est obsolète : préférer un lien adjacent ou aria-describedby' };
@@ -158,7 +160,7 @@ const caption = (t) => {
   const fig = t.closest('figure,[role="figure"],[role="group"]');
   const cap = fig && fig.querySelector('figcaption');
   if (!cap) return { r: null, warns: [] };
-  const text = textOf(cap);
+  const text = accText(cap);
   const warns = [];
   const role = fig.getAttribute('role');
   if (!['figure', 'group'].includes(role)) warns.push(['warning', 'figure sans role="figure" ou role="group" (1.9.1)']);

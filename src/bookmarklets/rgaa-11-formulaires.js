@@ -15,7 +15,7 @@
 import { inspector } from '../lib/floating-panel.js';
 import { row, value, icon, esc, src, list, checks, flag, roleValue } from '../lib/dom.js';
 import { idrefs, textOf, norm, deepAll, isOwn, isNotExposed, roleInfo } from '../lib/a11y.js';
-import { labelText } from '../lib/name.js';
+import { labelText, accText, ignoredList } from '../lib/name.js';
 import { pills, critBlocks, lineStatus, fromChecks, CRIT_CSS, PILL_CSS } from '../lib/criteria.js';
 
 const ID = 'rgaa-11-formulaires';
@@ -71,26 +71,36 @@ const visibleLabel = (e) => {
  * @returns {{v, s, insufficient?: boolean}}
  */
 const accName = (e) => {
-  const lb = idrefs(e, 'aria-labelledby', (t) => labelText(t, e));
+  const ig = [];
+  const r = accNameOf(e, ig);
+  if (r.s === 'aria-labelledby' || r.s === 'legend' || r.s === 'contenu' || r.s.includes('label')) r.ignored = ig;
+  return r;
+};
+
+const accNameOf = (e, ig) => {
+  const lb = idrefs(e, 'aria-labelledby', (t) => labelText(t, e, ig));
   if (lb && lb.v.length) return lb;
   const al = (e.getAttribute('aria-label') || '').trim();
   if (al) return { v: al, s: 'aria-label' };
+  ig.length = 0;
   if (e.tagName === 'FIELDSET') {
     const l = e.querySelector(':scope > legend');
-    if (l) return { v: labelText(l, e), s: 'legend' };
+    if (l) return { v: labelText(l, e, ig), s: 'legend' };
   }
   if (tagOf(e) === 'input' && e.type === 'image') return { v: e.getAttribute('alt'), s: 'alt' };
   if (isButton(e)) {
-    const t = textOf(e);
+    const t = accText(e, ig);
     return { v: t || e.value, s: t ? 'contenu' : 'value' };
   }
+  ig.length = 0;
   const labels = labelsOf(e);
   if (labels.length) {
-    const t = labels.map((l) => labelText(l, e)).filter(Boolean);
+    const t = labels.map((l) => labelText(l, e, ig)).filter(Boolean);
     if (t.length) return { v: t, s: labels.length > 1 ? `${labels.length} labels` : 'label' };
   }
+  ig.length = 0;
   if (nameFromContent(e)) {
-    const t = textOf(e);
+    const t = accText(e, ig);
     if (t) return { v: t, s: 'contenu' };
   }
   const title = (e.getAttribute('title') || '').trim();
@@ -159,7 +169,7 @@ const analyse = (f) => {
   const n = accName(f);
   const named = !!hasName(n);
   const lb = idrefs(f, 'aria-labelledby');
-  const d = idrefs(f, 'aria-describedby');
+  const d = idrefs(f, 'aria-describedby', accText);
   const labels = labelsOf(f);
   const c = {};
   const other = [];
@@ -256,6 +266,7 @@ const detail = (a) => {
   const n = a.n;
   const nameHtml = n.insufficient ? `${esc(n.v)} ${src('placeholder')}` : value(a.named ? { v: n.v, s: n.s } : null);
   let html = row(a.kind === 'groupe' ? 'Légende' : a.kind === 'bouton' ? 'Intitulé' : 'Nom', nameHtml);
+  if (n.ignored && n.ignored.length) html += row('Contenu ignoré', list(ignoredList(n.ignored).map(esc)));
   html += row('Description', a.d && a.d.v.length ? value(a.d) : '<span class="muted">aucune</span>');
   html += row('Rôle', roleValue(roleInfo(f)));
   if (a.kind === 'champ') {

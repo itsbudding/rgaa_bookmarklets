@@ -28,6 +28,7 @@ import { row, esc, src, icon, list, flag } from '../lib/dom.js';
 import { pills, critBlock, worst as worstOf, CRIT_CSS, PILL_CSS, STATUS_FILTERS, statusFilter } from '../lib/criteria.js';
 import { idrefs, textOf, norm, deepAll, isNotExposed, presentational, byId, toTopCoords, allDocuments } from '../lib/a11y.js';
 import { THEME } from '../lib/theme.js';
+import { nameOf, accText } from '../lib/name.js';
 
 const ID = 'rgaa-5-tableaux';
 
@@ -165,8 +166,8 @@ const headersOf = (g, x) => {
   return { list: out, missing: [], notHeader: [], via: 'position' };
 };
 
-/** Texte d'une cellule d'en-tête (ou son nom ARIA). */
-const cellText = (el) => el.getAttribute('aria-label') || textOf(el);
+/** Nom d'une cellule d'en-tête (contenu masqué aux technologies d'assistance exclu). */
+const cellText = (el) => nameOf(el).name;
 const isBold = (el) => {
   const w = parseInt(el.ownerDocument.defaultView.getComputedStyle(el).fontWeight, 10) || 400;
   if (w >= 600) return true;
@@ -222,8 +223,8 @@ const guessComplex = (g) => {
 
 const titleOf = (t) => {
   const cap = t.tagName === 'TABLE' && t.caption;
-  if (cap && textOf(cap)) return { v: textOf(cap), s: 'caption', el: cap };
-  const lb = idrefs(t, 'aria-labelledby');
+  if (cap && accText(cap)) return { v: accText(cap), s: 'caption', el: cap };
+  const lb = idrefs(t, 'aria-labelledby', accText);
   if (lb && lb.v.length) return { v: lb.v.join(' '), s: 'aria-labelledby', el: lb.els[0], missing: lb.missing };
   const al = (t.getAttribute('aria-label') || '').trim();
   if (al) return { v: al, s: 'aria-label' };
@@ -239,7 +240,7 @@ const nearTitle = (t) => {
   while (n.parentElement && n.parentElement !== n.ownerDocument.body && n.parentElement.children.length === 1) n = n.parentElement;
   const fig = t.closest('figure');
   const fc = fig && fig.querySelector(':scope > figcaption');
-  if (fc && textOf(fc)) return { v: textOf(fc), s: 'figcaption de la figure', el: fc };
+  if (fc && accText(fc)) return { v: accText(fc), s: 'figcaption de la figure', el: fc };
   let p = n.previousElementSibling;
   while (p && (isNotExposed(p) || !textOf(p))) p = p.previousElementSibling;
   if (!p) return null;
@@ -250,11 +251,11 @@ const nearTitle = (t) => {
 };
 
 const summaryOf = (t) => {
-  const db = idrefs(t, 'aria-describedby');
+  const db = idrefs(t, 'aria-describedby', accText);
   if (db && db.v.length) return { v: db.v.join(' '), s: 'aria-describedby', el: db.els[0], status: 'ok' };
   const cap = t.tagName === 'TABLE' && t.caption;
   if (cap) {
-    const txt = textOf(cap);
+    const txt = accText(cap);
     const blocks = cap.querySelector('p,div,details,br,span[id]');
     const sentences = txt.split(/[.!?…]\s+(?=\S)/).length;
     if (blocks || sentences >= 2) return { v: txt, s: 'caption détaillé', el: cap, status: 'ok' };
