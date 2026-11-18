@@ -5,6 +5,28 @@
 // remplacé par l'URL du bookmarklet de même nom.
 import { build } from 'esbuild';
 import { readdirSync, readFileSync, mkdirSync, writeFileSync, cpSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+
+// Date de dernière mise à jour d'un bookmarklet = date du dernier commit qui a
+// modifié son code installable dist/<nom>.js (une correction dans src/lib/
+// compte donc, une modification de démo non). Si le code construit diffère de
+// la version commitée (build local avant commit) : date du jour. Sans git
+// (ZIP téléchargé) : pas de date.
+const git = (...args) => {
+  try {
+    return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  } catch {
+    return null;
+  }
+};
+const today = () => new Date().toISOString().slice(0, 10);
+const updated = (path, content) => {
+  const committed = git('show', `HEAD:${path}`);
+  if (committed === null) return git('rev-parse', 'HEAD') === null ? null : today();
+  if (committed !== content) return today();
+  return git('log', '-1', '--format=%cs', '--', path)?.trim() || null;
+};
+const longDate = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
 const SRC = 'src/bookmarklets';
 const OUT = 'dist';
@@ -30,9 +52,10 @@ for (const file of files) {
   const code = res.outputFiles[0].text.trim();
   // Encodage minimal : seuls les caractères qui gênent dans une URL de favori.
   const url = `javascript:${code.replace(/[%"<>`#\n\r\t]/g, (c) => encodeURIComponent(c))}`;
+  const date = updated(`${OUT}/${file}`, url + '\n');
   writeFileSync(`${OUT}/${file}`, url + '\n');
   const name = file.replace(/\.js$/, '');
-  links.push({ name, url });
+  links.push({ name, url, date });
   console.log(`${name}: ${url.length} caractères`);
 }
 
@@ -44,7 +67,8 @@ writeFileSync(
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Bookmarklets RGAA</title>
 <style>body{font:16px/1.5 system-ui,sans-serif;max-width:40rem;margin:2rem auto;padding:0 1rem;color:#1a1a1a}
-ul:not(.demos) a{display:inline-block;padding:.4rem .8rem;margin:.25rem 0;border:2px solid #005a9c;border-radius:4px;color:#005a9c;font-weight:700;text-decoration:none}</style>
+ul:not(.demos) a{display:inline-block;padding:.4rem .8rem;margin:.25rem 0;border:2px solid #005a9c;border-radius:4px;color:#005a9c;font-weight:700;text-decoration:none}
+.maj{display:inline-block;margin-left:1rem;color:#595959;font-size:.875rem}</style>
 </head>
 <body>
 <h1>Bookmarklets RGAA</h1>
@@ -52,7 +76,7 @@ ul:not(.demos) a{display:inline-block;padding:.4rem .8rem;margin:.25rem 0;border
 <p>Pour le désactiver : cliquez une seconde fois sur le favori, appuyez sur Échap, ou fermez le panneau liste avec son bouton ✕. Les trois retirent les panneaux et les contours ajoutés à la page.</p>
 <p>Pour libérer de la place sans l’arrêter : le bouton « − » de l’en-tête du panneau liste le réduit à son titre, « + » le déplie. Le détail au survol et les raccourcis continuent de fonctionner.</p>
 <ul>
-${links.map((l) => `<li><a href="${esc(l.url)}">${esc(label(l.name))}</a></li>`).join('\n')}
+${links.map((l) => `<li><a href="${esc(l.url)}">${esc(label(l.name))}</a>${l.date ? ` <span class="maj">Mis à jour le <time datetime="${l.date}">${longDate(l.date)}</time></span>` : ''}</li>`).join('\n')}
 </ul>
 <h2>Pages de démo</h2>
 <p>Pour essayer chaque bookmarklet sur des cas conformes et non conformes :</p>
